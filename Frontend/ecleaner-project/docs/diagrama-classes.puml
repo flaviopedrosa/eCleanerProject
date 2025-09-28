@@ -1,0 +1,191 @@
+@startuml
+
+' Enums
+enum StatusColaborador {
+  EM_ANALISE
+  APROVADO
+  EM_EXPERIENCIA
+  ATIVO
+  INATIVO
+  FERIAS
+  LICENCA
+  DESLIGADO
+  BLOQUEADO
+}
+
+enum TipoEmpresa {
+  LIMPEZA
+  CONSERVACAO
+  LIMPEZA_E_CONSERVACAO
+  AUTONOMO
+  OUTRO
+}
+
+enum FormaPagamento {
+  DINHEIRO
+  PIX
+  CARTAO_DEBITO
+  CARTAO_CREDITO
+  TRANSFERENCIA
+  BOLETO
+}
+
+' Classes base e value objects
+class Endereco {
+  + Rua: string
+  + Numero: string
+  + Complemento: string
+  + Bairro: string
+  + Cidade: string
+  + Estado: string
+  + CEP: string
+}
+
+class DadosBancarios {
+  + Banco: string
+  + Agencia: string
+  + Conta: string
+  + TipoConta: string
+  + TitularConta: string
+  + CpfCnpjTitular: string
+}
+
+' Classes principais
+class Pessoa {
+  + Id: string
+  + Nome: string
+  + Sobrenome: string
+  + Email: string
+  + Telefone: string
+  + Celular: string
+  + Enderecos: Endereco[]
+  + validarEmail(email: string): boolean
+  + adicionarEndereco(endereco: Endereco): void
+  + removerEndereco(indice: number): void
+}
+
+class Cliente {
+  + Observacoes: string
+}
+
+class Colaborador {
+  + DocumentoIdentidade: string
+  + DataNascimento: Date
+  + Nacionalidade: string
+  + FotoPerfil: string
+  + Curriculo: string
+  + SalarioEsperado: number
+  + Disponibilidade: string
+  + RegioesAtuacao: string[]
+  + Observacoes: string
+  + ExperienciasProfissionais: ExperienciaProfissional[]
+  + Referencias: Referencia[]
+  + DocumentosAdicionais: DocumentoAdicional[]
+  + Status: StatusColaborador
+  + DataInicioVinculo: Date
+  + DataFimVinculo: Date
+  + Idade: number
+  + TempoTotalExperiencia: number
+  + definirEnderecoResidencial(endereco: Endereco): void
+  + definirFotoPerfil(url: string): void
+  + definirCurriculo(url: string): void
+  + adicionarExperienciaProfissional(exp: ExperienciaProfissional): void
+  + adicionarReferencia(ref: Referencia): void
+  + adicionarDocumento(doc: DocumentoAdicional): void
+  + atualizarStatus(status: StatusColaborador): void
+  + registrarInicioVinculo(data: Date): void
+  + registrarFimVinculo(data: Date): void
+}
+
+class Imovel {
+  + Id: string
+  + TotalComodos: number
+  + NumeroQuartos: number
+  + NumeroBanheiros: number
+  + AreaTotal: number
+  + Dono: Pessoa
+  + Endereco: Endereco
+  + Responsaveis: Pessoa[]
+  + Observacao: string
+  + OutrosComodos: number
+  + adicionarResponsavel(responsavel: Pessoa): void
+  + removerResponsavel(responsavel: Pessoa): void
+}
+
+class ExperienciaProfissional {
+  + Id: string
+  + Empresa: string
+  + Cargo: string
+  + DataInicio: Date
+  + DataFim: Date
+  + Atividades: string
+  + DuracaoMeses: number
+}
+
+class Referencia {
+  + Id: string
+  + Nome: string
+  + Empresa: string
+  + Cargo: string
+  + Email: string
+  + Telefone: string
+}
+
+class DocumentoAdicional {
+  + Id: string
+  + Tipo: string
+  + Descricao: string
+  + Url: string
+}
+
+class Schedule {
+  + Id: string
+  + Responsavel: Pessoa
+  + NomeEmpresa: string
+  + Logotipo: string
+  + TipoEmpresa: TipoEmpresa
+  + DocumentoEmpresa: string
+  + TelefoneComercial: string
+  + EmailComercial: string
+  + EnderecoEmpresa: Endereco
+  + RegioesAtendidas: string[]
+  + Clientes: Cliente[]
+  + Imoveis: Imovel[]
+  + Colaboradores: Colaborador[]
+  + PoliticaCancelamento: string
+  + FormasPagamentoAceitas: FormaPagamento[]
+  + DadosBancarios: DadosBancarios
+  + Observacoes: string
+  + QuantidadeFuncionarios: number
+  + definirLogotipo(url: string): void
+  + definirEnderecoEmpresa(endereco: Endereco): void
+  + adicionarRegiaoAtendida(regiao: string): void
+  + removerRegiaoAtendida(regiao: string): void
+  + adicionarCliente(cliente: Cliente): void
+  + removerCliente(clienteId: string): void
+  + adicionarImovel(imovel: Imovel): void
+  + removerImovel(imovelId: string): void
+  + adicionarColaborador(colaborador: Colaborador): void
+  + removerColaborador(colaboradorId: string): void
+  + definirPoliticaCancelamento(politica: string): void
+  + adicionarFormaPagamento(forma: FormaPagamento): void
+  + removerFormaPagamento(forma: FormaPagamento): void
+  + definirDadosBancarios(dados: DadosBancarios): void
+}
+
+' Relacionamentos
+Pessoa <|-- Cliente
+Pessoa <|-- Colaborador
+Schedule "1" *-- "*" Cliente
+Schedule "1" *-- "*" Imovel
+Schedule "1" *-- "*" Colaborador
+Schedule "1" *-- "1" DadosBancarios
+Colaborador "1" *-- "*" ExperienciaProfissional
+Colaborador "1" *-- "*" Referencia
+Colaborador "1" *-- "*" DocumentoAdicional
+Imovel "1" *-- "1" Endereco
+Imovel "1" -- "1" Pessoa : dono
+Imovel "1" -- "*" Pessoa : responsaveis
+Pessoa "1" -- "*" Endereco
+
+@enduml

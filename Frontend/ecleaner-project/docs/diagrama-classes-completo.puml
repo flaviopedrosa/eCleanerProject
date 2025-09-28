@@ -1,0 +1,257 @@
+@startuml
+
+' Enums
+enum StatusColaborador {
+  EM_ANALISE
+  APROVADO
+  EM_EXPERIENCIA
+  ATIVO
+  INATIVO
+  FERIAS
+  LICENCA
+  DESLIGADO
+  BLOQUEADO
+}
+
+enum TipoEmpresa {
+  LIMPEZA
+  CONSERVACAO
+  LIMPEZA_E_CONSERVACAO
+  AUTONOMO
+  OUTRO
+}
+
+enum FormaPagamento {
+  DINHEIRO
+  PIX
+  CARTAO_DEBITO
+  CARTAO_CREDITO
+  TRANSFERENCIA
+  BOLETO
+}
+
+enum PreferenciaContato {
+  EMAIL
+  TELEFONE
+  WHATSAPP
+  SMS
+}
+
+enum StatusOrcamento {
+  RASCUNHO
+  ENVIADO
+  APROVADO
+  REPROVADO
+  CANCELADO
+  EM_EXECUCAO
+  CONCLUIDO
+}
+
+' Value Objects
+class DadosBancarios {
+  + Banco: string
+  + Agencia: string
+  + Conta: string
+  + TipoConta: string
+  + TitularConta: string
+  + CpfCnpjTitular: string
+}
+
+class Endereco {
+  + Rua: string
+  + Numero: string
+  + Complemento: string
+  + Bairro: string
+  + Cidade: string
+  + Estado: string
+  + CEP: string
+}
+
+' Entidades Base
+class Pessoa {
+  + Id: string
+  + Nome: string
+  + Sobrenome: string
+  + Email: string
+  + Telefone: string
+  + Celular: string
+  + Enderecos: Endereco[]
+  + validarEmail(email: string): boolean
+  + adicionarEndereco(endereco: Endereco): void
+  + removerEndereco(indice: number): void
+}
+
+' Entidades de Negócio
+class Cliente {
+  + Observacoes: string
+}
+
+class Colaborador {
+  + DocumentoIdentidade: string
+  + DataNascimento: Date
+  + Nacionalidade: string
+  + FotoPerfil: string
+  + Curriculo: string
+  + SalarioEsperado: number
+  + Disponibilidade: string
+  + RegioesAtuacao: string[]
+  + Observacoes: string
+  + ExperienciasProfissionais: ExperienciaProfissional[]
+  + Referencias: Referencia[]
+  + DocumentosAdicionais: DocumentoAdicional[]
+  + Status: StatusColaborador
+  + DataInicioVinculo: Date
+  + DataFimVinculo: Date
+}
+
+class Imovel {
+  + Id: string
+  + TotalComodos: number
+  + NumeroQuartos: number
+  + NumeroBanheiros: number
+  + AreaTotal: number
+  + Dono: Pessoa
+  + Endereco: Endereco
+  + Responsaveis: Pessoa[]
+  + Observacao: string
+}
+
+class Material {
+  + Id: string
+  + Nome: string
+  + Descricao: string
+  + PrecoUnitario: number
+  + UnidadeMedida: string
+  + EstoqueMinimo: number
+  + EstoqueAtual: number
+}
+
+class ItemMaterial {
+  + Id: string
+  + Material: Material
+  + Quantidade: number
+  + PrecoUnitario: number
+  + Subtotal: number
+}
+
+class Servico {
+  + Id: string
+  + Nome: string
+  + Descricao: string
+  + PrecoBase: number
+  + DuracaoEstimada: number
+  + Materiais: ItemMaterial[]
+}
+
+class ItemServico {
+  + Id: string
+  + Servico: Servico
+  + Quantidade: number
+  + PrecoUnitario: number
+  + Subtotal: number
+}
+
+class PacoteServico {
+  + Id: string
+  + Nome: string
+  + Descricao: string
+  + Servicos: ItemServico[]
+  + PrecoTotal: number
+  + Desconto: number
+}
+
+class Orcamento {
+  + Id: string
+  + Cliente: Cliente
+  + Imovel: Imovel
+  + DataCriacao: Date
+  + DataValidade: Date
+  + Servicos: ItemServico[]
+  + Materiais: ItemMaterial[]
+  + PrecoTotal: number
+  + Status: StatusOrcamento
+  + Observacoes: string
+}
+
+class Pagamento {
+  + Id: string
+  + Orcamento: Orcamento
+  + DataPagamento: Date
+  + Valor: number
+  + FormaPagamento: FormaPagamento
+  + Status: string
+  + Comprovante: string
+}
+
+class Schedule {
+  + Id: string
+  + Responsavel: Pessoa
+  + NomeEmpresa: string
+  + Logotipo: string
+  + TipoEmpresa: TipoEmpresa
+  + DocumentoEmpresa: string
+  + TelefoneComercial: string
+  + EmailComercial: string
+  + EnderecoEmpresa: Endereco
+  + RegioesAtendidas: string[]
+  + Clientes: Cliente[]
+  + Imoveis: Imovel[]
+  + Colaboradores: Colaborador[]
+  + PoliticaCancelamento: string
+  + FormasPagamentoAceitas: FormaPagamento[]
+  + DadosBancarios: DadosBancarios
+  + Observacoes: string
+}
+
+' Classes de Suporte para Colaborador
+class ExperienciaProfissional {
+  + Id: string
+  + Empresa: string
+  + Cargo: string
+  + DataInicio: Date
+  + DataFim: Date
+  + Atividades: string
+  + DuracaoMeses: number
+}
+
+class Referencia {
+  + Id: string
+  + Nome: string
+  + Empresa: string
+  + Cargo: string
+  + Email: string
+  + Telefone: string
+}
+
+class DocumentoAdicional {
+  + Id: string
+  + Tipo: string
+  + Descricao: string
+  + Url: string
+}
+
+' Relacionamentos
+Pessoa <|-- Cliente
+Pessoa <|-- Colaborador
+Schedule "1" *-- "*" Cliente
+Schedule "1" *-- "*" Imovel
+Schedule "1" *-- "*" Colaborador
+Schedule "1" *-- "1" DadosBancarios
+Colaborador "1" *-- "*" ExperienciaProfissional
+Colaborador "1" *-- "*" Referencia
+Colaborador "1" *-- "*" DocumentoAdicional
+Imovel "1" *-- "1" Endereco
+Imovel "1" -- "1" Pessoa : dono
+Imovel "1" -- "*" Pessoa : responsaveis
+Pessoa "1" -- "*" Endereco
+Orcamento "1" -- "1" Cliente
+Orcamento "1" -- "1" Imovel
+Orcamento "1" *-- "*" ItemServico
+Orcamento "1" *-- "*" ItemMaterial
+PacoteServico "1" *-- "*" ItemServico
+ItemServico "1" -- "1" Servico
+ItemMaterial "1" -- "1" Material
+Servico "1" *-- "*" ItemMaterial
+Pagamento "1" -- "1" Orcamento
+
+@enduml
