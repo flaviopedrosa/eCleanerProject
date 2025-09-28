@@ -3,6 +3,9 @@ export default {
     equipeForm: {
       titleNew: 'Nova Equipe',
       titleEdit: 'Editar Equipe',
+      sections: {
+        membros: 'Membros da Equipe',
+      },
       fields: {
         descricao: 'Descrição da Equipe',
         lider: 'Líder da Equipe',
@@ -11,12 +14,17 @@ export default {
       buttons: {
         save: 'Salvar',
         cancel: 'Cancelar',
+        addMembro: 'Adicionar Membro',
       },
       messages: {
         saveSuccess: 'Equipe salva com sucesso!',
         saveError: 'Erro ao salvar equipe.',
         loadError: 'Erro ao carregar equipe.',
         loadColaboradoresError: 'Erro ao carregar colaboradores.',
+        noMembers: 'Nenhum membro adicionado',
+        addFirstMember: 'Clique em "Adicionar Membro" para começar',
+        noValidMembers:
+          'É necessário adicionar pelo menos um membro válido com colaborador e função definidos.',
       },
     },
     equipeList: {
@@ -190,10 +198,23 @@ export default {
       INATIVO: 'Inativo',
       EM_ANALISE: 'Em Análise',
       EM_EXPERIENCIA: 'Em Experiência',
-      EFETIVADO: 'Efetivado',
-      SUSPENSO: 'Suspenso',
       DESLIGADO: 'Desligado',
-      BLOQUEADO: 'Bloqueado',
+    },
+    funcaoColaborador: {
+      LIDER: 'Líder',
+      EXECUTOR: 'Executor',
+      MOTORISTA: 'Motorista',
+    },
+  },
+  components: {
+    colaboradorEquipeCard: {
+      firstMember: 'Primeiro Membro',
+      memberNumber: 'Membro {number}',
+      remove: 'Remover membro',
+      fields: {
+        colaborador: 'Colaborador',
+        funcao: 'Função',
+      },
     },
   },
   forms: {
@@ -328,6 +349,7 @@ export default {
           delete: 'Excluir',
           cancel: 'Cancelar',
           confirm: 'Confirmar',
+          loadTestData: 'Carregar Dados de Teste',
         },
         filters: {
           search: 'Buscar colaborador...',
@@ -361,6 +383,10 @@ export default {
           loadError: 'Erro ao carregar colaboradores.',
           deleteSuccess: 'Colaborador excluído com sucesso!',
           deleteError: 'Erro ao excluir colaborador.',
+          loadingTestData: 'Carregar dados de teste',
+          loadingTestDataDesc:
+            'Isso irá substituir todos os dados existentes por dados de exemplo. Deseja continuar?',
+          testDataLoaded: 'Dados de teste carregados com sucesso!',
         },
       },
       sections: {

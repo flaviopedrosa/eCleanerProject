@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <div class="row q-mb-lg">
-      <div class="text-h5 text-secondary">{{ isEdit ? editTitle : $t('forms.colaborador.title') }}</div>
+      <div class="text-h5 text-secondary q-mb-md">{{ isEdit ? editTitle : $t('forms.colaborador.title') }}</div>
     </div>
 
     <q-form @submit="onSubmit" class="q-gutter-md">

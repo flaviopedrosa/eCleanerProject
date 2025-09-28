@@ -1,10 +1,22 @@
 import { Colaborador } from '../../domain/entities/colaborador'
+import { Endereco } from '../../domain/entities/endereco'
+import { ExperienciaProfissional, Referencia } from '../../domain/entities/documentosColaborador'
 
-class ColaboradorRepository {
+export class ColaboradorRepository {
   constructor() {
     // Inicializa o array de colaboradores no localStorage se não existir
     if (!localStorage.getItem('colaboradores')) {
       localStorage.setItem('colaboradores', JSON.stringify([]))
+    }
+  }
+
+  // Limpa todos os dados do repositório
+  async clear() {
+    try {
+      localStorage.setItem('colaboradores', JSON.stringify([]))
+    } catch (error) {
+      console.error('Erro ao limpar colaboradores:', error)
+      throw new Error('Erro ao limpar colaboradores')
     }
   }
 
@@ -42,12 +54,54 @@ class ColaboradorRepository {
     colaborador.Id = data.id
     if (fotoPerfil) colaborador.definirFotoPerfil(fotoPerfil)
     if (curriculo) colaborador.definirCurriculo(curriculo)
-    if (data.endereco) colaborador.definirEnderecoResidencial(data.endereco)
+
+    // Reconstrói o endereço se existir
+    if (data.endereco) {
+      const endereco = new Endereco(
+        data.endereco.CEP || data.endereco.cep,
+        data.endereco.Logradouro || data.endereco.logradouro,
+        data.endereco.Numero || data.endereco.numero,
+        data.endereco.Complemento || data.endereco.complemento,
+        data.endereco.Bairro || data.endereco.bairro,
+        data.endereco.Cidade || data.endereco.cidade,
+        data.endereco.Estado || data.endereco.estado,
+      )
+      colaborador.definirEnderecoResidencial(endereco)
+    }
+
     if (data.experiencias) {
-      data.experiencias.forEach((exp) => colaborador.adicionarExperienciaProfissional(exp))
+      data.experiencias.forEach((exp) => {
+        const experiencia = new ExperienciaProfissional(
+          exp.Empresa || exp.empresa,
+          exp.Cargo || exp.cargo,
+          exp.DataInicio
+            ? new Date(exp.DataInicio)
+            : exp.dataInicio
+              ? new Date(exp.dataInicio)
+              : null,
+          exp.DataFim ? new Date(exp.DataFim) : exp.dataFim ? new Date(exp.dataFim) : null,
+          exp.Atividades || exp.atividades || '',
+        )
+        colaborador.adicionarExperienciaProfissional(experiencia)
+      })
     }
     if (data.referencias) {
-      data.referencias.forEach((ref) => colaborador.adicionarReferencia(ref))
+      data.referencias.forEach((ref) => {
+        const referencia = new Referencia(
+          ref.Nome || ref.nome,
+          ref.Telefone || ref.telefone,
+          ref.Relacao ||
+            ref.relacao ||
+            `${ref.Cargo || ref.cargo} na ${ref.Empresa || ref.empresa}`,
+          ref.Observacoes || ref.observacoes || `Contato: ${ref.Email || ref.email || 'N/A'}`,
+        )
+        colaborador.adicionarReferencia(referencia)
+      })
+    }
+
+    // Define o status se existir
+    if (data.status) {
+      colaborador.atualizarStatus(data.status)
     }
     if (data.status) colaborador.Status = data.status
 
@@ -74,9 +128,30 @@ class ColaboradorRepository {
       disponibilidade: colaborador.Disponibilidade,
       regioesAtuacao: colaborador.RegioesAtuacao,
       observacoes: colaborador.Observacoes,
-      experiencias: colaborador.ExperienciasProfissionais,
-      referencias: colaborador.Referencias,
-      endereco: colaborador.Enderecos?.[0],
+      experiencias: colaborador.ExperienciasProfissionais.map((exp) => ({
+        empresa: exp.Empresa,
+        cargo: exp.Cargo,
+        dataInicio: exp.DataInicio,
+        dataFim: exp.DataFim,
+        atividades: exp.Atividades,
+      })),
+      referencias: colaborador.Referencias.map((ref) => ({
+        nome: ref.Nome,
+        telefone: ref.Telefone,
+        relacao: ref.Relacao,
+        observacoes: ref.Observacoes,
+      })),
+      endereco: colaborador.Enderecos?.[0]
+        ? {
+            cep: colaborador.Enderecos[0].CEP,
+            logradouro: colaborador.Enderecos[0].Logradouro,
+            numero: colaborador.Enderecos[0].Numero,
+            complemento: colaborador.Enderecos[0].Complemento,
+            bairro: colaborador.Enderecos[0].Bairro,
+            cidade: colaborador.Enderecos[0].Cidade,
+            estado: colaborador.Enderecos[0].Estado,
+          }
+        : null,
       status: colaborador.Status,
     }
   }

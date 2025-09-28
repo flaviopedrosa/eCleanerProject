@@ -3,6 +3,9 @@
     equipeForm: {
       titleNew: 'New Team',
       titleEdit: 'Edit Team',
+      sections: {
+        membros: 'Team Members',
+      },
       fields: {
         descricao: 'Team Description',
         lider: 'Team Leader',
@@ -11,12 +14,16 @@
       buttons: {
         save: 'Save',
         cancel: 'Cancel',
+        addMembro: 'Add Member',
       },
       messages: {
         saveSuccess: 'Team saved successfully!',
         saveError: 'Error saving team.',
         loadError: 'Error loading team.',
         loadColaboradoresError: 'Error loading employees.',
+        noMembers: 'No members added',
+        addFirstMember: 'Click "Add Member" to get started',
+        noValidMembers: 'You need to add at least one valid member with employee and role defined.',
       },
     },
     equipeList: {
@@ -159,10 +166,23 @@
       INATIVO: 'Inactive',
       EM_ANALISE: 'In Analysis',
       EM_EXPERIENCIA: 'In Trial Period',
-      EFETIVADO: 'Hired',
-      SUSPENSO: 'Suspended',
       DESLIGADO: 'Terminated',
-      BLOQUEADO: 'Blocked',
+    },
+    funcaoColaborador: {
+      LIDER: 'Leader',
+      EXECUTOR: 'Executor',
+      MOTORISTA: 'Driver',
+    },
+  },
+  components: {
+    colaboradorEquipeCard: {
+      firstMember: 'First Member',
+      memberNumber: 'Member {number}',
+      remove: 'Remove member',
+      fields: {
+        colaborador: 'Employee',
+        funcao: 'Role',
+      },
     },
   },
   menu: {
@@ -328,6 +348,7 @@
           delete: 'Delete',
           cancel: 'Cancel',
           confirm: 'Confirm',
+          loadTestData: 'Load Test Data',
         },
         filters: {
           search: 'Search employee...',
@@ -361,6 +382,10 @@
           loadError: 'Error loading employees.',
           deleteSuccess: 'Employee deleted successfully!',
           deleteError: 'Error deleting employee.',
+          loadingTestData: 'Load test data',
+          loadingTestDataDesc:
+            'This will replace all existing data with sample data. Do you want to continue?',
+          testDataLoaded: 'Test data loaded successfully!',
         },
       },
       sections: {

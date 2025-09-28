@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <div class="row items-center q-mb-md">
-      <div class="text-h5 text-secondary">{{ $t('pages.clientList.title') }}</div>
+      <div class="text-h5 text-secondary q-mb-md">{{ $t('pages.clientList.title') }}</div>
       <q-space />
       <q-btn color="secondary" :label="$t('pages.clientList.buttons.loadTestData')" icon="dataset" class="q-mr-sm"
         @click="loadTestData" />

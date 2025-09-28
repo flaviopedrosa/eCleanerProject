@@ -1,84 +1,53 @@
 <template>
-    <q-page padding>
-        <!-- Cabeçalho -->
+  <q-page padding>
+    <!-- Cabeçalho -->
+    <div class="row items-center q-mb-md">
+      <div class="col-12">
+        <div class="text-h5 text-secondary q-mb-md">{{ isEdit ? $t('pages.equipeForm.titleEdit') :
+          $t('pages.equipeForm.titleNew') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulário -->
+    <q-form @submit="onSubmit" class="q-gutter-md">
+      <!-- Descrição da Equipe -->
+      <q-input v-model="form.descricao" :label="$t('pages.equipeForm.fields.descricao')"
+        :rules="[val => !!val || $t('validations.required')]" outlined />
+
+      <!-- Seção de Membros da Equipe -->
+      <div class="q-mt-lg">
         <div class="row items-center q-mb-md">
-            <div class="col-12">
-                <div class="text-h6">{{ isEdit ? $t('pages.equipeForm.titleEdit') : $t('pages.equipeForm.titleNew') }}
-                </div>
-            </div>
+          <div class="col">
+            <div class="text-h6 text-primary">{{ $t('pages.equipeForm.sections.membros') }}</div>
+          </div>
+          <div class="col-auto">
+            <q-btn color="primary" icon="add" :label="$t('pages.equipeForm.buttons.addMembro')" @click="adicionarMembro"
+              outline />
+          </div>
         </div>
 
-        <!-- Formulário -->
-        <q-form @submit="onSubmit" class="q-gutter-md">
-            <!-- Descrição da Equipe -->
-            <q-input v-model="form.descricao" :label="$t('pages.equipeForm.fields.descricao')"
-                :rules="[val => !!val || $t('validations.required')]" outlined />
+        <!-- Cards de Colaboradores -->
+        <div v-for="(colaboradorEquipe, index) in form.colaboradoresEquipe" :key="`colaborador-${index}`">
+          <ColaboradorEquipeCard v-model="form.colaboradoresEquipe[index]" :index="index" :colaboradores="colaboradores"
+            :colaboradores-ja-selecionados="colaboradoresJaSelecionados" @remove="removerMembro(index)" />
+        </div>
 
-            <!-- Seleção de Líder -->
-            <q-select v-model="form.lider" :options="colaboradoresDisponiveis"
-                :label="$t('pages.equipeForm.fields.lider')" :rules="[val => !!val || $t('validations.required')]"
-                option-label="nome" emit-value map-options outlined>
-                <template v-slot:option="{ opt }">
-                    <q-item v-bind="opt.props">
-                        <q-item-section avatar>
-                            <q-avatar color="primary" text-color="white">
-                                {{ opt.nome[0] }}{{ opt.sobrenome[0] }}
-                            </q-avatar>
-                        </q-item-section>
-                        <q-item-section>
-                            <q-item-label>{{ opt.nome }} {{ opt.sobrenome }}</q-item-label>
-                            <q-item-label caption>{{ opt.email }}</q-item-label>
-                        </q-item-section>
-                    </q-item>
-                </template>
+        <!-- Mensagem quando não há membros -->
+        <div v-if="form.colaboradoresEquipe.length === 0" class="text-center q-pa-md text-grey-6">
+          <q-icon name="group" size="3rem" class="q-mb-md" />
+          <div class="text-body1">{{ $t('pages.equipeForm.messages.noMembers') }}</div>
+          <div class="text-caption">{{ $t('pages.equipeForm.messages.addFirstMember') }}</div>
+        </div>
+      </div>
 
-                <template v-slot:selected>
-                    <template v-if="form.lider">
-                        <q-avatar color="primary" text-color="white" class="q-mr-sm">
-                            {{ form.lider.nome[0] }}{{ form.lider.sobrenome[0] }}
-                        </q-avatar>
-                        {{ form.lider.nome }} {{ form.lider.sobrenome }}
-                    </template>
-                </template>
-            </q-select>
-
-            <!-- Seleção de Membros -->
-            <q-select v-model="form.membros" :options="colaboradoresDisponiveis"
-                :label="$t('pages.equipeForm.fields.membros')"
-                :rules="[val => val.length > 0 || $t('validations.required')]" option-label="nome" multiple emit-value
-                map-options use-chips outlined>
-                <template v-slot:option="{ opt }">
-                    <q-item v-bind="opt.props">
-                        <q-item-section avatar>
-                            <q-avatar color="primary" text-color="white">
-                                {{ opt.nome[0] }}{{ opt.sobrenome[0] }}
-                            </q-avatar>
-                        </q-item-section>
-                        <q-item-section>
-                            <q-item-label>{{ opt.nome }} {{ opt.sobrenome }}</q-item-label>
-                            <q-item-label caption>{{ opt.email }}</q-item-label>
-                        </q-item-section>
-                    </q-item>
-                </template>
-
-                <template v-slot:selected-item="{ opt }">
-                    <q-chip dense square class="q-ma-xs" color="primary" text-color="white" removable
-                        @remove="removeColaborador(opt)">
-                        <q-avatar color="white" text-color="primary">
-                            {{ opt.nome[0] }}{{ opt.sobrenome[0] }}
-                        </q-avatar>
-                        {{ opt.nome }} {{ opt.sobrenome }}
-                    </q-chip>
-                </template>
-            </q-select>
-
-            <!-- Botões -->
-            <div class="row justify-end q-gutter-sm">
-                <q-btn :label="$t('pages.equipeForm.buttons.cancel')" color="negative" flat :to="'/equipes'" />
-                <q-btn :label="$t('pages.equipeForm.buttons.save')" color="primary" type="submit" />
-            </div>
-        </q-form>
-    </q-page>
+      <!-- Botões -->
+      <div class="row justify-end q-gutter-sm">
+        <q-btn :label="$t('pages.equipeForm.buttons.cancel')" color="negative" flat :to="'/equipes'" />
+        <q-btn :label="$t('pages.equipeForm.buttons.save')" color="primary" type="submit" />
+      </div>
+    </q-form>
+  </q-page>
 </template>
 
 <script>
@@ -89,142 +58,144 @@ import { useQuasar } from 'quasar'
 import equipeRepository from '@/core/infrastructure/repositories/equipeRepository'
 import colaboradorRepository from '@/core/infrastructure/repositories/colaboradorRepository'
 import { Equipe } from '@/core/domain/entities/equipe'
-import { ColaboradorEquipe } from '@/core/domain/value-objects/colaboradorEquipe'
-import { FuncaoColaborador } from '@/core/domain/enums/funcaoColaborador'
+import ColaboradorEquipeCard from '@/components/ColaboradorEquipeCard.vue'
 
 export default defineComponent({
-    name: 'EquipeCadastroPage',
+  name: 'EquipeCadastroPage',
 
-    setup() {
-        const router = useRouter()
-        const route = useRoute()
-        const { t } = useI18n()
-        const $q = useQuasar()
+  components: {
+    ColaboradorEquipeCard
+  },
 
-        // Estado
-        const form = ref({
-            descricao: '',
-            lider: null,
-            membros: []
+  setup() {
+    const router = useRouter()
+    const route = useRoute()
+    const { t } = useI18n()
+    const $q = useQuasar()
+
+    // Estado
+    const form = ref({
+      descricao: '',
+      colaboradoresEquipe: []
+    })
+
+    const colaboradores = ref([])
+    const isEdit = computed(() => !!route.params.id)
+
+    // Lista de colaboradores já selecionados (para evitar duplicatas)
+    const colaboradoresJaSelecionados = computed(() => {
+      return form.value.colaboradoresEquipe
+        .filter(ce => ce && ce.Colaborador)
+        .map(ce => ce.Colaborador.Id)
+    })
+
+    // Carrega os colaboradores
+    const loadColaboradores = async () => {
+      try {
+        colaboradores.value = await colaboradorRepository.getAll()
+      } catch (error) {
+        console.error('Erro ao carregar colaboradores:', error)
+        $q.notify({
+          type: 'negative',
+          message: t('pages.equipeForm.messages.loadColaboradoresError')
         })
-
-        const colaboradores = ref([])
-        const isEdit = computed(() => !!route.params.id)
-
-        // Lista de colaboradores disponíveis para seleção
-        const colaboradoresDisponiveis = computed(() => {
-            return colaboradores.value.map(c => ({
-                id: c.Id,
-                nome: c.Nome,
-                sobrenome: c.Sobrenome,
-                email: c.Email
-            }))
-        })
-
-        // Carrega os colaboradores
-        const loadColaboradores = async () => {
-            try {
-                colaboradores.value = await colaboradorRepository.getAll()
-            } catch (error) {
-                console.error('Erro ao carregar colaboradores:', error)
-                $q.notify({
-                    type: 'negative',
-                    message: t('pages.equipeForm.messages.loadColaboradoresError')
-                })
-            }
-        }
-
-        // Carrega os dados da equipe para edição
-        const loadEquipe = async (id) => {
-            try {
-                const equipe = await equipeRepository.getById(id)
-                if (equipe) {
-                    const lider = equipe.Colaboradores.find(c => c.Funcao === FuncaoColaborador.LIDER)
-                    const membros = equipe.Colaboradores.filter(c => c.Funcao !== FuncaoColaborador.LIDER)
-
-                    form.value = {
-                        descricao: equipe.Descricao,
-                        lider: lider ? {
-                            id: lider.Colaborador.Id,
-                            nome: lider.Colaborador.Nome,
-                            sobrenome: lider.Colaborador.Sobrenome,
-                            email: lider.Colaborador.Email
-                        } : null,
-                        membros: membros.map(m => ({
-                            id: m.Colaborador.Id,
-                            nome: m.Colaborador.Nome,
-                            sobrenome: m.Colaborador.Sobrenome,
-                            email: m.Colaborador.Email
-                        }))
-                    }
-                }
-            } catch (error) {
-                console.error('Erro ao carregar equipe:', error)
-                $q.notify({
-                    type: 'negative',
-                    message: t('pages.equipeForm.messages.loadError')
-                })
-                router.push('/equipes')
-            }
-        }
-
-        // Remove um colaborador da lista de membros
-        const removeColaborador = (colaborador) => {
-            form.value.membros = form.value.membros.filter(m => m.id !== colaborador.id)
-        }
-
-        // Salva a equipe
-        const onSubmit = async () => {
-            try {
-                const equipe = new Equipe()
-                if (isEdit.value) {
-                    equipe.Id = route.params.id
-                }
-                equipe.Descricao = form.value.descricao
-
-                // Adiciona o líder
-                if (form.value.lider) {
-                    const liderOriginal = colaboradores.value.find(c => c.Id === form.value.lider.id)
-                    equipe.adicionarColaborador(new ColaboradorEquipe(liderOriginal, FuncaoColaborador.LIDER))
-                }
-
-                // Adiciona os membros
-                form.value.membros.forEach(membro => {
-                    const colaborador = colaboradores.value.find(c => c.Id === membro.id)
-                    equipe.adicionarColaborador(new ColaboradorEquipe(colaborador, FuncaoColaborador.EXECUTOR))
-                })
-
-                await equipeRepository.save(equipe)
-
-                $q.notify({
-                    type: 'positive',
-                    message: t('pages.equipeForm.messages.saveSuccess')
-                })
-
-                router.push('/equipes')
-            } catch (error) {
-                console.error('Erro ao salvar equipe:', error)
-                $q.notify({
-                    type: 'negative',
-                    message: t('pages.equipeForm.messages.saveError')
-                })
-            }
-        }
-
-        onMounted(async () => {
-            await loadColaboradores()
-            if (isEdit.value) {
-                await loadEquipe(route.params.id)
-            }
-        })
-
-        return {
-            form,
-            colaboradoresDisponiveis,
-            removeColaborador,
-            onSubmit,
-            isEdit
-        }
+      }
     }
+
+    // Carrega os dados da equipe para edição
+    const loadEquipe = async (id) => {
+      try {
+        const equipe = await equipeRepository.getById(id)
+        if (equipe) {
+          form.value = {
+            descricao: equipe.Descricao,
+            colaboradoresEquipe: [...equipe.Colaboradores]
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar equipe:', error)
+        $q.notify({
+          type: 'negative',
+          message: t('pages.equipeForm.messages.loadError')
+        })
+        router.push('/equipes')
+      }
+    }
+
+    // Adiciona um novo membro à equipe
+    const adicionarMembro = () => {
+      form.value.colaboradoresEquipe.push(null)
+    }
+
+    // Remove um membro da equipe
+    const removerMembro = (index) => {
+      if (index > 0) { // Não permite remover o primeiro membro
+        form.value.colaboradoresEquipe.splice(index, 1)
+      }
+    }
+
+    // Salva a equipe
+    const onSubmit = async () => {
+      try {
+        // Valida se há pelo menos um membro válido
+        const membrosValidos = form.value.colaboradoresEquipe.filter(ce => ce && ce.Colaborador && ce.Funcao)
+
+        if (membrosValidos.length === 0) {
+          $q.notify({
+            type: 'negative',
+            message: t('pages.equipeForm.messages.noValidMembers')
+          })
+          return
+        }
+
+        const equipe = new Equipe()
+        if (isEdit.value) {
+          equipe.Id = route.params.id
+        }
+        equipe.Descricao = form.value.descricao
+
+        // Adiciona os membros válidos
+        membrosValidos.forEach(colaboradorEquipe => {
+          equipe.adicionarColaborador(colaboradorEquipe)
+        })
+
+        await equipeRepository.save(equipe)
+
+        $q.notify({
+          type: 'positive',
+          message: t('pages.equipeForm.messages.saveSuccess')
+        })
+
+        router.push('/equipes')
+      } catch (error) {
+        console.error('Erro ao salvar equipe:', error)
+        $q.notify({
+          type: 'negative',
+          message: t('pages.equipeForm.messages.saveError')
+        })
+      }
+    }
+
+    // Inicialização
+    onMounted(async () => {
+      await loadColaboradores()
+      if (isEdit.value) {
+        await loadEquipe(route.params.id)
+      } else {
+        // Adiciona o primeiro membro automaticamente
+        adicionarMembro()
+      }
+    })
+
+    return {
+      form,
+      colaboradores,
+      colaboradoresJaSelecionados,
+      adicionarMembro,
+      removerMembro,
+      onSubmit,
+      isEdit
+    }
+  }
 })
 </script>

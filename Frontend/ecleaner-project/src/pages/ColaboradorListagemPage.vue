@@ -4,8 +4,29 @@
     <div class="row q-mb-md items-center">
       <div class="text-h5 text-secondary">{{ $t('forms.colaborador.list.title') }}</div>
       <q-space />
+      <q-btn color="secondary" :label="$t('forms.colaborador.list.buttons.loadTestData')" icon="dataset" class="q-mr-sm"
+        @click="loadTestData" />
       <q-btn color="primary" :label="$t('forms.colaborador.list.buttons.new')" icon="add" to="/colaboradores/novo" />
     </div>
+
+    <!-- Feedback de carregamento de dados de teste -->
+    <q-dialog v-model="testDataDialog">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">{{ $t('forms.colaborador.list.messages.loadingTestData') }}</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          {{ $t('forms.colaborador.list.messages.loadingTestDataDesc') }}
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat :label="$t('forms.colaborador.list.buttons.cancel')" color="primary" v-close-popup />
+          <q-btn flat :label="$t('forms.colaborador.list.buttons.confirm')" color="negative"
+            @click="confirmLoadTestData" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <!-- Card Principal -->
     <q-card>
@@ -179,10 +200,12 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import { StatusColaborador } from '../core/domain/enums/statusColaborador.js'
+import { seedColaboradores } from '../core/infrastructure/repositories/seeds/colaboradorSeed.js'
+import colaboradorRepository from '../core/infrastructure/repositories/colaboradorRepository.js'
 
 export default defineComponent({
   name: 'ColaboradorListagemPage',
@@ -198,6 +221,49 @@ export default defineComponent({
     const loading = ref(false)
     const deleteDialog = ref(false)
     const selectedColaborador = ref(null)
+    const testDataDialog = ref(false)
+    const colaboradores = ref([])
+
+    // Funções para carregar dados de teste
+    const loadTestData = () => {
+      testDataDialog.value = true
+    }
+
+    const confirmLoadTestData = async () => {
+      try {
+        loading.value = true
+        await seedColaboradores()
+        await loadColaboradores()
+        $q.notify({
+          color: 'positive',
+          message: t('forms.colaborador.list.messages.testDataLoaded')
+        })
+      } catch (error) {
+        console.error('Erro ao carregar dados de teste:', error)
+        $q.notify({
+          color: 'negative',
+          message: t('forms.colaborador.list.messages.loadError')
+        })
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // Carrega os colaboradores do repositório
+    const loadColaboradores = async () => {
+      try {
+        loading.value = true
+        colaboradores.value = await colaboradorRepository.getAll()
+      } catch (error) {
+        console.error('Erro ao carregar colaboradores:', error)
+        $q.notify({
+          color: 'negative',
+          message: t('forms.colaborador.list.messages.loadError')
+        })
+      } finally {
+        loading.value = false
+      }
+    }
 
     // Definição das colunas como uma ref computada para atualizar quando o idioma mudar
     const columns = computed(() => [
@@ -259,34 +325,6 @@ export default defineComponent({
       rowsPerPage: 10,
       rowsNumber: 0
     })
-
-    // Mock data - Dados de exemplo para teste
-    const colaboradores = ref([
-      {
-        Id: '1',
-        Nome: 'João',
-        Sobrenome: 'Silva',
-        Email: 'joao.silva@example.com',
-        Status: StatusColaborador.EM_ANALISE,
-        Disponibilidade: 'Integral',
-        RegioesAtuacao: ['São Paulo - Zona Sul', 'São Paulo - Zona Oeste'],
-        Idade: 28,
-        TempoTotalExperiencia: 36,
-        DataInicioVinculo: new Date('2023-01-15')
-      },
-      {
-        Id: '2',
-        Nome: 'Maria',
-        Sobrenome: 'Santos',
-        Email: 'maria.santos@example.com',
-        Status: StatusColaborador.EFETIVADO,
-        Disponibilidade: 'Meio Período',
-        RegioesAtuacao: ['São Paulo - Zona Leste'],
-        Idade: 35,
-        TempoTotalExperiencia: 60,
-        DataInicioVinculo: new Date('2022-06-01')
-      }
-    ])
 
     // Opções de status para filtro
     const statusOptions = computed(() => Object.keys(StatusColaborador).map(value => ({
@@ -401,6 +439,11 @@ export default defineComponent({
       }
     }
 
+    // Carrega dados iniciais
+    onMounted(() => {
+      loadColaboradores()
+    })
+
     return {
       filter,
       statusFilter,
@@ -408,6 +451,7 @@ export default defineComponent({
       loading,
       deleteDialog,
       selectedColaborador,
+      testDataDialog,
       colaboradores,
       statusOptions,
       sortOptions,
@@ -418,7 +462,9 @@ export default defineComponent({
       confirmDelete,
       deleteColaborador,
       pagination,
-      getInitials
+      getInitials,
+      loadTestData,
+      confirmLoadTestData
     }
   }
 })

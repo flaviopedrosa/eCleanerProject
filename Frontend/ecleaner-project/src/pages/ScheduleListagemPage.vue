@@ -3,180 +3,141 @@
     <!-- Cabeçalho -->
     <div class="row items-center q-mb-md">
       <div class="col-6">
-        <div class="text-h6">{{ $t('pages.scheduleList.title') }}</div>
+        <div class="text-h6 text-secondary q-mb-md">{{ $t('pages.scheduleList.title') }}</div>
       </div>
       <div class="col-6 text-right">
-        <q-btn
-          :label="$t('pages.scheduleList.buttons.newSchedule')"
-          color="primary"
-          icon="add"
-          to="/schedules/novo"
-          class="q-mr-sm"
-        />
-        <q-btn
-          :label="$t('pages.scheduleList.buttons.loadTestData')"
-          color="secondary"
-          icon="storage"
-          @click="loadTestData"
-        />
+        <q-btn :label="$t('pages.scheduleList.buttons.newSchedule')" color="primary" icon="add" to="/schedules/novo"
+          class="q-mr-sm" />
+        <q-btn :label="$t('pages.scheduleList.buttons.loadTestData')" color="secondary" icon="storage"
+          @click="loadTestData" />
       </div>
     </div>
 
     <!-- Desktop: Tabela -->
     <div class="gt-sm">
-      <q-table
-        :rows="schedules"
-        :columns="columns"
-        :rows-per-page-options="[10, 20, 50]"
-        :filter="filter"
-        row-key="Id"
-        :loading="loading"
-        flat
-        bordered
-        :pagination="pagination"
-        @update:pagination="pagination = $event"
-      >
+      <q-table :rows="schedules" :columns="columns" :rows-per-page-options="[10, 20, 50]" :filter="filter" row-key="Id"
+        :loading="loading" flat bordered :pagination="pagination" @update:pagination="pagination = $event">
         <!-- Barra de Busca -->
         <template v-slot:top>
           <div class="row full-width">
             <div class="col-12 col-md-4">
-              <q-input
-                v-model="filter"
-                :placeholder="$t('pages.scheduleList.filters.search')"
-                dense
-                outlined
-                clearable
-              >
+              <q-input v-model="filter" :placeholder="$t('pages.scheduleList.filters.search')" dense outlined clearable>
                 <template v-slot:prepend>
                   <q-icon name="search" />
                 </template>
-</q-input>
-</div>
-</div>
-</template>
+              </q-input>
+            </div>
+          </div>
+        </template>
 
-<!-- Coluna de Responsável -->
-<template v-slot:body-cell-responsavel="props">
+        <!-- Coluna de Responsável -->
+        <template v-slot:body-cell-responsavel="props">
           <q-td :props="props">
             {{ props.row.Responsavel.Nome }} {{ props.row.Responsavel.Sobrenome }}
           </q-td>
         </template>
 
-<!-- Coluna Tipo Empresa -->
-<template v-slot:body-cell-tipoEmpresa="props">
+        <!-- Coluna Tipo Empresa -->
+        <template v-slot:body-cell-tipoEmpresa="props">
           <q-td :props="props">
             {{ $t(`enums.tipoEmpresa.${props.value}`) }}
           </q-td>
         </template>
 
-<!-- Coluna Ações -->
-<template v-slot:body-cell-actions="props">
+        <!-- Coluna Ações -->
+        <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-btn
-              flat
-              round
-              dense
-              color="primary"
-              icon="edit"
-              :to="'/schedules/' + props.row.Id"
-              :title="$t('pages.scheduleList.buttons.edit')"
-            />
-            <q-btn
-              flat
-              round
-              dense
-              color="negative"
-              icon="delete"
-              @click="confirmDelete(props.row)"
-              :title="$t('pages.scheduleList.buttons.delete')"
-            />
+            <q-btn flat round dense color="primary" icon="edit" :to="'/schedules/' + props.row.Id"
+              :title="$t('pages.scheduleList.buttons.edit')" />
+            <q-btn flat round dense color="negative" icon="delete" @click="confirmDelete(props.row)"
+              :title="$t('pages.scheduleList.buttons.delete')" />
           </q-td>
         </template>
-</q-table>
-</div>
+      </q-table>
+    </div>
 
-<!-- Mobile: Lista de Cards -->
-<div class="lt-md">
-  <q-input v-model="filter" :placeholder="$t('pages.scheduleList.filters.search')" dense outlined clearable
-    :loading="loading" class="q-mb-md">
-    <template v-slot:prepend>
+    <!-- Mobile: Lista de Cards -->
+    <div class="lt-md">
+      <q-input v-model="filter" :placeholder="$t('pages.scheduleList.filters.search')" dense outlined clearable
+        :loading="loading" class="q-mb-md">
+        <template v-slot:prepend>
           <q-icon name="search" />
         </template>
-  </q-input>
+      </q-input>
 
-  <div class="row q-col-gutter-md">
-    <div v-for="schedule in filteredSchedules" :key="schedule.Id" class="col-12">
-      <q-card>
-        <q-card-section>
-          <div class="row items-start">
-            <div class="col-auto">
-              <q-avatar size="56px">
-                <img :src="schedule.Logomarca?.url" v-if="schedule.Logomarca">
-                <q-icon name="image" size="40px" v-else />
-              </q-avatar>
-            </div>
-
-            <div class="col q-ml-md">
-              <div class="text-h6">{{ schedule.NomeEmpresa }}</div>
-              <div class="text-subtitle2">{{ schedule.Responsavel.Nome }} {{ schedule.Responsavel.Sobrenome }}</div>
-
-              <div class="q-mt-sm">
-                <q-chip size="sm" color="primary" text-color="white">
-                  {{ $t(`enums.tipoEmpresa.${schedule.TipoEmpresa}`) }}
-                </q-chip>
-              </div>
-
-              <div class="row q-gutter-y-sm q-mt-sm">
-                <!-- Email -->
-                <div class="col-12 row items-center">
-                  <q-icon name="email" size="sm" color="grey-7" class="q-mr-sm" />
-                  {{ schedule.EmailComercial }}
+      <div class="row q-col-gutter-md">
+        <div v-for="schedule in filteredSchedules" :key="schedule.Id" class="col-12">
+          <q-card>
+            <q-card-section>
+              <div class="row items-start">
+                <div class="col-auto">
+                  <q-avatar size="56px">
+                    <img :src="schedule.Logomarca?.url" v-if="schedule.Logomarca">
+                    <q-icon name="image" size="40px" v-else />
+                  </q-avatar>
                 </div>
 
-                <!-- Telefone -->
-                <div class="col-12 row items-center">
-                  <q-icon name="phone" size="sm" color="grey-7" class="q-mr-sm" />
-                  {{ schedule.TelefoneComercial }}
+                <div class="col q-ml-md">
+                  <div class="text-h6">{{ schedule.NomeEmpresa }}</div>
+                  <div class="text-subtitle2">{{ schedule.Responsavel.Nome }} {{ schedule.Responsavel.Sobrenome }}</div>
+
+                  <div class="q-mt-sm">
+                    <q-chip size="sm" color="primary" text-color="white">
+                      {{ $t(`enums.tipoEmpresa.${schedule.TipoEmpresa}`) }}
+                    </q-chip>
+                  </div>
+
+                  <div class="row q-gutter-y-sm q-mt-sm">
+                    <!-- Email -->
+                    <div class="col-12 row items-center">
+                      <q-icon name="email" size="sm" color="grey-7" class="q-mr-sm" />
+                      {{ schedule.EmailComercial }}
+                    </div>
+
+                    <!-- Telefone -->
+                    <div class="col-12 row items-center">
+                      <q-icon name="phone" size="sm" color="grey-7" class="q-mr-sm" />
+                      {{ schedule.TelefoneComercial }}
+                    </div>
+
+                    <!-- Documento -->
+                    <div class="col-12 row items-center">
+                      <q-icon name="badge" size="sm" color="grey-7" class="q-mr-sm" />
+                      {{ schedule.DocumentoEmpresa }}
+                    </div>
+                  </div>
                 </div>
 
-                <!-- Documento -->
-                <div class="col-12 row items-center">
-                  <q-icon name="badge" size="sm" color="grey-7" class="q-mr-sm" />
-                  {{ schedule.DocumentoEmpresa }}
+                <div class="col-auto">
+                  <div class="row q-gutter-sm">
+                    <q-btn flat round color="primary" icon="edit" :to="'/schedules/' + schedule.Id"
+                      :title="$t('pages.scheduleList.buttons.edit')" />
+                    <q-btn flat round color="negative" icon="delete" @click="confirmDelete(schedule)"
+                      :title="$t('pages.scheduleList.buttons.delete')" />
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div class="col-auto">
-              <div class="row q-gutter-sm">
-                <q-btn flat round color="primary" icon="edit" :to="'/schedules/' + schedule.Id"
-                  :title="$t('pages.scheduleList.buttons.edit')" />
-                <q-btn flat round color="negative" icon="delete" @click="confirmDelete(schedule)"
-                  :title="$t('pages.scheduleList.buttons.delete')" />
-              </div>
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<!-- Diálogo de Confirmação de Exclusão -->
-<q-dialog v-model="deleteDialog" persistent>
-  <q-card>
-    <q-card-section class="row items-center">
-      <q-avatar icon="warning" color="warning" text-color="white" />
-      <span class="q-ml-sm">{{ $t('pages.scheduleList.dialogs.delete.message') }}</span>
-    </q-card-section>
+    <!-- Diálogo de Confirmação de Exclusão -->
+    <q-dialog v-model="deleteDialog" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="warning" color="warning" text-color="white" />
+          <span class="q-ml-sm">{{ $t('pages.scheduleList.dialogs.delete.message') }}</span>
+        </q-card-section>
 
-    <q-card-actions align="right">
-      <q-btn flat :label="$t('common.cancel')" color="primary" v-close-popup />
-      <q-btn flat :label="$t('common.confirm')" color="negative" @click="deleteSchedule" v-close-popup />
-    </q-card-actions>
-  </q-card>
-</q-dialog>
-</q-page>
+        <q-card-actions align="right">
+          <q-btn flat :label="$t('common.cancel')" color="primary" v-close-popup />
+          <q-btn flat :label="$t('common.confirm')" color="negative" @click="deleteSchedule" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </q-page>
 </template>
 
 <script>
