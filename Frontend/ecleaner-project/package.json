@@ -12,6 +12,7 @@
     "test": "vitest run",
     "dev": "quasar dev",
     "build": "quasar build",
+    "build:obfuscated": "quasar build --mode production",
     "postinstall": "quasar prepare"
   },
   "dependencies": {

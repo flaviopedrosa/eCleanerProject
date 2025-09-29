@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "terser": "^5.44.0",
+    "vite-plugin-javascript-obfuscator": "^3.1.0"
+  }
+}

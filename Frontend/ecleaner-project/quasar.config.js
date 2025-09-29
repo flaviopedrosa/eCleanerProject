@@ -3,6 +3,7 @@
 
 import { defineConfig } from '#q-app/wrappers'
 import { fileURLToPath } from 'node:url'
+import JavaScriptObfuscator from 'vite-plugin-javascript-obfuscator'
 
 export default defineConfig((ctx) => {
   return {
@@ -55,6 +56,34 @@ export default defineConfig((ctx) => {
       // distDir
 
       // extendViteConf (viteConf) {},
+      // Configuração personalizada do Vite para obfuscação
+      extendViteConf(viteConf) {
+        if (ctx.prod) {
+          // Configurações adicionais para produção
+          viteConf.build = {
+            ...viteConf.build,
+            minify: 'terser',
+            terserOptions: {
+              compress: {
+                drop_console: true,
+                drop_debugger: true,
+                pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+              },
+              mangle: {
+                safari10: true,
+              },
+              format: {
+                comments: false,
+              },
+            },
+            rollupOptions: {
+              output: {
+                manualChunks: undefined,
+              },
+            },
+          }
+        }
+      },
       // viteVuePluginOptions: {},
 
       alias: {
@@ -89,6 +118,52 @@ export default defineConfig((ctx) => {
           },
           { server: false },
         ],
+
+        // Obfuscação apenas para builds de produção
+        ...(ctx.prod
+          ? [
+              [
+                JavaScriptObfuscator,
+                {
+                  options: {
+                    // Configurações de obfuscação
+                    compact: true,
+                    controlFlowFlattening: true,
+                    controlFlowFlatteningThreshold: 0.75,
+                    deadCodeInjection: true,
+                    deadCodeInjectionThreshold: 0.4,
+                    debugProtection: true,
+                    debugProtectionInterval: 4000,
+                    disableConsoleOutput: true,
+                    identifierNamesGenerator: 'hexadecimal',
+                    log: false,
+                    numbersToExpressions: true,
+                    renameGlobals: false,
+                    rotateStringArray: true,
+                    selfDefending: true,
+                    shuffleStringArray: true,
+                    simplify: true,
+                    splitStrings: true,
+                    splitStringsChunkLength: 10,
+                    stringArray: true,
+                    stringArrayCallsTransform: true,
+                    stringArrayCallsTransformThreshold: 0.75,
+                    stringArrayEncoding: ['base64'],
+                    stringArrayIndexShift: true,
+                    stringArrayRotate: true,
+                    stringArrayShuffle: true,
+                    stringArrayWrappersCount: 2,
+                    stringArrayWrappersChainedCalls: true,
+                    stringArrayWrappersParametersMaxCount: 4,
+                    stringArrayWrappersType: 'function',
+                    stringArrayThreshold: 0.75,
+                    transformObjectKeys: true,
+                    unicodeEscapeSequence: false,
+                  },
+                },
+              ],
+            ]
+          : []),
       ],
     },
 
