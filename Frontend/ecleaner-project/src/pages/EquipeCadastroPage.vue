@@ -41,6 +41,36 @@
         </div>
       </div>
 
+      <!-- Campo de Observações com Editor de Texto Rico -->
+      <div class="q-mt-lg">
+        <label class="text-subtitle2 text-grey-8 q-mb-sm">{{ $t('pages.equipeForm.fields.observacoes') }}</label>
+        <q-editor v-model="form.observacoes" :toolbar="[
+          ['left', 'center', 'right', 'justify'],
+          ['bold', 'italic', 'underline', 'strike'],
+          ['undo', 'redo'],
+          [
+            {
+              label: 'Formato',
+              icon: 'format_size',
+              list: 'no-icons',
+              options: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'code']
+            }
+          ],
+          ['quote', 'unordered', 'ordered', 'outdent', 'indent'],
+          ['link', 'removeFormat'],
+          ['fullscreen']
+        ]" :fonts="{
+            arial: 'Arial',
+            arial_black: 'Arial Black',
+            comic_sans: 'Comic Sans MS',
+            courier_new: 'Courier New',
+            impact: 'Impact',
+            lucida_grande: 'Lucida Grande',
+            times_new_roman: 'Times New Roman',
+            verdana: 'Verdana'
+          }" class="q-mt-sm" min-height="200px" :placeholder="$t('pages.equipeForm.placeholders.observacoes')" />
+      </div>
+
       <!-- Botões -->
       <div class="row justify-end q-gutter-sm">
         <q-btn :label="$t('pages.equipeForm.buttons.cancel')" color="negative" flat :to="'/equipes'" />
@@ -76,6 +106,7 @@ export default defineComponent({
     // Estado
     const form = ref({
       descricao: '',
+      observacoes: '',
       colaboradoresEquipe: []
     })
 
@@ -109,6 +140,7 @@ export default defineComponent({
         if (equipe) {
           form.value = {
             descricao: equipe.Descricao,
+            observacoes: equipe.Observacoes || '',
             colaboradoresEquipe: [...equipe.Colaboradores]
           }
         }
@@ -153,6 +185,7 @@ export default defineComponent({
           equipe.Id = route.params.id
         }
         equipe.Descricao = form.value.descricao
+        equipe.Observacoes = form.value.observacoes
 
         // Adiciona os membros válidos
         membrosValidos.forEach(colaboradorEquipe => {

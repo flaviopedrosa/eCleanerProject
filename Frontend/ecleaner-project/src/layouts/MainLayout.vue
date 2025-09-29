@@ -200,16 +200,21 @@
 <script>
 import { defineComponent, ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
+import { useAuthStore } from '@/stores/auth-store'
 
 export default defineComponent({
   name: 'MainLayout',
 
   setup() {
     const leftDrawerOpen = ref(false)
-    const { locale } = useI18n()
+    const { locale, t } = useI18n()
     const currentLanguage = ref(locale.value)
     const route = useRoute()
+    const router = useRouter()
+    const $q = useQuasar()
+    const authStore = useAuthStore()
 
     // Computed properties para controlar estados ativos do menu
     const isInTeamsRoute = computed(() => route.path.startsWith('/equipes'))
@@ -239,8 +244,26 @@ export default defineComponent({
     }
 
     const logout = () => {
-      // TODO: Implementar lógica de logout
-      console.log('Logout')
+      // Confirmar logout
+      $q.dialog({
+        title: t('layout.logout.confirmTitle'),
+        message: t('layout.logout.confirmMessage'),
+        cancel: true,
+        persistent: true
+      }).onOk(() => {
+        // Fazer logout
+        authStore.logout()
+
+        // Mostrar notificação
+        $q.notify({
+          type: 'positive',
+          message: t('layout.logout.success'),
+          position: 'top'
+        })
+
+        // Redirecionar para login
+        router.push('/login')
+      })
     }
 
     return {

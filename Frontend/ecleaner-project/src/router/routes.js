@@ -1,7 +1,17 @@
 const routes = [
+  // Rota de login (sem layout principal)
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('pages/LoginPage.vue'),
+    meta: { requiresGuest: true }, // Apenas para usuários não autenticados
+  },
+
+  // Rotas protegidas (requerem autenticação)
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
       { path: 'clientes/novo', component: () => import('pages/ClienteCadastroPage.vue') },

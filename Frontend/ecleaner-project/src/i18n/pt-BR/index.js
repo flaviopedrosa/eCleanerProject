@@ -8,8 +8,13 @@ export default {
       },
       fields: {
         descricao: 'Descrição da Equipe',
+        observacoes: 'Observações e Notas',
         lider: 'Líder da Equipe',
         membros: 'Membros da Equipe',
+      },
+      placeholders: {
+        observacoes:
+          'Digite observações, instruções, objetivos ou qualquer informação adicional sobre esta equipe...',
       },
       buttons: {
         save: 'Salvar',
@@ -230,6 +235,27 @@ export default {
       add: 'Adicionar',
       remove: 'Remover',
     },
+    login: {
+      title: 'eCleanear',
+      subtitle: 'Sistema de Gerenciamento para Empresas de Limpeza',
+      formTitle: 'Entrar na sua conta',
+      fields: {
+        usuario: 'Usuário',
+        senha: 'Senha',
+      },
+      buttons: {
+        login: 'Entrar',
+      },
+      messages: {
+        loginSuccess: 'Login realizado com sucesso!',
+        loginError: 'Erro interno. Tente novamente.',
+        invalidCredentials: 'Usuário ou senha incorretos.',
+      },
+      testInfo: 'Ambiente de teste',
+      testCredentials: {
+        user: 'Usuário',
+      },
+    },
     schedule: {
       title: 'Cadastro de Agenda',
       sections: {
@@ -437,6 +463,13 @@ export default {
           email: 'E-mail',
         },
       },
+    },
+  },
+  layout: {
+    logout: {
+      confirmTitle: 'Sair do sistema',
+      confirmMessage: 'Tem certeza que deseja sair do sistema?',
+      success: 'Logout realizado com sucesso!',
     },
   },
 }

@@ -9,14 +9,16 @@ export class Equipe {
   /**
    * @param {string} descricao - A descrição/nome da equipe
    * @param {ColaboradorEquipe[]} colaboradores - Lista de colaboradores da equipe
+   * @param {string} observacoes - Observações ou notas sobre a equipe (HTML)
    */
-  constructor(descricao, colaboradores = []) {
+  constructor(descricao, colaboradores = [], observacoes = '') {
     if (!descricao) {
       throw new Error('Descrição da equipe é obrigatória')
     }
 
     this.Id = gerarGuid()
     this.Descricao = descricao
+    this.Observacoes = observacoes
     this.Colaboradores = colaboradores
 
     // Valida se há pelo menos um líder na equipe

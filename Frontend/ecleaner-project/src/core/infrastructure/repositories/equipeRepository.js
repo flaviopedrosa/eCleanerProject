@@ -41,7 +41,7 @@ class EquipeRepository {
     })
 
     // Cria uma nova instância de Equipe
-    const equipe = new Equipe(data.Descricao, colaboradores)
+    const equipe = new Equipe(data.Descricao, colaboradores, data.Observacoes || '')
 
     // Restaura o ID original da equipe
     equipe.Id = data.Id
@@ -56,6 +56,7 @@ class EquipeRepository {
     return {
       Id: equipe.Id,
       Descricao: equipe.Descricao,
+      Observacoes: equipe.Observacoes,
       Colaboradores: equipe.Colaboradores.map((col) => ({
         Funcao: col.Funcao,
         Colaborador: {

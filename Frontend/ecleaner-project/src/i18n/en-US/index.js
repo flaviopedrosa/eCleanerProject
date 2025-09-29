@@ -8,8 +8,13 @@
       },
       fields: {
         descricao: 'Team Description',
+        observacoes: 'Observations and Notes',
         lider: 'Team Leader',
         membros: 'Team Members',
+      },
+      placeholders: {
+        observacoes:
+          'Enter observations, instructions, objectives or any additional information about this team...',
       },
       buttons: {
         save: 'Save',
@@ -436,6 +441,34 @@
           email: 'Email',
         },
       },
+    },
+    login: {
+      title: 'eCleaner',
+      subtitle: 'Management System for Cleaning Companies',
+      formTitle: 'Sign in to your account',
+      fields: {
+        usuario: 'Username',
+        senha: 'Password',
+      },
+      buttons: {
+        login: 'Sign In',
+      },
+      messages: {
+        loginSuccess: 'Login successful!',
+        loginError: 'Internal error. Please try again.',
+        invalidCredentials: 'Invalid username or password.',
+      },
+      testInfo: 'Test environment',
+      testCredentials: {
+        user: 'Username',
+      },
+    },
+  },
+  layout: {
+    logout: {
+      confirmTitle: 'Sign out',
+      confirmMessage: 'Are you sure you want to sign out?',
+      success: 'Logout successful!',
     },
   },
 }
