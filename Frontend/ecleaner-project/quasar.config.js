@@ -28,7 +28,7 @@ export default defineConfig((ctx) => {
       // 'line-awesome',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
-      'roboto-font', // optional, you are not bound to it
+      // 'roboto-font', // removido para usar Montserrat via Google Fonts
       'material-icons', // optional, you are not bound to it
     ],
 
@@ -39,14 +39,14 @@ export default defineConfig((ctx) => {
         node: 'node20',
       },
 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      vueRouterMode: 'history', // 'history' mode para melhor SEO no Cloudflare
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-      // publicPath: '/',
+      publicPath: '/', // Caminho público para Cloudflare Pages
       // analyze: true,
       // env: {},
       // rawDefine: {}
@@ -56,29 +56,33 @@ export default defineConfig((ctx) => {
       // distDir
 
       // extendViteConf (viteConf) {},
-      // Configuração personalizada do Vite para obfuscação
+      // Configuração personalizada do Vite
       extendViteConf(viteConf) {
-        if (ctx.prod) {
-          // Configurações adicionais para produção
+        // Verificar se é build para debug
+        const isDebugBuild = process.env.BUILD_DEBUG === 'true'
+
+        if (ctx.prod && !isDebugBuild) {
+          // Configurações para produção normal e Cloudflare (com minificação)
           viteConf.build = {
             ...viteConf.build,
-            minify: 'terser',
+            minify: 'esbuild', // Usar padrão do Quasar
+            sourcemap: false,
+          }
+        } else if (ctx.prod && isDebugBuild) {
+          // Configurações para build de debug (sem minificação)
+          viteConf.build = {
+            ...viteConf.build,
+            minify: false,
+            sourcemap: true, // Source maps apenas para debug
             terserOptions: {
               compress: {
-                drop_console: true,
-                drop_debugger: true,
-                pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+                drop_console: false,
+                drop_debugger: false,
               },
-              mangle: {
-                safari10: true,
-              },
+              mangle: false,
               format: {
-                comments: false,
-              },
-            },
-            rollupOptions: {
-              output: {
-                manualChunks: undefined,
+                comments: true,
+                beautify: true,
               },
             },
           }
@@ -119,8 +123,8 @@ export default defineConfig((ctx) => {
           { server: false },
         ],
 
-        // Obfuscação apenas para builds de produção
-        ...(ctx.prod
+        // Obfuscação apenas para builds de produção (exceto debug)
+        ...(ctx.prod && process.env.BUILD_DEBUG !== 'true'
           ? [
               [
                 JavaScriptObfuscator,

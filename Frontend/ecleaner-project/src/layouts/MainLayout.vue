@@ -140,8 +140,8 @@
               </q-item>
             </q-expansion-item>
 
-            <!-- Submenu Agendas -->
-            <q-expansion-item icon="event_available" :label="$t('menu.pessoas.submenus.schedules.title')"
+            <!-- Submenu Empresas -->
+            <q-expansion-item icon="business" :label="$t('menu.pessoas.submenus.schedules.title')"
               :header-class="isInScheduleRoute ? 'text-primary' : ''">
               <q-item clickable v-ripple to="/schedules/novo">
                 <q-item-section avatar>

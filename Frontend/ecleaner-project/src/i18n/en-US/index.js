@@ -1,4 +1,7 @@
 ﻿export default {
+  indexPage: {
+    overview: 'Home - System overview',
+  },
   pages: {
     equipeForm: {
       titleNew: 'New Team',
@@ -33,6 +36,7 @@
     },
     equipeList: {
       title: 'Teams',
+      subtitle: 'Manage work teams',
       buttons: {
         newEquipe: 'New Team',
         edit: 'Edit',
@@ -66,9 +70,10 @@
       },
     },
     scheduleList: {
-      title: 'Companies',
+      title: 'Schedules',
+      subtitle: 'Manage client schedules',
       buttons: {
-        newSchedule: 'New Company',
+        newSchedule: 'New Schedule',
         edit: 'Edit',
         delete: 'Delete',
         cancel: 'Cancel',
@@ -103,6 +108,7 @@
     },
     clientList: {
       title: 'Clients',
+      subtitle: 'Manage clients registered in the system',
       buttons: {
         newClient: 'New Client',
         edit: 'Edit',
@@ -150,6 +156,57 @@
         testDataLoaded: 'Test data loaded successfully!',
       },
     },
+    imovelList: {
+      title: 'Properties',
+      subtitle: 'Manage registered properties in the system',
+      buttons: {
+        newProperty: 'New Property',
+        edit: 'Edit',
+        delete: 'Delete',
+        cancel: 'Cancel',
+        confirm: 'Confirm',
+        loadTestData: 'Load Test Data',
+      },
+      filters: {
+        search: 'Search property...',
+        cidade: 'City',
+        areaRange: 'Area Range',
+        sort: 'Sort by',
+      },
+      areaRanges: {
+        small: 'Up to 50m²',
+        medium: '51-100m²',
+        large: '101-200m²',
+        extraLarge: 'Over 200m²',
+      },
+      sortOptions: {
+        endereco: 'Address',
+        area: 'Area (largest)',
+        comodos: 'Rooms (most)',
+        proprietario: 'Owner (A-Z)',
+      },
+      table: {
+        endereco: 'Address',
+        area: 'Area',
+        comodos: 'Rooms',
+        proprietario: 'Owner',
+        observacao: 'Notes',
+        actions: 'Actions',
+      },
+      deleteDialog: {
+        title: 'Delete Property',
+        message: 'Are you sure you want to delete the property {endereco}?',
+      },
+      messages: {
+        deleteSuccess: 'Property deleted successfully!',
+        deleteError: 'Error deleting property.',
+        loadingTestData: 'Load test data',
+        loadingTestDataDesc:
+          'This will replace all existing data with sample data. Do you want to continue?',
+        testDataLoaded: 'Test data loaded successfully!',
+        editNotImplemented: 'Edit functionality under development.',
+      },
+    },
   },
   validations: {
     required: 'Required field',
@@ -186,7 +243,7 @@
       remove: 'Remove member',
       fields: {
         colaborador: 'Employee',
-        funcao: 'Role',
+        funcoes: 'Roles',
       },
     },
   },
@@ -209,9 +266,9 @@
           list: 'List Employees',
         },
         schedules: {
-          title: 'Companies',
-          new: 'New Company',
-          list: 'List Companies',
+          title: 'Schedules',
+          new: 'New Schedule',
+          list: 'List Schedules',
         },
         teams: {
           title: 'Teams',
@@ -227,6 +284,9 @@
       email: 'Invalid email',
       maxFileSize: 'File must be less than {size}',
       invalidFileType: 'Invalid file type',
+      positiveNumber: 'Must be a positive number',
+      nonNegativeNumber: 'Must be a non-negative number',
+      cep: 'ZIP code must follow format 12345-678',
     },
     buttons: {
       save: 'Save',
@@ -315,7 +375,8 @@
       },
     },
     cliente: {
-      title: 'Client Registration',
+      title: 'New Client',
+      subtitle: 'Client registration and information management',
       sections: {
         personalData: 'Personal Information',
         addresses: 'Addresses',
@@ -343,10 +404,52 @@
         },
       },
     },
+    imovel: {
+      title: 'New Property',
+      subtitle: 'Property registration and information management',
+      sections: {
+        propertyData: 'Property Information',
+        owner: 'Owner',
+        address: 'Address',
+        observations: 'Notes',
+      },
+      fields: {
+        totalComodos: 'Total Rooms',
+        numeroQuartos: 'Number of Bedrooms',
+        numeroBanheiros: 'Number of Bathrooms',
+        areaTotal: 'Total Area',
+        dono: 'Owner',
+        observacao: 'Notes',
+      },
+      placeholders: {
+        observacao:
+          'Enter observations, special features, property conditions or any additional relevant information...',
+      },
+      validation: {
+        totalComodosInvalid: 'Total rooms must be greater than the sum of bedrooms and bathrooms',
+      },
+      messages: {
+        success: 'Property registered successfully!',
+        error: 'Error registering property.',
+      },
+    },
+    endereco: {
+      fields: {
+        logradouro: 'Street',
+        numero: 'Number',
+        complemento: 'Additional Info',
+        bairro: 'Neighborhood',
+        cidade: 'City',
+        estado: 'State',
+        cep: 'ZIP Code',
+        pais: 'Country',
+      },
+    },
     colaborador: {
       title: 'Employee Registration',
       list: {
         title: 'Employees',
+        subtitle: 'Manage company employees',
         buttons: {
           new: 'New Employee',
           edit: 'Edit',

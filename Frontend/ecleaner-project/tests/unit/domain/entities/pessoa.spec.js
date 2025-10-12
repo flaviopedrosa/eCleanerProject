@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import { Pessoa } from '../../../../src/core/domain/entities/pessoa'
-import { Endereco } from '../../../../src/core/domain/entities/endereco'
+import { Pessoa } from '@/core/domain/entities/pessoa'
+import { Endereco } from '@/core/domain/entities/endereco'
 
 describe('Pessoa', () => {
   const dadosExemplo = {

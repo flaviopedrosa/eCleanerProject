@@ -3,7 +3,7 @@ import { Colaborador } from '../../domain/entities/colaborador'
 import { ColaboradorEquipe } from '../../domain/value-objects/colaboradorEquipe'
 import { equipeSeeds } from './seeds/equipe'
 
-class EquipeRepository {
+export class EquipeRepository {
   constructor() {
     // Inicializa o array de equipes no localStorage se não existir
     if (!localStorage.getItem('equipes')) {
@@ -195,6 +195,3 @@ class EquipeRepository {
     }
   }
 }
-
-// Exporta uma única instância do repositório
-export default new EquipeRepository()

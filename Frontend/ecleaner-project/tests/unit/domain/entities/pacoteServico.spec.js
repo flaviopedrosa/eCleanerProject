@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { PacoteServico } from '../../../../src/core/domain/entities/pacoteServico'
-import { ItemMaterial } from '../../../../src/core/domain/entities/itemMaterial'
-import { ItemServico } from '../../../../src/core/domain/entities/itemServico'
-import { Material } from '../../../../src/core/domain/entities/material'
-import { Servico } from '../../../../src/core/domain/entities/servico'
+import { PacoteServico } from '@/core/domain/entities/pacoteServico'
+import { ItemMaterial } from '@/core/domain/entities/itemMaterial'
+import { ItemServico } from '@/core/domain/entities/itemServico'
+import { Material } from '@/core/domain/entities/material'
+import { Servico } from '@/core/domain/entities/servico'
 
 describe('PacoteServico', () => {
   // Dados de exemplo para os testes

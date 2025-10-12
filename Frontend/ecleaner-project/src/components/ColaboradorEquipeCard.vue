@@ -51,12 +51,14 @@
                     </q-select>
                 </div>
 
-                <!-- Seleção de Função -->
+                <!-- Seleção de Funções (múltiplas) -->
                 <div class="col-12 col-md-4">
-                    <div class="text-subtitle2 q-mb-sm">{{ $t('components.colaboradorEquipeCard.fields.funcao') }}</div>
-                    <q-option-group v-model="localColaboradorEquipe.Funcao" :options="funcoesDisponiveis"
-                        color="primary" type="radio" inline @update:model-value="onFuncaoChange" />
-                    <div v-if="!localColaboradorEquipe.Funcao" class="text-negative text-caption q-mt-xs">
+                    <div class="text-subtitle2 q-mb-sm">{{ $t('components.colaboradorEquipeCard.fields.funcoes') }}
+                    </div>
+                    <q-option-group v-model="localColaboradorEquipe.Funcoes" :options="funcoesDisponiveis"
+                        color="primary" type="checkbox" inline @update:model-value="onFuncaoChange" />
+                    <div v-if="!localColaboradorEquipe.Funcoes || localColaboradorEquipe.Funcoes.length === 0"
+                        class="text-negative text-caption q-mt-xs">
                         {{ $t('forms.validation.required') }}
                     </div>
                 </div>
@@ -101,7 +103,7 @@ export default defineComponent({
         // Estado local
         const localColaboradorEquipe = ref({
             Colaborador: props.modelValue?.Colaborador?.Id || null,
-            Funcao: props.modelValue?.Funcao || null
+            Funcoes: props.modelValue?.Funcoes || []
         })
 
         // Colaborador selecionado atualmente
@@ -141,10 +143,10 @@ export default defineComponent({
 
         // Emite as mudanças para o componente pai
         const emitChange = () => {
-            if (localColaboradorEquipe.value.Colaborador && localColaboradorEquipe.value.Funcao) {
+            if (localColaboradorEquipe.value.Colaborador && localColaboradorEquipe.value.Funcoes && localColaboradorEquipe.value.Funcoes.length > 0) {
                 const colaborador = props.colaboradores.find(c => c.Id === localColaboradorEquipe.value.Colaborador)
                 if (colaborador) {
-                    const colaboradorEquipe = new ColaboradorEquipe(colaborador, localColaboradorEquipe.value.Funcao)
+                    const colaboradorEquipe = new ColaboradorEquipe(colaborador, localColaboradorEquipe.value.Funcoes)
                     emit('update:modelValue', colaboradorEquipe)
                 }
             } else {
@@ -157,12 +159,12 @@ export default defineComponent({
             if (newValue) {
                 localColaboradorEquipe.value = {
                     Colaborador: newValue.Colaborador?.Id || null,
-                    Funcao: newValue.Funcao || null
+                    Funcoes: newValue.Funcoes || []
                 }
             } else {
                 localColaboradorEquipe.value = {
                     Colaborador: null,
-                    Funcao: null
+                    Funcoes: []
                 }
             }
         }, { immediate: true })
@@ -188,13 +190,13 @@ export default defineComponent({
     border-color: $primary
     transition: border-color 0.2s ease
 
-// Estilos para radio buttons de função
+// Estilos para checkboxes de função
 :deep(.q-option-group)
-  &.inline .q-radio
-    margin-right: 16px
-    margin-bottom: 0
+  &.inline .q-checkbox
+    margin-right: 12px
+    margin-bottom: 4px
 
-    .q-radio__label
+    .q-checkbox__label
       font-size: 14px
       color: $grey-8
 

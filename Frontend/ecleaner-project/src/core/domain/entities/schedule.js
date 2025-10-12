@@ -9,17 +9,17 @@ import { DadosBancarios } from '../value-objects/dadosBancarios'
 import { gerarGuid } from '../utils/guid'
 
 /**
- * Representa uma agenda/empresa no sistema
+ * Representa um Schedule no sistema
  */
 export class Schedule {
   /**
-   * @param {Pessoa} responsavel Pessoa responsável pela empresa
-   * @param {string} nomeEmpresa Nome da empresa
-   * @param {string} documentoEmpresa CNPJ ou CPF da empresa
+   * @param {Pessoa} responsavel Pessoa responsável pelo Schedule
+   * @param {string} nomeEmpresa Nome do Schedule
+   * @param {string} documentoEmpresa CNPJ ou CPF do Schedule
    * @param {string} telefoneComercial Telefone comercial
    * @param {string} emailComercial E-mail comercial
-   * @param {string} tipoEmpresa Tipo da empresa (usar TipoEmpresa enum)
-   * @param {Object} logomarca Logomarca da empresa
+   * @param {string} tipoEmpresa Tipo do Schedule (usar TipoEmpresa enum)
+   * @param {Object} logomarca Logomarca do Schedule
    * @param {string} logomarca.url URL da imagem
    * @param {string} logomarca.tipo Tipo do arquivo (png, jpg, jpeg, svg)
    * @param {number} logomarca.tamanho Tamanho do arquivo em bytes
@@ -38,11 +38,11 @@ export class Schedule {
     }
 
     if (!nomeEmpresa) {
-      throw new Error('Nome da empresa é obrigatório')
+      throw new Error('Nome do Schedule é obrigatório')
     }
 
     if (!documentoEmpresa) {
-      throw new Error('Documento da empresa é obrigatório')
+      throw new Error('Documento do Schedule é obrigatório')
     }
 
     if (!telefoneComercial) {
@@ -54,7 +54,7 @@ export class Schedule {
     }
 
     if (!Object.values(TipoEmpresa).includes(tipoEmpresa)) {
-      throw new Error('Tipo de empresa inválido')
+      throw new Error('Tipo de Schedule inválido')
     }
 
     this.Id = gerarGuid()
@@ -158,7 +158,7 @@ export class Schedule {
   }
 
   /**
-   * Adiciona um cliente à agenda
+   * Adiciona um cliente ao Schedule
    * @param {Cliente} cliente Cliente a ser adicionado
    */
   adicionarCliente(cliente) {
@@ -171,7 +171,7 @@ export class Schedule {
   }
 
   /**
-   * Remove um cliente da agenda
+   * Remove um cliente do Schedule
    * @param {string} clienteId ID do cliente a ser removido
    */
   removerCliente(clienteId) {
@@ -179,7 +179,7 @@ export class Schedule {
   }
 
   /**
-   * Adiciona um imóvel à agenda
+   * Adiciona um imóvel ao Schedule
    * @param {Imovel} imovel Imóvel a ser adicionado
    */
   adicionarImovel(imovel) {
@@ -192,7 +192,7 @@ export class Schedule {
   }
 
   /**
-   * Remove um imóvel da agenda
+   * Remove um imóvel do Schedule
    * @param {string} imovelId ID do imóvel a ser removido
    */
   removerImovel(imovelId) {
@@ -200,7 +200,7 @@ export class Schedule {
   }
 
   /**
-   * Adiciona um colaborador à agenda
+   * Adiciona um colaborador ao Schedule
    * @param {Colaborador} colaborador Colaborador a ser adicionado
    */
   adicionarColaborador(colaborador) {
@@ -213,7 +213,7 @@ export class Schedule {
   }
 
   /**
-   * Remove um colaborador da agenda
+   * Remove um colaborador do Schedule
    * @param {string} colaboradorId ID do colaborador a ser removido
    */
   removerColaborador(colaboradorId) {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { Material } from '../../../../src/core/domain/entities/material'
+import { Material } from '@/core/domain/entities/material'
 
 describe('Material', () => {
   // Imagem exemplo para testes (pixel 1x1 transparente em Base64)

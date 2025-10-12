@@ -175,6 +175,68 @@ export const MinhaEnum = {
 - Menu e navegação consistentes
 - Responsivo para mobile e desktop
 
+### 2.4 Padrão de Cabeçalho de Página
+
+Todas as páginas devem seguir este padrão consistente para o cabeçalho:
+
+```vue
+<template>
+  <q-page class="q-pa-lg">
+    <!-- Cabeçalho da Página -->
+    <div class="row items-center q-mb-xl">
+      <div class="col">
+        <div class="row items-center q-mb-sm">
+          <q-icon name="[icone-da-pagina]" size="2rem" class="text-secondary q-mr-md" />
+          <h4 class="text-h5 q-ma-none text-secondary">
+            {{ $t('[chave-traducao].title') }}
+          </h4>
+        </div>
+        <div class="accent-divider q-mb-md"></div>
+        <div class="row justify-end">
+          <p class="text-subtitle1 text-grey-7 q-ma-none">
+            {{ $t('[chave-traducao].subtitle') }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conteúdo da página -->
+  </q-page>
+</template>
+```
+
+**Componentes do padrão:**
+
+1. **Ícone + Título**: Alinhados à esquerda na primeira linha
+2. **Linha divisória**: 100% da largura usando `.accent-divider`
+3. **Subtítulo**: Alinhado à direita abaixo da linha divisória
+
+**Regras de implementação:**
+
+- Ícone: Usar ícones relacionados ao contexto da página
+- Título: Usar h4 com classe `text-h5` e cor `text-secondary`
+- Linha divisória: Usar `.accent-divider` (altura de 2px, cor accent)
+- Subtítulo: Texto smaller, cor `text-grey-7`, alinhado à direita
+- Internacionalização: Sempre usar `$t()` para títulos e subtítulos
+- Classes CSS: Manter consistência com `q-pa-lg`, `q-mb-xl`, etc.
+- CSS Global: A classe `.accent-divider` está definida em `/src/css/app.sass`
+
+**Exemplo de uso:**
+
+```vue
+<!-- Padrão para todas as páginas -->
+<q-icon name="home" size="2rem" class="text-secondary q-mr-md" />
+<h4 class="text-h5 q-ma-none text-secondary">
+  {{ $t('indexPage.title') }}
+</h4>
+<!-- ... -->
+<div class="accent-divider q-mb-md"></div>
+<!-- ... -->
+<p class="text-subtitle1 text-grey-7 q-ma-none">
+  {{ $t('indexPage.overview') }}
+</p>
+```
+
 ## 3. Internacionalização (i18n)
 
 ### 3.1 Estrutura de Traduções

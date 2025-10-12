@@ -1,15 +1,27 @@
 <template>
-  <q-page padding>
-    <!-- Cabeçalho -->
-    <div class="row items-center q-mb-md">
-      <div class="col-6">
-        <div class="text-h5 text-secondary q-mb-md">{{ $t('pages.equipeList.title') }}</div>
-      </div>
-      <div class="col-6 text-right">
-        <q-btn :label="$t('pages.equipeList.buttons.newEquipe')" color="primary" icon="add" to="/equipes/novo"
-          class="q-mr-sm" />
-        <q-btn :label="$t('pages.equipeList.buttons.loadTestData')" color="secondary" icon="storage"
-          @click="loadTestData" />
+  <q-page class="q-pa-lg">
+    <!-- Cabeçalho da Página -->
+    <div class="row items-center q-mb-xl">
+      <div class="col">
+        <div class="row items-center q-mb-sm">
+          <q-icon name="groups" size="2rem" class="text-secondary q-mr-md" />
+          <h4 class="text-h5 q-ma-none text-secondary">
+            {{ $t('pages.equipeList.title') }}
+          </h4>
+        </div>
+        <div class="accent-divider q-mb-md"></div>
+        <div class="row justify-between items-center">
+          <p class="text-subtitle1 text-grey-7 q-ma-none">
+            {{ $t('pages.equipeList.subtitle') }}
+          </p>
+          <div class="row q-gutter-sm">
+            <q-btn :label="$t('pages.equipeList.buttons.newEquipe')" color="primary" icon="add" to="/equipes/novo" />
+            <q-btn :label="$t('pages.equipeList.buttons.newColaborador')" color="accent" icon="person_add"
+              to="/colaboradores/novo" />
+            <q-btn :label="$t('pages.equipeList.buttons.loadTestData')" color="secondary" icon="storage"
+              @click="loadTestData" />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -128,7 +140,7 @@
 import { defineComponent, ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuasar } from 'quasar'
-import equipeRepository from '@/core/infrastructure/repositories/equipeRepository'
+import { EquipeRepository } from '@/core/infrastructure/repositories/equipeRepository'
 import { FuncaoColaborador } from '@/core/domain/enums/funcaoColaborador'
 
 export default defineComponent({
@@ -137,6 +149,9 @@ export default defineComponent({
   setup() {
     const { t } = useI18n()
     const $q = useQuasar()
+
+    // Repositório
+    const equipeRepository = new EquipeRepository()
 
     // Estado
     const loading = ref(false)

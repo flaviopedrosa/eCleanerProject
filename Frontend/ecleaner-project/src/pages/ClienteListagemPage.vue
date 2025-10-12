@@ -1,11 +1,26 @@
 <template>
-  <q-page padding>
-    <div class="row items-center q-mb-md">
-      <div class="text-h5 text-secondary q-mb-md">{{ $t('pages.clientList.title') }}</div>
-      <q-space />
-      <q-btn color="secondary" :label="$t('pages.clientList.buttons.loadTestData')" icon="dataset" class="q-mr-sm"
-        @click="loadTestData" />
-      <q-btn color="primary" :label="$t('pages.clientList.buttons.newClient')" icon="add" to="/clientes/novo" />
+  <q-page class="q-pa-lg">
+    <!-- Cabeçalho da Página -->
+    <div class="row items-center q-mb-xl">
+      <div class="col">
+        <div class="row items-center q-mb-sm">
+          <q-icon name="people" size="2rem" class="text-secondary q-mr-md" />
+          <h4 class="text-h5 q-ma-none text-secondary">
+            {{ $t('pages.clientList.title') }}
+          </h4>
+        </div>
+        <div class="accent-divider q-mb-md"></div>
+        <div class="row justify-between items-center">
+          <p class="text-subtitle1 text-grey-7 q-ma-none">
+            {{ $t('pages.clientList.subtitle') }}
+          </p>
+          <div class="row q-gutter-sm">
+            <q-btn color="secondary" :label="$t('pages.clientList.buttons.loadTestData')" icon="dataset"
+              @click="loadTestData" />
+            <q-btn color="primary" :label="$t('pages.clientList.buttons.newClient')" icon="add" to="/clientes/novo" />
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Filtros -->

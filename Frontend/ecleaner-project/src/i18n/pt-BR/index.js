@@ -1,4 +1,7 @@
 export default {
+  indexPage: {
+    overview: 'Início - Visão geral do sistema',
+  },
   pages: {
     equipeForm: {
       titleNew: 'Nova Equipe',
@@ -34,8 +37,10 @@ export default {
     },
     equipeList: {
       title: 'Equipes',
+      subtitle: 'Gerencie as equipes de trabalho',
       buttons: {
         newEquipe: 'Nova Equipe',
+        newColaborador: 'Novo Colaborador',
         edit: 'Editar',
         delete: 'Excluir',
         cancel: 'Cancelar',
@@ -67,9 +72,10 @@ export default {
       },
     },
     scheduleList: {
-      title: 'Empresas',
+      title: 'Schedules',
+      subtitle: 'Gerencie os schedules clientes',
       buttons: {
-        newSchedule: 'Nova Empresa',
+        newSchedule: 'Novo Schedule',
         edit: 'Editar',
         delete: 'Excluir',
         cancel: 'Cancelar',
@@ -77,33 +83,34 @@ export default {
         loadTestData: 'Carregar Dados de Teste',
       },
       filters: {
-        search: 'Buscar agenda...',
+        search: 'Buscar schedule...',
       },
       columns: {
         logomarca: 'Logomarca',
-        name: 'Nome da Empresa',
+        name: 'Nome do Schedule',
         responsavel: 'Responsável',
         telefone: 'Telefone',
         email: 'E-mail',
-        tipo: 'Tipo de Empresa',
+        tipo: 'Tipo de Schedule',
         documento: 'CNPJ/CPF',
         actions: 'Ações',
       },
       deleteDialog: {
-        message: 'Tem certeza que deseja excluir a agenda {name}?',
+        message: 'Tem certeza que deseja excluir o schedule {name}?',
       },
       messages: {
-        saveSuccess: 'Empresa salva com sucesso!',
-        saveError: 'Erro ao salvar empresa.',
-        loadError: 'Erro ao carregar empresas.',
-        deleteSuccess: 'Empresa excluída com sucesso!',
-        deleteError: 'Erro ao excluir empresa.',
+        saveSuccess: 'Schedule salvo com sucesso!',
+        saveError: 'Erro ao salvar schedule.',
+        loadError: 'Erro ao carregar schedules.',
+        deleteSuccess: 'Schedule excluído com sucesso!',
+        deleteError: 'Erro ao excluir schedule.',
         loadTestDataSuccess: 'Dados de teste carregados com sucesso!',
         loadTestDataError: 'Erro ao carregar dados de teste.',
       },
     },
     clientList: {
       title: 'Clientes',
+      subtitle: 'Gerencie os clientes cadastrados no sistema',
       buttons: {
         newClient: 'Novo Cliente',
         edit: 'Editar',
@@ -151,6 +158,57 @@ export default {
         testDataLoaded: 'Dados de teste carregados com sucesso!',
       },
     },
+    imovelList: {
+      title: 'Imóveis',
+      subtitle: 'Gerencie os imóveis cadastrados no sistema',
+      buttons: {
+        newProperty: 'Novo Imóvel',
+        edit: 'Editar',
+        delete: 'Excluir',
+        cancel: 'Cancelar',
+        confirm: 'Confirmar',
+        loadTestData: 'Carregar Dados de Teste',
+      },
+      filters: {
+        search: 'Buscar imóvel...',
+        cidade: 'Cidade',
+        areaRange: 'Faixa de Área',
+        sort: 'Ordenar por',
+      },
+      areaRanges: {
+        small: 'Até 50m²',
+        medium: '51-100m²',
+        large: '101-200m²',
+        extraLarge: 'Acima de 200m²',
+      },
+      sortOptions: {
+        endereco: 'Endereço',
+        area: 'Área (maior)',
+        comodos: 'Cômodos (mais)',
+        proprietario: 'Proprietário (A-Z)',
+      },
+      table: {
+        endereco: 'Endereço',
+        area: 'Área',
+        comodos: 'Cômodos',
+        proprietario: 'Proprietário',
+        observacao: 'Observações',
+        actions: 'Ações',
+      },
+      deleteDialog: {
+        title: 'Excluir Imóvel',
+        message: 'Tem certeza que deseja excluir o imóvel {endereco}?',
+      },
+      messages: {
+        deleteSuccess: 'Imóvel excluído com sucesso!',
+        deleteError: 'Erro ao excluir imóvel.',
+        loadingTestData: 'Carregar dados de teste',
+        loadingTestDataDesc:
+          'Isso irá substituir todos os dados existentes por dados de exemplo. Deseja continuar?',
+        testDataLoaded: 'Dados de teste carregados com sucesso!',
+        editNotImplemented: 'Funcionalidade de edição em desenvolvimento.',
+      },
+    },
   },
   menu: {
     home: 'Início',
@@ -171,9 +229,9 @@ export default {
           list: 'Listar Colaboradores',
         },
         schedules: {
-          title: 'Agendas',
-          new: 'Nova Agenda',
-          list: 'Listar Agendas',
+          title: 'Schedules',
+          new: 'Novo Schedule',
+          list: 'Listar Schedules',
         },
         teams: {
           title: 'Equipes',
@@ -218,7 +276,7 @@ export default {
       remove: 'Remover membro',
       fields: {
         colaborador: 'Colaborador',
-        funcao: 'Função',
+        funcoes: 'Funções',
       },
     },
   },
@@ -228,6 +286,9 @@ export default {
       email: 'E-mail inválido',
       maxFileSize: 'O arquivo deve ter no máximo {size}',
       invalidFileType: 'Tipo de arquivo inválido',
+      positiveNumber: 'Deve ser um número positivo',
+      nonNegativeNumber: 'Deve ser um número não negativo',
+      cep: 'CEP deve ter o formato 12345-678',
     },
     buttons: {
       save: 'Salvar',
@@ -257,19 +318,19 @@ export default {
       },
     },
     schedule: {
-      title: 'Cadastro de Agenda',
+      title: 'Cadastro de Schedule',
       sections: {
-        empresa: 'Dados da Empresa',
+        empresa: 'Dados do Schedule',
         responsavel: 'Dados do Responsável',
         enderecoComercial: 'Endereço Comercial',
         dadosBancarios: 'Dados Bancários',
       },
       fields: {
-        nomeEmpresa: 'Nome da Empresa',
+        nomeEmpresa: 'Nome do Schedule',
         documentoEmpresa: 'CNPJ/CPF',
         telefoneComercial: 'Telefone Comercial',
         emailComercial: 'E-mail Comercial',
-        tipoEmpresa: 'Tipo de Empresa',
+        tipoEmpresa: 'Tipo de Schedule',
         logomarca: 'Logomarca',
         responsavel: {
           nome: 'Nome',
@@ -296,11 +357,11 @@ export default {
         },
       },
       hints: {
-        nomeEmpresa: 'Digite o nome completo da empresa',
-        documentoEmpresa: 'Digite o CNPJ ou CPF da empresa (somente números)',
-        telefoneComercial: 'Digite o telefone comercial da empresa',
-        emailComercial: 'Digite o e-mail comercial da empresa',
-        tipoEmpresa: 'Selecione o tipo da empresa',
+        nomeEmpresa: 'Digite o nome completo do schedule',
+        documentoEmpresa: 'Digite o CNPJ ou CPF do schedule (somente números)',
+        telefoneComercial: 'Digite o telefone comercial do schedule',
+        emailComercial: 'Digite o e-mail comercial do schedule',
+        tipoEmpresa: 'Selecione o tipo do schedule',
         logomarca: 'Upload da logomarca da empresa (opcional, máx. 5MB)',
         responsavel: {
           nome: 'Digite o nome do responsável',
@@ -327,20 +388,22 @@ export default {
         },
       },
       messages: {
-        saveSuccess: 'Agenda salva com sucesso!',
-        saveError: 'Erro ao salvar agenda.',
-        deleteSuccess: 'Agenda excluída com sucesso!',
-        deleteError: 'Erro ao excluir agenda.',
-        updateSuccess: 'Agenda atualizada com sucesso!',
-        updateError: 'Erro ao atualizar agenda.',
+        saveSuccess: 'Empresa salva com sucesso!',
+        saveError: 'Erro ao salvar empresa.',
+        deleteSuccess: 'Empresa excluída com sucesso!',
+        deleteError: 'Erro ao excluir empresa.',
+        updateSuccess: 'Empresa atualizada com sucesso!',
+        updateError: 'Erro ao atualizar empresa.',
         invalidForm: 'Preencha todos os campos obrigatórios!',
       },
     },
     cliente: {
-      title: 'Cadastro de Cliente',
+      title: 'Novo Cliente',
+      subtitle: 'Cadastro e gerenciamento de informações do cliente',
       sections: {
         personalData: 'Dados Pessoais',
         addresses: 'Endereços',
+        properties: 'Imóveis',
         observations: 'Observações',
       },
       fields: {
@@ -354,6 +417,8 @@ export default {
       address: {
         title: 'Endereço {0}',
         addButton: 'Adicionar Endereço',
+        noAddresses: 'Nenhum endereço cadastrado',
+        clickToAdd: 'Clique em "Adicionar Endereço" para começar',
         fields: {
           cep: 'CEP',
           rua: 'Rua',
@@ -364,11 +429,69 @@ export default {
           estado: 'Estado',
         },
       },
+      property: {
+        title: 'Imóvel {0}',
+        addButton: 'Adicionar Imóvel',
+        noProperties: 'Nenhum imóvel cadastrado',
+        clickToAdd: 'Clique em "Adicionar Imóvel" para começar',
+        fields: {
+          totalComodos: 'Total de Cômodos',
+          numeroQuartos: 'Número de Quartos',
+          numeroBanheiros: 'Número de Banheiros',
+          areaTotal: 'Área Total',
+          observacao: 'Observações',
+        },
+        address: {
+          title: 'Endereço do Imóvel',
+        },
+      },
+    },
+    imovel: {
+      title: 'Novo Imóvel',
+      subtitle: 'Cadastro e gerenciamento de informações do imóvel',
+      sections: {
+        propertyData: 'Dados do Imóvel',
+        owner: 'Proprietário',
+        address: 'Endereço',
+        observations: 'Observações',
+      },
+      fields: {
+        totalComodos: 'Total de Cômodos',
+        numeroQuartos: 'Número de Quartos',
+        numeroBanheiros: 'Número de Banheiros',
+        areaTotal: 'Área Total',
+        dono: 'Proprietário',
+        observacao: 'Observações',
+      },
+      placeholders: {
+        observacao:
+          'Digite observações, características especiais, condições do imóvel ou qualquer informação adicional relevante...',
+      },
+      validation: {
+        totalComodosInvalid: 'O total de cômodos deve ser maior que a soma de quartos e banheiros',
+      },
+      messages: {
+        success: 'Imóvel cadastrado com sucesso!',
+        error: 'Erro ao cadastrar imóvel.',
+      },
+    },
+    endereco: {
+      fields: {
+        logradouro: 'Logradouro',
+        numero: 'Número',
+        complemento: 'Complemento',
+        bairro: 'Bairro',
+        cidade: 'Cidade',
+        estado: 'Estado',
+        cep: 'CEP',
+        pais: 'País',
+      },
     },
     colaborador: {
       title: 'Cadastro de Colaborador',
       list: {
         title: 'Colaboradores',
+        subtitle: 'Gerencie os colaboradores da empresa',
         buttons: {
           new: 'Novo Colaborador',
           edit: 'Editar',

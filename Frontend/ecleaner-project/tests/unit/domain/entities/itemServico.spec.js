@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { ItemServico } from '../../../../src/core/domain/entities/itemServico'
-import { Servico } from '../../../../src/core/domain/entities/servico'
+import { ItemServico } from '@/core/domain/entities/itemServico'
+import { Servico } from '@/core/domain/entities/servico'
 
 describe('ItemServico', () => {
   // Servi\u00e7o exemplo para usar nos testes

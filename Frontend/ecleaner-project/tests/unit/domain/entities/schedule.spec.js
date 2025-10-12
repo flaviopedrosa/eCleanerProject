@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { Schedule } from '../../../../src/core/domain/entities/schedule'
-import { Pessoa } from '../../../../src/core/domain/entities/pessoa'
-import { Endereco } from '../../../../src/core/domain/entities/endereco'
-import { Cliente } from '../../../../src/core/domain/entities/cliente'
-import { Imovel } from '../../../../src/core/domain/entities/imovel'
-import { Colaborador } from '../../../../src/core/domain/entities/colaborador'
-import { TipoEmpresa } from '../../../../src/core/domain/enums/tipoEmpresa'
-import { FormaPagamento } from '../../../../src/core/domain/enums/formaPagamento'
-import { DadosBancarios } from '../../../../src/core/domain/value-objects/dadosBancarios'
+import { Schedule } from '@/core/domain/entities/schedule'
+import { Pessoa } from '@/core/domain/entities/pessoa'
+import { Endereco } from '@/core/domain/entities/endereco'
+import { Cliente } from '@/core/domain/entities/cliente'
+import { Imovel } from '@/core/domain/entities/imovel'
+import { Colaborador } from '@/core/domain/entities/colaborador'
+import { TipoEmpresa } from '@/core/domain/enums/tipoEmpresa'
+import { FormaPagamento } from '@/core/domain/enums/formaPagamento'
+import { DadosBancarios } from '@/core/domain/value-objects/dadosBancarios'
 
 describe('Schedule', () => {
   let dadosValidos

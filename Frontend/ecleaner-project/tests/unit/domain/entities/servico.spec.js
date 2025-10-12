@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { Servico } from '../../../../src/core/domain/entities/servico'
+import { Servico } from '@/core/domain/entities/servico'
 
 describe('Servico', () => {
   it('deve criar uma inst\u00e2ncia de Servico com os dados corretos', () => {

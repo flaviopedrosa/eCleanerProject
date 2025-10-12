@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { ItemMaterial } from '../../../../src/core/domain/entities/itemMaterial'
-import { Material } from '../../../../src/core/domain/entities/material'
+import { ItemMaterial } from '@/core/domain/entities/itemMaterial'
+import { Material } from '@/core/domain/entities/material'
 
 describe('ItemMaterial', () => {
   // Material exemplo para usar nos testes

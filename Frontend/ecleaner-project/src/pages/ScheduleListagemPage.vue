@@ -1,15 +1,26 @@
 <template>
-  <q-page padding>
-    <!-- Cabeçalho -->
-    <div class="row items-center q-mb-md">
-      <div class="col-6">
-        <div class="text-h6 text-secondary q-mb-md">{{ $t('pages.scheduleList.title') }}</div>
-      </div>
-      <div class="col-6 text-right">
-        <q-btn :label="$t('pages.scheduleList.buttons.newSchedule')" color="primary" icon="add" to="/schedules/novo"
-          class="q-mr-sm" />
-        <q-btn :label="$t('pages.scheduleList.buttons.loadTestData')" color="secondary" icon="storage"
-          @click="loadTestData" />
+  <q-page class="q-pa-lg">
+    <!-- Cabeçalho da Página -->
+    <div class="row items-center q-mb-xl">
+      <div class="col">
+        <div class="row items-center q-mb-sm">
+          <q-icon name="business" size="2rem" class="text-secondary q-mr-md" />
+          <h4 class="text-h5 q-ma-none text-secondary">
+            {{ $t('pages.scheduleList.title') }}
+          </h4>
+        </div>
+        <div class="accent-divider q-mb-md"></div>
+        <div class="row justify-between items-center">
+          <p class="text-subtitle1 text-grey-7 q-ma-none">
+            {{ $t('pages.scheduleList.subtitle') }}
+          </p>
+          <div class="row q-gutter-sm">
+            <q-btn :label="$t('pages.scheduleList.buttons.newSchedule')" color="primary" icon="add"
+              to="/schedules/novo" />
+            <q-btn :label="$t('pages.scheduleList.buttons.loadTestData')" color="secondary" icon="storage"
+              @click="loadTestData" />
+          </div>
+        </div>
       </div>
     </div>
 

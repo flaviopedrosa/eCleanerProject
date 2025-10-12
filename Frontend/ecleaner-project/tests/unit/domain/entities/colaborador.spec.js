@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { Colaborador } from '../../../../src/core/domain/entities/colaborador'
-import { Endereco } from '../../../../src/core/domain/entities/endereco'
+import { Colaborador } from '@/core/domain/entities/colaborador'
+import { Endereco } from '@/core/domain/entities/endereco'
 import {
   DocumentoAdicional,
   ExperienciaProfissional,
   Referencia,
-} from '../../../../src/core/domain/entities/documentosColaborador'
-import { StatusColaborador } from '../../../../src/core/domain/enums/statusColaborador'
+} from '@/core/domain/entities/documentosColaborador'
+import { StatusColaborador } from '@/core/domain/enums/statusColaborador'
 
 describe('Colaborador', () => {
   let dadosValidos

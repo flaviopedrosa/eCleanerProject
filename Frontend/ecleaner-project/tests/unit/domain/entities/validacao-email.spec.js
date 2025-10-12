@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { Pessoa } from '../../../../src/core/domain/entities/pessoa'
+import { Pessoa } from '@/core/domain/entities/pessoa'
 
 describe('Pessoa - Validação de Email', () => {
   let pessoa

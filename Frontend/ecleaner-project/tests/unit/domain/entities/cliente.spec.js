@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { Cliente } from '../../../../src/core/domain/entities/cliente'
-import { Avaliacao } from '../../../../src/core/domain/entities/avaliacao'
-import { PreferenciaContato } from '../../../../src/core/domain/enums/preferenciaContato'
+import { Cliente } from '@/core/domain/entities/cliente'
+import { Avaliacao } from '@/core/domain/entities/avaliacao'
+import { PreferenciaContato } from '@/core/domain/enums/preferenciaContato'
 
 describe('Cliente', () => {
   const dadosBasicos = {

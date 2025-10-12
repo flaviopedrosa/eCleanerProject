@@ -1,11 +1,15 @@
 <template>
-  <q-page padding>
-    <!-- Cabeçalho -->
-    <div class="row items-center q-mb-md">
-      <div class="col-12">
-        <div class="text-h5 text-secondary q-mb-md">{{ isEdit ? $t('pages.equipeForm.titleEdit') :
-          $t('pages.equipeForm.titleNew') }}
+  <q-page class="q-pa-lg">
+    <!-- Cabeçalho da Página -->
+    <div class="row items-center q-mb-xl">
+      <div class="col">
+        <div class="row items-center q-mb-sm">
+          <q-icon name="groups" size="2rem" class="text-secondary q-mr-md" />
+          <h4 class="text-h5 q-ma-none text-secondary">
+            {{ isEdit ? $t('pages.equipeForm.titleEdit') : $t('pages.equipeForm.titleNew') }}
+          </h4>
         </div>
+        <div class="accent-divider"></div>
       </div>
     </div>
 
@@ -60,15 +64,12 @@
           ['link', 'removeFormat'],
           ['fullscreen']
         ]" :fonts="{
-            arial: 'Arial',
-            arial_black: 'Arial Black',
-            comic_sans: 'Comic Sans MS',
-            courier_new: 'Courier New',
-            impact: 'Impact',
-            lucida_grande: 'Lucida Grande',
-            times_new_roman: 'Times New Roman',
-            verdana: 'Verdana'
-          }" class="q-mt-sm" min-height="200px" :placeholder="$t('pages.equipeForm.placeholders.observacoes')" />
+          montserrat: 'Montserrat',
+          open_sans: 'Open Sans',
+          roboto: 'Roboto',
+          source_code_pro: 'Source Code Pro',
+          playfair_display: 'Playfair Display'
+        }" class="q-mt-sm" min-height="200px" :placeholder="$t('pages.equipeForm.placeholders.observacoes')" />
       </div>
 
       <!-- Botões -->
@@ -85,8 +86,8 @@ import { defineComponent, ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useQuasar } from 'quasar'
-import equipeRepository from '@/core/infrastructure/repositories/equipeRepository'
-import colaboradorRepository from '@/core/infrastructure/repositories/colaboradorRepository'
+import { EquipeRepository } from '@/core/infrastructure/repositories/equipeRepository'
+import { ColaboradorRepository } from '@/core/infrastructure/repositories/colaboradorRepository'
 import { Equipe } from '@/core/domain/entities/equipe'
 import ColaboradorEquipeCard from '@/components/ColaboradorEquipeCard.vue'
 
@@ -102,6 +103,10 @@ export default defineComponent({
     const route = useRoute()
     const { t } = useI18n()
     const $q = useQuasar()
+
+    // Repositórios
+    const equipeRepository = new EquipeRepository()
+    const colaboradorRepository = new ColaboradorRepository()
 
     // Estado
     const form = ref({
@@ -170,7 +175,7 @@ export default defineComponent({
     const onSubmit = async () => {
       try {
         // Valida se há pelo menos um membro válido
-        const membrosValidos = form.value.colaboradoresEquipe.filter(ce => ce && ce.Colaborador && ce.Funcao)
+        const membrosValidos = form.value.colaboradoresEquipe.filter(ce => ce && ce.Colaborador && ce.Funcoes && ce.Funcoes.length > 0)
 
         if (membrosValidos.length === 0) {
           $q.notify({

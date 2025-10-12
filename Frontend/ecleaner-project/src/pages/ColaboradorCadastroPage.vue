@@ -1,7 +1,16 @@
 <template>
-  <q-page padding>
-    <div class="row q-mb-lg">
-      <div class="text-h5 text-secondary q-mb-md">{{ isEdit ? editTitle : $t('forms.colaborador.title') }}</div>
+  <q-page class="q-pa-lg">
+    <!-- Cabeçalho da Página -->
+    <div class="row items-center q-mb-xl">
+      <div class="col">
+        <div class="row items-center q-mb-sm">
+          <q-icon name="person_add" size="2rem" class="text-secondary q-mr-md" />
+          <h4 class="text-h5 q-ma-none text-secondary">
+            {{ isEdit ? editTitle : $t('forms.colaborador.title') }}
+          </h4>
+        </div>
+        <div class="accent-divider"></div>
+      </div>
     </div>
 
     <q-form @submit="onSubmit" class="q-gutter-md">

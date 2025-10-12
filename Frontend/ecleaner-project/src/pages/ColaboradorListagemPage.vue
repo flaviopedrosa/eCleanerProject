@@ -1,12 +1,27 @@
 <template>
-  <q-page padding>
-    <!-- Cabeçalho -->
-    <div class="row q-mb-md items-center">
-      <div class="text-h5 text-secondary">{{ $t('forms.colaborador.list.title') }}</div>
-      <q-space />
-      <q-btn color="secondary" :label="$t('forms.colaborador.list.buttons.loadTestData')" icon="dataset" class="q-mr-sm"
-        @click="loadTestData" />
-      <q-btn color="primary" :label="$t('forms.colaborador.list.buttons.new')" icon="add" to="/colaboradores/novo" />
+  <q-page class="q-pa-lg">
+    <!-- Cabeçalho da Página -->
+    <div class="row items-center q-mb-xl">
+      <div class="col">
+        <div class="row items-center q-mb-sm">
+          <q-icon name="badge" size="2rem" class="text-secondary q-mr-md" />
+          <h4 class="text-h5 q-ma-none text-secondary">
+            {{ $t('forms.colaborador.list.title') }}
+          </h4>
+        </div>
+        <div class="accent-divider q-mb-md"></div>
+        <div class="row justify-between items-center">
+          <p class="text-subtitle1 text-grey-7 q-ma-none">
+            {{ $t('forms.colaborador.list.subtitle') }}
+          </p>
+          <div class="row q-gutter-sm">
+            <q-btn color="secondary" :label="$t('forms.colaborador.list.buttons.loadTestData')" icon="dataset"
+              @click="loadTestData" />
+            <q-btn color="primary" :label="$t('forms.colaborador.list.buttons.new')" icon="add"
+              to="/colaboradores/novo" />
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Feedback de carregamento de dados de teste -->

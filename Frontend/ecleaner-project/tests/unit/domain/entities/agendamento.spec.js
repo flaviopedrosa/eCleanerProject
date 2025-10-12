@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { Agendamento, StatusAgendamento } from '../../../../src/core/domain/entities/agendamento'
+import { Agendamento, StatusAgendamento } from '@/core/domain/entities/agendamento'
 
 describe('Agendamento', () => {
   const dataFutura = new Date(Date.now() + 24 * 60 * 60 * 1000) // Amanhã

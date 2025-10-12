@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { Imovel } from '../../../../src/core/domain/entities/imovel'
-import { Endereco } from '../../../../src/core/domain/entities/endereco'
-import { Pessoa } from '../../../../src/core/domain/entities/pessoa'
+import { Imovel } from '@/core/domain/entities/imovel'
+import { Endereco } from '@/core/domain/entities/endereco'
+import { Pessoa } from '@/core/domain/entities/pessoa'
 
 describe('Imovel', () => {
   let enderecoExemplo
