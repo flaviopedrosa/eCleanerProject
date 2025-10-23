@@ -1,0 +1,1 @@
+{"version":3,"file":"quasar-Cv0zRv8D.js","sources":["../../../src/boot/quasar.js"],"sourcesContent":["import { Notify } from 'quasar'\n\n// Adiciona o plugin de notificações ao Quasar\nexport default ({ app }) => {\n  app.config.globalProperties.$notify = Notify.create\n}\n"],"names":[],"mappings":";AAGA,MAAA,SAAe,CAAC,EAAE,IAAG,MAAO;AAC1B,MAAI,OAAO,iBAAiB,UAAU,OAAO;AAC/C;"}

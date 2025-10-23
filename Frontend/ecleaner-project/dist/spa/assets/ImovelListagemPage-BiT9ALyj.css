@@ -1,0 +1,12 @@
+.address-cell[data-v-c43f8ad5] {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+.observation-cell[data-v-c43f8ad5] {
+  max-width: 200px;
+  word-wrap: break-word;
+  white-space: normal;
+  line-height: 1.3;
+}

@@ -1,0 +1,19 @@
+.q-card[data-v-24c2ed66] {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+.q-card[data-v-24c2ed66]:hover {
+  border-color: #14b5e1;
+  transition: border-color 0.2s ease;
+}
+[data-v-24c2ed66] .q-option-group.inline .q-checkbox {
+  margin-right: 12px;
+  margin-bottom: 4px;
+}
+[data-v-24c2ed66] .q-option-group.inline .q-checkbox .q-checkbox__label {
+  font-size: 14px;
+  color: #616161;
+}
+[data-v-24c2ed66] .q-option-group.inline .q-checkbox:last-child {
+  margin-right: 0;
+}

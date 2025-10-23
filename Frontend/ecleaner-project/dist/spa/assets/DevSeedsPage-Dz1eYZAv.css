@@ -1,0 +1,13 @@
+.log-container[data-v-ccfaf9ca] {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+.log-entry[data-v-ccfaf9ca] {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}

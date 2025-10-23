@@ -1,0 +1,33 @@
+.no-horizontal-scroll .q-table__container {
+  overflow-x: hidden !important;
+}
+.no-horizontal-scroll .q-table thead tr th {
+  white-space: normal;
+  word-break: break-word;
+  font-weight: bold;
+}
+.no-horizontal-scroll .q-table tbody tr td {
+  white-space: normal;
+  word-break: break-word;
+}
+.q-table td, .q-table th {
+  max-width: 200px;
+  padding: 8px;
+}
+.q-table td:has(.address-cell) {
+  white-space: pre-line;
+  line-height: 1.4;
+  padding: 12px 8px;
+}
+.lt-md .q-card {
+  margin-bottom: 1rem;
+}
+.lt-md .q-card__section {
+  padding: 16px;
+}
+.lt-md .q-avatar {
+  font-size: 1.2rem;
+}
+.lt-md .q-chip {
+  margin: 4px 4px 4px 0;
+}
