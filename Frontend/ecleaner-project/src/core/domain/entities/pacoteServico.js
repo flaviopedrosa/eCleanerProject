@@ -14,6 +14,7 @@ export class PacoteServico {
     this.Id = gerarGuid()
     this.Descricao = descricao
     this.MargemLucro = margemLucro
+    this.Favorito = false
     /** @type {ItemMaterial[]} */
     this.ItensMaterial = []
     /** @type {ItemServico[]} */
@@ -112,10 +113,31 @@ export class PacoteServico {
   }
 
   /**
-   * Obt\u00e9m o tempo total estimado em horas para todos os servi\u00e7os
+   * Obtém o tempo total estimado em horas para todos os serviços
    * @returns {number} Tempo total em horas
    */
   calcularTempoTotalHoras() {
     return this.ItensServico.reduce((total, item) => total + item.calcularTempoTotalHoras(), 0)
+  }
+
+  /**
+   * Alterna o status de favorito do pacote
+   */
+  alternarFavorito() {
+    this.Favorito = !this.Favorito
+  }
+
+  /**
+   * Define o pacote como favorito
+   */
+  marcarComoFavorito() {
+    this.Favorito = true
+  }
+
+  /**
+   * Remove o pacote dos favoritos
+   */
+  removerDosFavoritos() {
+    this.Favorito = false
   }
 }

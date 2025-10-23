@@ -21,7 +21,7 @@
     <!-- Grid de Panels -->
 
     <div id="ecleaner-home-panels" class="q-pa-md">
-      <div class="row justify-center">
+      <div class="row justify-center q-gutter-y-lg">
         <!-- Primeira linha - 3 cards -->
         <div class="col-6 col-sm-3 col-md-3 flex justify-center">
           <EcleanerCard icon="person" label="Clientes" url="/clientes" />
@@ -33,19 +33,30 @@
           <EcleanerCard icon="badge" label="Colaboradores" url="/colaboradores" />
         </div>
 
-        <!-- Segunda linha - 2 cards -->
-        <div class="col-6 col-sm-3 col-md-3 flex justify-center">
-          <EcleanerCard icon="business" label="Schedules" url="/schedules" />
-        </div>
+        <!-- Segunda linha - 3 cards -->
         <div class="col-6 col-sm-3 col-md-3 flex justify-center">
           <EcleanerCard icon="groups" label="Equipes" url="/equipes" />
+        </div>
+        <div class="col-6 col-sm-3 col-md-3 flex justify-center">
+          <EcleanerCard icon="cleaning_services" label="Serviços" url="/servicos" />
+        </div>
+        <div class="col-6 col-sm-3 col-md-3 flex justify-center">
+          <EcleanerCard icon="inventory_2" label="Materiais" url="/materiais" />
+        </div>
+
+        <!-- Terceira linha - 2 cards -->
+        <div class="col-6 col-sm-3 col-md-3 flex justify-center">
+          <EcleanerCard icon="workspaces" label="Pacotes" url="/pacotes-servicos" />
+        </div>
+        <div class="col-6 col-sm-3 col-md-3 flex justify-center">
+          <EcleanerCard icon="request_quote" label="Orçamentos" url="/orcamentos" />
         </div>
       </div>
     </div>
 
 
     <!-- Seção de Ações Rápidas -->
-    <div class="row q-mt-xl">
+    <div class="row q-mt-xl q-gutter-md">
       <div class="col-12">
         <h5 class="text-h5 text-weight-bold q-mb-lg text-grey-8">
           Ações Rápidas
@@ -81,19 +92,19 @@
       </div>
 
       <div class="col-12 col-sm-6 col-md-3">
-        <q-btn unelevated color="accent" size="lg" class="full-width q-pa-md" @click="$router.push('/schedules/novo')">
+        <q-btn unelevated color="positive" size="lg" class="full-width q-pa-md" @click="$router.push('/equipes/novo')">
           <div class="column items-center">
-            <q-icon name="business" size="2rem" class="q-mb-sm" />
-            <div class="text-weight-medium">Novo Schedule</div>
+            <q-icon name="group_add" size="2rem" class="q-mb-sm" />
+            <div class="text-weight-medium">Nova Equipe</div>
           </div>
         </q-btn>
       </div>
 
       <div class="col-12 col-sm-6 col-md-3">
-        <q-btn unelevated color="positive" size="lg" class="full-width q-pa-md" @click="$router.push('/equipes/novo')">
+        <q-btn unelevated color="teal" size="lg" class="full-width q-pa-md" @click="$router.push('/orcamentos/novo')">
           <div class="column items-center">
-            <q-icon name="group_add" size="2rem" class="q-mb-sm" />
-            <div class="text-weight-medium">Nova Equipe</div>
+            <q-icon name="request_quote" size="2rem" class="q-mb-sm" />
+            <div class="text-weight-medium">Novo Orçamento</div>
           </div>
         </q-btn>
       </div>

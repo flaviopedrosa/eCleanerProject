@@ -1,5 +1,6 @@
 import { Cliente } from '../../domain/entities/cliente'
 import { Endereco } from '../../domain/entities/endereco'
+import imovelRepository from './imovelRepository'
 
 export class ClienteRepository {
   constructor() {
@@ -42,8 +43,50 @@ export class ClienteRepository {
       })
     }
 
+    // Adiciona informações básicas dos imóveis se existirem
+    if (data.imoveis && Array.isArray(data.imoveis)) {
+      data.imoveis.forEach((imovelData) => {
+        // Criamos um objeto simples com os dados básicos do imóvel
+        // Inclui endereço básico para exibição na interface
+        const imovelBasico = {
+          Id: imovelData.id,
+          TotalComodos: imovelData.totalComodos,
+          NumeroQuartos: imovelData.numeroQuartos,
+          NumeroBanheiros: imovelData.numeroBanheiros,
+          AreaTotal: imovelData.areaTotal,
+          Observacao: imovelData.observacao,
+          Endereco: imovelData.endereco
+            ? {
+                Id: imovelData.endereco.id,
+                Descricao: imovelData.endereco.descricao,
+                Logradouro: imovelData.endereco.logradouro,
+                Numero: imovelData.endereco.numero,
+                Cep: imovelData.endereco.cep,
+                Bairro: imovelData.endereco.bairro,
+                Cidade: imovelData.endereco.cidade,
+                Estado: imovelData.endereco.estado,
+                Pais: imovelData.endereco.pais,
+              }
+            : null,
+        }
+        cliente.Imoveis.push(imovelBasico)
+      })
+    }
+
     cliente.Id = data.id // Preserva o ID original
     return cliente
+  }
+
+  // Carregar imóveis completos do ImovelRepository
+  async _loadImoveisCompletos(cliente) {
+    try {
+      const imoveisCompletos = await imovelRepository.getByClienteId(cliente.Id)
+      cliente.Imoveis = imoveisCompletos
+      return cliente
+    } catch (error) {
+      console.error('Erro ao carregar imóveis completos:', error)
+      return cliente
+    }
   }
 
   // Converte uma entidade Cliente em um objeto JSON para armazenamento
@@ -68,6 +111,28 @@ export class ClienteRepository {
         estado: e.Estado,
       })),
       observacoes: cliente.Observacoes,
+      imoveis:
+        cliente.Imoveis?.map((imovel) => ({
+          id: imovel.Id,
+          totalComodos: imovel.TotalComodos,
+          numeroQuartos: imovel.NumeroQuartos,
+          numeroBanheiros: imovel.NumeroBanheiros,
+          areaTotal: imovel.AreaTotal,
+          observacao: imovel.Observacao,
+          endereco: imovel.Endereco
+            ? {
+                id: imovel.Endereco.Id,
+                descricao: imovel.Endereco.Descricao,
+                logradouro: imovel.Endereco.Logradouro,
+                numero: imovel.Endereco.Numero,
+                cep: imovel.Endereco.Cep,
+                bairro: imovel.Endereco.Bairro,
+                cidade: imovel.Endereco.Cidade,
+                estado: imovel.Endereco.Estado,
+                pais: imovel.Endereco.Pais,
+              }
+            : null,
+        })) || [],
     }
   }
 
@@ -75,7 +140,16 @@ export class ClienteRepository {
   async getAll() {
     try {
       const clientes = JSON.parse(localStorage.getItem('clientes') || '[]')
-      return clientes.map((data) => this._mapToEntity(data))
+      const clientesMapeados = clientes.map((data) => this._mapToEntity(data))
+
+      // Carregar imóveis completos para cada cliente
+      const clientesComImoveis = await Promise.all(
+        clientesMapeados.map(async (cliente) => {
+          return await this._loadImoveisCompletos(cliente)
+        }),
+      )
+
+      return clientesComImoveis
     } catch (error) {
       console.error('Erro ao buscar clientes:', error)
       throw new Error('Erro ao buscar clientes')
@@ -87,7 +161,13 @@ export class ClienteRepository {
     try {
       const clientes = JSON.parse(localStorage.getItem('clientes') || '[]')
       const cliente = clientes.find((c) => c.id === id)
-      return this._mapToEntity(cliente)
+      const clienteMapeado = this._mapToEntity(cliente)
+
+      if (clienteMapeado) {
+        return await this._loadImoveisCompletos(clienteMapeado)
+      }
+
+      return clienteMapeado
     } catch (error) {
       console.error('Erro ao buscar cliente:', error)
       throw new Error('Erro ao buscar cliente')

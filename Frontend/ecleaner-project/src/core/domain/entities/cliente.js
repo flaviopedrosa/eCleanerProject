@@ -30,6 +30,8 @@ export class Cliente extends Pessoa {
     this.Observacoes = observacoes
     /** @type {Avaliacao[]} */
     this.Avaliacoes = []
+    /** @type {Imovel[]} */
+    this.Imoveis = []
   }
 
   /**
@@ -38,11 +40,21 @@ export class Cliente extends Pessoa {
    */
   adicionarAvaliacao(avaliacao) {
     if (!(avaliacao instanceof Avaliacao)) {
-      throw new Error(
-        'A avalia\u00e7\u00e3o fornecida n\u00e3o \u00e9 uma inst\u00e2ncia v\u00e1lida da classe Avaliacao',
-      )
+      throw new Error('A avaliação fornecida não é uma instância válida da classe Avaliacao')
     }
     this.Avaliacoes.push(avaliacao)
+  }
+
+  /**
+   * Adiciona um imóvel à lista de imóveis do cliente
+   * @param {*} imovel - O imóvel a ser adicionado
+   */
+  adicionarImovel(imovel) {
+    // Verificação simples do ID para evitar dependência circular
+    if (!imovel || !imovel.Id) {
+      throw new Error('O imóvel fornecido não é válido')
+    }
+    this.Imoveis.push(imovel)
   }
 
   /**

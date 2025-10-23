@@ -4,78 +4,108 @@
     <div class="row items-center q-mb-xl">
       <div class="col">
         <div class="row items-center q-mb-sm">
+          <q-btn flat round icon="arrow_back" @click="$router.go(-1)" class="q-mr-md" />
           <q-icon name="groups" size="2rem" class="text-secondary q-mr-md" />
           <h4 class="text-h5 q-ma-none text-secondary">
             {{ isEdit ? $t('pages.equipeForm.titleEdit') : $t('pages.equipeForm.titleNew') }}
           </h4>
         </div>
-        <div class="accent-divider"></div>
+        <div class="accent-divider q-mb-md"></div>
+        <div class="row justify-end">
+          <p class="text-subtitle1 text-grey-7 q-ma-none">
+            {{ isEdit ? $t('pages.equipeForm.editSubtitle') : $t('pages.equipeForm.createSubtitle') }}
+          </p>
+        </div>
       </div>
     </div>
 
     <!-- Formulário -->
     <q-form @submit="onSubmit" class="q-gutter-md">
-      <!-- Descrição da Equipe -->
-      <q-input v-model="form.descricao" :label="$t('pages.equipeForm.fields.descricao')"
-        :rules="[val => !!val || $t('validations.required')]" outlined />
+      <!-- Dados Básicos da Equipe -->
+      <q-card flat bordered>
+        <q-card-section>
+          <div class="text-h6 text-primary q-mb-md">
+            <q-icon name="info" class="q-mr-sm" />
+            {{ $t('pages.equipeForm.sections.basicInfo') }}
+          </div>
+
+          <div class="row q-col-gutter-md">
+            <div class="col-12">
+              <q-input v-model="form.descricao" :label="$t('pages.equipeForm.fields.descricao')" lazy-rules
+                :rules="[val => !!val || $t('validations.required')]" filled />
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
 
       <!-- Seção de Membros da Equipe -->
-      <div class="q-mt-lg">
-        <div class="row items-center q-mb-md">
-          <div class="col">
-            <div class="text-h6 text-primary">{{ $t('pages.equipeForm.sections.membros') }}</div>
-          </div>
-          <div class="col-auto">
+      <q-card flat bordered>
+        <q-card-section>
+          <div class="row items-center q-mb-md">
+            <div class="text-h6 text-primary">
+              <q-icon name="group" class="q-mr-sm" />
+              {{ $t('pages.equipeForm.sections.membros') }}
+            </div>
+            <q-space />
             <q-btn color="primary" icon="add" :label="$t('pages.equipeForm.buttons.addMembro')" @click="adicionarMembro"
-              outline />
+              size="sm" />
           </div>
-        </div>
 
-        <!-- Cards de Colaboradores -->
-        <div v-for="(colaboradorEquipe, index) in form.colaboradoresEquipe" :key="`colaborador-${index}`">
-          <ColaboradorEquipeCard v-model="form.colaboradoresEquipe[index]" :index="index" :colaboradores="colaboradores"
-            :colaboradores-ja-selecionados="colaboradoresJaSelecionados" @remove="removerMembro(index)" />
-        </div>
+          <!-- Estado vazio -->
+          <div v-if="form.colaboradoresEquipe.length === 0" class="text-center text-grey-6 q-py-lg">
+            <q-icon name="group" size="48px" class="q-mb-md" />
+            <div class="text-body1">{{ $t('pages.equipeForm.messages.noMembers') }}</div>
+            <div class="text-caption">{{ $t('pages.equipeForm.messages.addFirstMember') }}</div>
+          </div>
 
-        <!-- Mensagem quando não há membros -->
-        <div v-if="form.colaboradoresEquipe.length === 0" class="text-center q-pa-md text-grey-6">
-          <q-icon name="group" size="3rem" class="q-mb-md" />
-          <div class="text-body1">{{ $t('pages.equipeForm.messages.noMembers') }}</div>
-          <div class="text-caption">{{ $t('pages.equipeForm.messages.addFirstMember') }}</div>
-        </div>
-      </div>
+          <!-- Cards de Colaboradores -->
+          <div v-for="(colaboradorEquipe, index) in form.colaboradoresEquipe" :key="`colaborador-${index}`"
+            class="q-mb-md">
+            <ColaboradorEquipeCard v-model="form.colaboradoresEquipe[index]" :index="index"
+              :colaboradores="colaboradores" :colaboradores-ja-selecionados="colaboradoresJaSelecionados"
+              @remove="removerMembro(index)" />
+          </div>
+        </q-card-section>
+      </q-card>
 
-      <!-- Campo de Observações com Editor de Texto Rico -->
-      <div class="q-mt-lg">
-        <label class="text-subtitle2 text-grey-8 q-mb-sm">{{ $t('pages.equipeForm.fields.observacoes') }}</label>
-        <q-editor v-model="form.observacoes" :toolbar="[
-          ['left', 'center', 'right', 'justify'],
-          ['bold', 'italic', 'underline', 'strike'],
-          ['undo', 'redo'],
-          [
-            {
-              label: 'Formato',
-              icon: 'format_size',
-              list: 'no-icons',
-              options: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'code']
-            }
-          ],
-          ['quote', 'unordered', 'ordered', 'outdent', 'indent'],
-          ['link', 'removeFormat'],
-          ['fullscreen']
-        ]" :fonts="{
-          montserrat: 'Montserrat',
-          open_sans: 'Open Sans',
-          roboto: 'Roboto',
-          source_code_pro: 'Source Code Pro',
-          playfair_display: 'Playfair Display'
-        }" class="q-mt-sm" min-height="200px" :placeholder="$t('pages.equipeForm.placeholders.observacoes')" />
-      </div>
+      <!-- Campo de Observações -->
+      <q-card flat bordered>
+        <q-card-section>
+          <div class="text-h6 text-primary q-mb-md">
+            <q-icon name="notes" class="q-mr-sm" />
+            {{ $t('pages.equipeForm.sections.observacoes') }}
+          </div>
 
-      <!-- Botões -->
-      <div class="row justify-end q-gutter-sm">
-        <q-btn :label="$t('pages.equipeForm.buttons.cancel')" color="negative" flat :to="'/equipes'" />
-        <q-btn :label="$t('pages.equipeForm.buttons.save')" color="primary" type="submit" />
+          <q-editor v-model="form.observacoes" :toolbar="[
+            ['left', 'center', 'right', 'justify'],
+            ['bold', 'italic', 'underline', 'strike'],
+            ['undo', 'redo'],
+            [
+              {
+                label: 'Formato',
+                icon: 'format_size',
+                list: 'no-icons',
+                options: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'code']
+              }
+            ],
+            ['quote', 'unordered', 'ordered', 'outdent', 'indent'],
+            ['link', 'removeFormat'],
+            ['fullscreen']
+          ]" :fonts="{
+            montserrat: 'Montserrat',
+            open_sans: 'Open Sans',
+            roboto: 'Roboto',
+            source_code_pro: 'Source Code Pro',
+            playfair_display: 'Playfair Display'
+          }" min-height="200px" :placeholder="$t('pages.equipeForm.placeholders.observacoes')" />
+        </q-card-section>
+      </q-card>
+
+      <!-- Botões de Ação -->
+      <div class="row q-gutter-md justify-end">
+        <q-btn flat :label="$t('pages.equipeForm.buttons.cancel')" @click="$router.push('/equipes')" />
+        <q-btn color="primary" :label="isEdit ? $t('buttons.update') : $t('pages.equipeForm.buttons.save')"
+          type="submit" />
       </div>
     </q-form>
   </q-page>
@@ -201,15 +231,23 @@ export default defineComponent({
 
         $q.notify({
           type: 'positive',
-          message: t('pages.equipeForm.messages.saveSuccess')
+          message: isEdit.value ? t('messages.updateSuccess') : t('messages.saveSuccess'),
+          timeout: 3000,
+          position: 'top-right'
         })
 
-        router.push('/equipes')
+        // Aguardar um pouco antes de navegar para mostrar a mensagem
+        setTimeout(() => {
+          router.push('/equipes')
+        }, 1500)
+
       } catch (error) {
         console.error('Erro ao salvar equipe:', error)
         $q.notify({
           type: 'negative',
-          message: t('pages.equipeForm.messages.saveError')
+          message: t('messages.saveError'),
+          timeout: 5000,
+          position: 'top-right'
         })
       }
     }

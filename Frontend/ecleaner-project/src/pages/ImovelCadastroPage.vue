@@ -4,6 +4,7 @@
         <div class="row items-center q-mb-xl">
             <div class="col">
                 <div class="row items-center q-mb-sm">
+                    <q-btn flat round icon="arrow_back" @click="$router.go(-1)" class="q-mr-md" />
                     <q-icon name="home" size="2rem" class="text-secondary q-mr-md" />
                     <h4 class="text-h5 q-ma-none text-secondary">
                         {{ $t('forms.imovel.title') }}
@@ -19,124 +20,148 @@
         </div>
 
         <q-form @submit="onSubmit" class="q-gutter-md">
-            <div class="row q-col-gutter-md">
-                <!-- Dados do Imóvel -->
-                <div class="col-12">
-                    <div class="text-subtitle1 text-primary q-mb-sm">{{ $t('forms.imovel.sections.propertyData') }}
+            <!-- Dados do Imóvel -->
+            <q-card flat bordered>
+                <q-card-section>
+                    <div class="text-h6 text-primary q-mb-md">
+                        <q-icon name="home" class="q-mr-sm" />
+                        {{ $t('forms.imovel.sections.propertyData') }}
                     </div>
-                </div>
 
-                <div class="col-12 col-md-3">
-                    <q-input v-model.number="form.totalComodos" :label="$t('forms.imovel.fields.totalComodos') + ' *'"
-                        filled type="number" min="1" :rules="[
-                            val => !!val || $t('forms.validation.required'),
-                            val => val > 0 || $t('forms.validation.positiveNumber')
-                        ]" />
-                </div>
+                    <div class="row q-col-gutter-md">
+                        <div class="col-12 col-md-3">
+                            <q-input v-model.number="form.totalComodos"
+                                :label="$t('forms.imovel.fields.totalComodos') + ' *'" filled type="number" min="1"
+                                lazy-rules :rules="[
+                                    val => !!val || $t('forms.validation.required'),
+                                    val => val > 0 || $t('forms.validation.positiveNumber')
+                                ]" />
+                        </div>
 
-                <div class="col-12 col-md-3">
-                    <q-input v-model.number="form.numeroQuartos" :label="$t('forms.imovel.fields.numeroQuartos') + ' *'"
-                        filled type="number" min="0" :rules="[
-                            val => val >= 0 || $t('forms.validation.nonNegativeNumber')
-                        ]" />
-                </div>
+                        <div class="col-12 col-md-3">
+                            <q-input v-model.number="form.numeroQuartos"
+                                :label="$t('forms.imovel.fields.numeroQuartos') + ' *'" filled type="number" min="0"
+                                lazy-rules :rules="[
+                                    val => val >= 0 || $t('forms.validation.nonNegativeNumber')
+                                ]" />
+                        </div>
 
-                <div class="col-12 col-md-3">
-                    <q-input v-model.number="form.numeroBanheiros"
-                        :label="$t('forms.imovel.fields.numeroBanheiros') + ' *'" filled type="number" min="0" :rules="[
-                            val => val >= 0 || $t('forms.validation.nonNegativeNumber')
-                        ]" />
-                </div>
+                        <div class="col-12 col-md-3">
+                            <q-input v-model.number="form.numeroBanheiros"
+                                :label="$t('forms.imovel.fields.numeroBanheiros') + ' *'" filled type="number" min="0"
+                                lazy-rules :rules="[
+                                    val => val >= 0 || $t('forms.validation.nonNegativeNumber')
+                                ]" />
+                        </div>
 
-                <div class="col-12 col-md-3">
-                    <q-input v-model.number="form.areaTotal" :label="$t('forms.imovel.fields.areaTotal') + ' *'" filled
-                        type="number" min="1" step="0.01" suffix="m²" :rules="[
-                            val => !!val || $t('forms.validation.required'),
-                            val => val > 0 || $t('forms.validation.positiveNumber')
-                        ]" />
-                </div>
-
-                <!-- Proprietário -->
-                <div class="col-12">
-                    <div class="text-subtitle1 text-primary q-mb-sm q-mt-lg">{{ $t('forms.imovel.sections.owner') }}
+                        <div class="col-12 col-md-3">
+                            <q-input v-model.number="form.areaTotal" :label="$t('forms.imovel.fields.areaTotal') + ' *'"
+                                filled type="number" min="1" step="0.01" suffix="m²" lazy-rules :rules="[
+                                    val => !!val || $t('forms.validation.required'),
+                                    val => val > 0 || $t('forms.validation.positiveNumber')
+                                ]" />
+                        </div>
                     </div>
-                </div>
+                </q-card-section>
+            </q-card>
 
-                <div class="col-12 col-md-6">
-                    <q-select v-model="form.dono" :options="clientesOptions"
-                        :label="$t('forms.imovel.fields.dono') + ' *'" filled emit-value map-options
-                        option-value="value" option-label="label"
-                        :rules="[val => !!val || $t('forms.validation.required')]" />
-                </div>
-
-                <!-- Endereço -->
-                <div class="col-12">
-                    <div class="text-subtitle1 text-primary q-mb-sm q-mt-lg">{{ $t('forms.imovel.sections.address') }}
+            <!-- Proprietário -->
+            <q-card flat bordered>
+                <q-card-section>
+                    <div class="text-h6 text-primary q-mb-md">
+                        <q-icon name="person" class="q-mr-sm" />
+                        {{ $t('forms.imovel.sections.owner') }}
                     </div>
-                </div>
 
-                <div class="col-12 col-md-8">
-                    <q-input v-model="form.endereco.logradouro" :label="$t('forms.endereco.fields.logradouro') + ' *'"
-                        filled :rules="[val => !!val || $t('forms.validation.required')]" />
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <q-input v-model="form.endereco.numero" :label="$t('forms.endereco.fields.numero') + ' *'" filled
-                        :rules="[val => !!val || $t('forms.validation.required')]" />
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <q-input v-model="form.endereco.complemento" :label="$t('forms.endereco.fields.complemento')"
-                        filled />
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <q-input v-model="form.endereco.bairro" :label="$t('forms.endereco.fields.bairro') + ' *'" filled
-                        :rules="[val => !!val || $t('forms.validation.required')]" />
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <q-input v-model="form.endereco.cidade" :label="$t('forms.endereco.fields.cidade') + ' *'" filled
-                        :rules="[val => !!val || $t('forms.validation.required')]" />
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <q-input v-model="form.endereco.estado" :label="$t('forms.endereco.fields.estado') + ' *'" filled
-                        :rules="[val => !!val || $t('forms.validation.required')]" />
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <q-input v-model="form.endereco.cep" :label="$t('forms.endereco.fields.cep') + ' *'" filled
-                        mask="#####-###" :rules="[
-                            val => !!val || $t('forms.validation.required'),
-                            val => val.length === 9 || $t('forms.validation.cep')
-                        ]" />
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <q-input v-model="form.endereco.pais" :label="$t('forms.endereco.fields.pais') + ' *'" filled
-                        :rules="[val => !!val || $t('forms.validation.required')]" />
-                </div>
-
-                <!-- Observações -->
-                <div class="col-12">
-                    <div class="text-subtitle1 text-primary q-mb-sm q-mt-lg">{{ $t('forms.imovel.sections.observations')
-                    }}</div>
-                </div>
-
-                <div class="col-12">
-                    <q-input v-model="form.observacao" :label="$t('forms.imovel.fields.observacao')"
-                        :placeholder="$t('forms.imovel.placeholders.observacao')" filled type="textarea" rows="4"
-                        counter maxlength="500" />
-                </div>
-
-                <!-- Botões de Ação -->
-                <div class="col-12 q-mt-xl">
-                    <div class="row q-gutter-md justify-end">
-                        <q-btn :label="$t('forms.buttons.cancel')" color="grey-7" outline @click="onCancel" />
-                        <q-btn :label="$t('forms.buttons.save')" color="primary" type="submit" :loading="loading" />
+                    <div class="row q-col-gutter-md">
+                        <div class="col-12 col-md-6">
+                            <q-select v-model="form.dono" :options="clientesOptions"
+                                :label="$t('forms.imovel.fields.dono') + ' *'" filled emit-value map-options
+                                option-value="value" option-label="label" lazy-rules
+                                :rules="[val => !!val || $t('forms.validation.required')]" />
+                        </div>
                     </div>
-                </div>
+                </q-card-section>
+            </q-card>
+
+            <!-- Endereço -->
+            <q-card flat bordered>
+                <q-card-section>
+                    <div class="text-h6 text-primary q-mb-md">
+                        <q-icon name="location_on" class="q-mr-sm" />
+                        {{ $t('forms.imovel.sections.address') }}
+                    </div>
+
+                    <div class="row q-col-gutter-md">
+                        <div class="col-12 col-md-8">
+                            <q-input v-model="form.endereco.logradouro"
+                                :label="$t('forms.endereco.fields.logradouro') + ' *'" filled lazy-rules
+                                :rules="[val => !!val || $t('forms.validation.required')]" />
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <q-input v-model="form.endereco.numero" :label="$t('forms.endereco.fields.numero') + ' *'"
+                                filled lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <q-input v-model="form.endereco.complemento"
+                                :label="$t('forms.endereco.fields.complemento')" filled />
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <q-input v-model="form.endereco.bairro" :label="$t('forms.endereco.fields.bairro') + ' *'"
+                                filled lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <q-input v-model="form.endereco.cidade" :label="$t('forms.endereco.fields.cidade') + ' *'"
+                                filled lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <q-input v-model="form.endereco.estado" :label="$t('forms.endereco.fields.estado') + ' *'"
+                                filled lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <q-input v-model="form.endereco.cep" :label="$t('forms.endereco.fields.cep') + ' *'" filled
+                                mask="#####-###" lazy-rules :rules="[
+                                    val => !!val || $t('forms.validation.required'),
+                                    val => val.length === 9 || $t('forms.validation.cep')
+                                ]" />
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <q-input v-model="form.endereco.pais" :label="$t('forms.endereco.fields.pais') + ' *'"
+                                filled lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
+                        </div>
+                    </div>
+                </q-card-section>
+            </q-card>
+
+            <!-- Observações -->
+            <q-card flat bordered>
+                <q-card-section>
+                    <div class="text-h6 text-primary q-mb-md">
+                        <q-icon name="notes" class="q-mr-sm" />
+                        {{ $t('forms.imovel.sections.observations') }}
+                    </div>
+
+                    <div class="row q-col-gutter-md">
+                        <div class="col-12">
+                            <q-input v-model="form.observacao" :label="$t('forms.imovel.fields.observacao')"
+                                :placeholder="$t('forms.imovel.placeholders.observacao')" filled type="textarea"
+                                rows="4" counter maxlength="500" />
+                        </div>
+                    </div>
+                </q-card-section>
+            </q-card>
+
+            <!-- Botões de Ação -->
+            <div class="row q-gutter-md justify-end">
+                <q-btn flat :label="$t('forms.buttons.cancel')" @click="$router.go(-1)" />
+                <q-btn color="primary" :label="$t('forms.buttons.save')" type="submit" :loading="loading" />
             </div>
         </q-form>
     </q-page>
@@ -241,19 +266,23 @@ export default defineComponent({
 
                 $q.notify({
                     type: 'positive',
-                    message: t('forms.imovel.messages.success'),
-                    position: 'top'
+                    message: t('messages.saveSuccess'),
+                    timeout: 3000,
+                    position: 'top-right'
                 })
 
-                // Redirecionar para a listagem
-                router.push('/imoveis')
+                // Aguardar um pouco antes de navegar para mostrar a mensagem
+                setTimeout(() => {
+                    router.push('/imoveis')
+                }, 1500)
 
             } catch (error) {
                 console.error('Erro ao criar imóvel:', error)
                 $q.notify({
                     type: 'negative',
-                    message: t('forms.imovel.messages.error'),
-                    position: 'top'
+                    message: t('messages.saveError'),
+                    timeout: 5000,
+                    position: 'top-right'
                 })
             } finally {
                 loading.value = false

@@ -1,10 +1,10 @@
 import { gerarGuid } from '../utils/guid'
 import { Cliente } from './cliente'
 import { Imovel } from './imovel'
-import { ItemMaterial } from './itemMaterial'
-import { ItemServico } from './itemServico'
+import { ItemOrcamento } from './itemOrcamento'
 import { PacoteServico } from './pacoteServico'
 import { StatusOrcamento } from '../enums/statusOrcamento'
+import { TipoItemOrcamento } from '../enums/tipoItemOrcamento'
 
 /**
  * Classe que representa um Orçamento.
@@ -14,7 +14,7 @@ export class Orcamento {
    * @param {number} numeroOrcamento - Número sequencial do orçamento
    * @param {Cliente} cliente - Cliente para o qual o orçamento está sendo feito
    * @param {Imovel} imovel - Imóvel onde os serviços serão prestados
-   * @param {PacoteServico} pacoteServico - Pacote de serviço base para o orçamento
+   * @param {PacoteServico|null} pacoteServico - Pacote de serviço base para o orçamento (pode ser null)
    * @param {string} frequenciaDesejada - Frequência desejada para execução dos serviços
    * @param {number} quantidadeProfissionais - Quantidade sugerida de profissionais
    * @param {number} estimativaHoras - Estimativa de horas necessárias para o serviço
@@ -48,11 +48,8 @@ export class Orcamento {
     }
     this.Imovel = imovel
 
-    /** @type {ItemServico[]} */
-    this.ItensServico = []
-
-    /** @type {ItemMaterial[]} */
-    this.ItensMaterial = []
+    /** @type {ItemOrcamento[]} */
+    this.Itens = []
 
     this.definirPacoteServico(pacoteServico)
 
@@ -66,57 +63,85 @@ export class Orcamento {
   }
 
   /**
-   * Adiciona um item de serviço ao orçamento
-   * @param {ItemServico} item - O item de serviço a ser adicionado
+   * Adiciona um item ao orçamento
+   * @param {ItemOrcamento} item - O item de orçamento a ser adicionado
    */
-  adicionarItemServico(item) {
-    if (!(item instanceof ItemServico)) {
-      throw new Error('O item fornecido não é uma instância válida da classe ItemServico')
+  adicionarItem(item) {
+    if (!(item instanceof ItemOrcamento)) {
+      throw new Error('O item fornecido não é uma instância válida da classe ItemOrcamento')
     }
-    this.ItensServico.push(item)
+    this.Itens.push(item)
   }
 
   /**
-   * Adiciona um item de material ao orçamento
-   * @param {ItemMaterial} item - O item de material a ser adicionado
+   * Remove um item do orçamento
+   * @param {ItemOrcamento} item - O item de orçamento a ser removido
    */
-  adicionarItemMaterial(item) {
-    if (!(item instanceof ItemMaterial)) {
-      throw new Error('O item fornecido não é uma instância válida da classe ItemMaterial')
-    }
-    this.ItensMaterial.push(item)
-  }
-
-  /**
-   * Remove um item de serviço do orçamento
-   * @param {ItemServico} item - O item de serviço a ser removido
-   */
-  removerItemServico(item) {
-    const index = this.ItensServico.indexOf(item)
+  removerItem(item) {
+    const index = this.Itens.indexOf(item)
     if (index > -1) {
-      this.ItensServico.splice(index, 1)
+      this.Itens.splice(index, 1)
     }
   }
 
   /**
-   * Remove um item de material do orçamento
-   * @param {ItemMaterial} item - O item de material a ser removido
+   * Remove um item do orçamento por ID
+   * @param {string} itemId - O ID do item a ser removido
    */
-  removerItemMaterial(item) {
-    const index = this.ItensMaterial.indexOf(item)
+  removerItemPorId(itemId) {
+    const index = this.Itens.findIndex((item) => item.Id === itemId)
     if (index > -1) {
-      this.ItensMaterial.splice(index, 1)
+      this.Itens.splice(index, 1)
     }
   }
 
   /**
-   * Calcula o subtotal do orçamento (soma dos serviços e materiais)
+   * Obtém todos os itens do tipo material
+   * @returns {ItemOrcamento[]} Array com os itens de material
+   */
+  obterItensMaterial() {
+    return this.Itens.filter((item) => item.Tipo === TipoItemOrcamento.MATERIAL)
+  }
+
+  /**
+   * Obtém todos os itens do tipo serviço
+   * @returns {ItemOrcamento[]} Array com os itens de serviço
+   */
+  obterItensServico() {
+    return this.Itens.filter((item) => item.Tipo === TipoItemOrcamento.SERVICO)
+  }
+
+  /**
+   * Busca um item por ID
+   * @param {string} itemId - O ID do item a ser buscado
+   * @returns {ItemOrcamento|undefined} O item encontrado ou undefined
+   */
+  buscarItemPorId(itemId) {
+    return this.Itens.find((item) => item.Id === itemId)
+  }
+
+  /**
+   * Calcula o subtotal do orçamento (soma de todos os itens)
    * @returns {number} O valor do subtotal
    */
   get Subtotal() {
-    const valorServicos = this.ItensServico.reduce((total, item) => total + item.ValorTotal, 0)
-    const valorMateriais = this.ItensMaterial.reduce((total, item) => total + item.ValorTotal, 0)
-    return valorServicos + valorMateriais
+    return this.Itens.reduce((total, item) => total + item.calcularValorTotal(), 0)
+  }
+
+  /**
+   * Calcula o subtotal apenas dos materiais
+   * @returns {number} O valor do subtotal dos materiais
+   */
+  get SubtotalMateriais() {
+    return this.obterItensMaterial().reduce((total, item) => total + item.calcularValorTotal(), 0)
+  }
+
+  /**
+   * Calcula o subtotal apenas dos serviços
+   * @returns {number} O valor do subtotal dos serviços
+   */
+  get SubtotalServicos() {
+    return this.obterItensServico().reduce((total, item) => total + item.calcularValorTotal(), 0)
   }
 
   /**
@@ -147,28 +172,70 @@ export class Orcamento {
   }
 
   /**
-   * Define o pacote de serviço e atualiza os itens de serviço e material com base nele
-   * @param {PacoteServico} pacoteServico - O pacote de serviço a ser definido
+   * Define o pacote de serviço e atualiza os itens com base nele
+   * @param {PacoteServico|null} pacoteServico - O pacote de serviço a ser definido ou null
    */
   definirPacoteServico(pacoteServico) {
+    // Se o pacote for null, apenas limpa os itens e define como null
+    if (!pacoteServico) {
+      this.Itens = []
+      this.PacoteServico = null
+      return
+    }
+
     if (!(pacoteServico instanceof PacoteServico)) {
       throw new Error(
         'O pacote de serviço fornecido não é uma instância válida da classe PacoteServico',
       )
     }
 
+    console.log('Definindo pacote de serviço:', pacoteServico.Descricao)
+    console.log('ItensMaterial:', pacoteServico.ItensMaterial)
+    console.log('ItensServico:', pacoteServico.ItensServico)
+
     // Limpa os itens atuais
-    this.ItensServico = []
-    this.ItensMaterial = []
+    this.Itens = []
 
-    // Adiciona os itens do pacote
-    pacoteServico.ItensServico.forEach((item) => {
-      this.adicionarItemServico(item)
-    })
+    // Converte os itens do pacote para ItemOrcamento
+    if (pacoteServico.ItensServico) {
+      pacoteServico.ItensServico.forEach((itemServico) => {
+        // Verificar se itemServico e Servico existem antes de acessar propriedades
+        if (!itemServico || !itemServico.Servico) {
+          console.warn('Item de serviço inválido encontrado no pacote de serviço:', itemServico)
+          return // Pular este item
+        }
 
-    pacoteServico.ItensMaterial.forEach((item) => {
-      this.adicionarItemMaterial(item)
-    })
+        const item = new ItemOrcamento(
+          itemServico.Servico.Descricao || 'Serviço',
+          TipoItemOrcamento.SERVICO,
+          itemServico.Servico.CustoUnitario || 0,
+          itemServico.Quantidade || 1,
+          itemServico.Servico.Unidade || 'UN',
+          itemServico.Servico.Observacao || '',
+        )
+        this.adicionarItem(item)
+      })
+    }
+
+    if (pacoteServico.ItensMaterial) {
+      pacoteServico.ItensMaterial.forEach((itemMaterial) => {
+        // Verificar se itemMaterial e Material existem antes de acessar propriedades
+        if (!itemMaterial || !itemMaterial.Material) {
+          console.warn('Item de material inválido encontrado no pacote de serviço:', itemMaterial)
+          return // Pular este item
+        }
+
+        const item = new ItemOrcamento(
+          itemMaterial.Material.Descricao || 'Material',
+          TipoItemOrcamento.MATERIAL,
+          itemMaterial.CustoUnitario || 0,
+          itemMaterial.Quantidade || 1,
+          itemMaterial.Material.Unidade || 'UN',
+          itemMaterial.Observacao || '',
+        )
+        this.adicionarItem(item)
+      })
+    }
 
     this.PacoteServico = pacoteServico
   }

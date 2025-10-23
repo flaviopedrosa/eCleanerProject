@@ -5,6 +5,8 @@ import { Imovel } from '@/core/domain/entities/imovel'
 import { PacoteServico } from '@/core/domain/entities/pacoteServico'
 import { ItemServico } from '@/core/domain/entities/itemServico'
 import { ItemMaterial } from '@/core/domain/entities/itemMaterial'
+import { ItemOrcamento } from '@/core/domain/entities/itemOrcamento'
+import { TipoItemOrcamento } from '@/core/domain/enums/tipoItemOrcamento'
 import { Servico } from '@/core/domain/entities/servico'
 import { Material } from '@/core/domain/entities/material'
 import { Pessoa } from '@/core/domain/entities/pessoa'
@@ -41,8 +43,8 @@ describe('Orcamento', () => {
 
     imovel = new Imovel(8, 3, 2, 150, endereco, dono)
 
-    servico = new Servico('Limpeza Geral', 100)
-    material = new Material('Produto de Limpeza', 50, 'UN')
+    servico = new Servico('Limpeza Geral', 100, 'UN', 'Serviço de limpeza completa')
+    material = new Material('Produto de Limpeza', 'UN', 50)
     pacoteServico = new PacoteServico('Pacote Básico', 'Limpeza completa')
   })
 
@@ -80,11 +82,20 @@ describe('Orcamento', () => {
     expect(orcamento.Validade).toEqual(new Date('2024-12-31'))
     expect(orcamento.Status).toBe(StatusOrcamento.RASCUNHO)
 
-    // Verifica se os itens do pacote foram adicionados
-    expect(orcamento.ItensServico).toHaveLength(1)
-    expect(orcamento.ItensServico[0]).toBe(itemServico)
-    expect(orcamento.ItensMaterial).toHaveLength(1)
-    expect(orcamento.ItensMaterial[0]).toBe(itemMaterial)
+    // Verifica se os itens do pacote foram convertidos para ItemOrcamento
+    expect(orcamento.Itens).toHaveLength(2)
+    expect(orcamento.obterItensServico()).toHaveLength(1)
+    expect(orcamento.obterItensMaterial()).toHaveLength(1)
+
+    const itemServicoConvertido = orcamento.obterItensServico()[0]
+    expect(itemServicoConvertido).toBeInstanceOf(ItemOrcamento)
+    expect(itemServicoConvertido.Tipo).toBe(TipoItemOrcamento.SERVICO)
+    expect(itemServicoConvertido.Descricao).toBe(servico.Descricao)
+
+    const itemMaterialConvertido = orcamento.obterItensMaterial()[0]
+    expect(itemMaterialConvertido).toBeInstanceOf(ItemOrcamento)
+    expect(itemMaterialConvertido.Tipo).toBe(TipoItemOrcamento.MATERIAL)
+    expect(itemMaterialConvertido.Descricao).toBe(material.Descricao)
   })
 
   it('deve criar um orçamento com valores padrão e herdar itens do pacote', () => {
@@ -100,47 +111,77 @@ describe('Orcamento', () => {
     expect(orcamento.ImpostosTaxas).toBe(0)
     expect(orcamento.Validade).toBeInstanceOf(Date)
 
-    // Verifica se os itens do pacote foram adicionados
-    expect(orcamento.ItensServico).toHaveLength(1)
-    expect(orcamento.ItensServico[0]).toBe(itemServico)
-    expect(orcamento.ItensMaterial).toHaveLength(1)
-    expect(orcamento.ItensMaterial[0]).toBe(itemMaterial)
+    // Verifica se os itens do pacote foram convertidos para ItemOrcamento
+    expect(orcamento.Itens).toHaveLength(2)
+    expect(orcamento.obterItensServico()).toHaveLength(1)
+    expect(orcamento.obterItensMaterial()).toHaveLength(1)
   })
 
-  it('deve adicionar e remover itens de serviço', () => {
+  it('deve adicionar e remover itens', () => {
     const orcamento = new Orcamento(1, cliente, imovel, pacoteServico, 'Semanal', 2, 4)
-    const itemServico = new ItemServico(servico, 1, 100)
+    const itemOrcamento = new ItemOrcamento(
+      'Limpeza Extra',
+      TipoItemOrcamento.SERVICO,
+      100,
+      1,
+      'UN',
+      'Serviço adicional',
+    )
 
-    orcamento.adicionarItemServico(itemServico)
-    expect(orcamento.ItensServico).toHaveLength(1)
-    expect(orcamento.ItensServico[0]).toBe(itemServico)
+    orcamento.adicionarItem(itemOrcamento)
+    expect(orcamento.Itens).toHaveLength(1)
+    expect(orcamento.Itens[0]).toBe(itemOrcamento)
 
-    orcamento.removerItemServico(itemServico)
-    expect(orcamento.ItensServico).toHaveLength(0)
+    orcamento.removerItem(itemOrcamento)
+    expect(orcamento.Itens).toHaveLength(0)
   })
 
-  it('deve adicionar e remover itens de material', () => {
+  it('deve filtrar itens por tipo', () => {
     const orcamento = new Orcamento(1, cliente, imovel, pacoteServico, 'Semanal', 2, 4)
-    const itemMaterial = new ItemMaterial(material, 2, 50)
+    const itemServico = new ItemOrcamento(
+      'Limpeza Extra',
+      TipoItemOrcamento.SERVICO,
+      100,
+      1,
+      'UN',
+      'Serviço adicional',
+    )
+    const itemMaterial = new ItemOrcamento(
+      'Detergente Extra',
+      TipoItemOrcamento.MATERIAL,
+      50,
+      2,
+      'UN',
+      'Material adicional',
+    )
 
-    orcamento.adicionarItemMaterial(itemMaterial)
-    expect(orcamento.ItensMaterial).toHaveLength(1)
-    expect(orcamento.ItensMaterial[0]).toBe(itemMaterial)
+    orcamento.adicionarItem(itemServico)
+    orcamento.adicionarItem(itemMaterial)
 
-    orcamento.removerItemMaterial(itemMaterial)
-    expect(orcamento.ItensMaterial).toHaveLength(0)
+    expect(orcamento.obterItensServico()).toHaveLength(1)
+    expect(orcamento.obterItensServico()[0]).toBe(itemServico)
+    expect(orcamento.obterItensMaterial()).toHaveLength(1)
+    expect(orcamento.obterItensMaterial()[0]).toBe(itemMaterial)
   })
 
-  it('deve calcular corretamente o subtotal', () => {
+  it('deve calcular corretamente os subtotais', () => {
     const orcamento = new Orcamento(1, cliente, imovel, pacoteServico, 'Semanal', 2, 4)
-    const itemServico = new ItemServico(servico, 1, 100)
-    const itemMaterial = new ItemMaterial(material, 2, 50)
+    const itemServico = new ItemOrcamento('Limpeza Extra', TipoItemOrcamento.SERVICO, 100, 1, 'UN')
+    const itemMaterial = new ItemOrcamento(
+      'Detergente Extra',
+      TipoItemOrcamento.MATERIAL,
+      50,
+      2,
+      'UN',
+    )
 
-    orcamento.adicionarItemServico(itemServico)
-    orcamento.adicionarItemMaterial(itemMaterial)
+    orcamento.adicionarItem(itemServico)
+    orcamento.adicionarItem(itemMaterial)
 
     // 1 serviço x 100 + 2 materiais x 50 = 200
     expect(orcamento.Subtotal).toBe(200)
+    expect(orcamento.SubtotalServicos).toBe(100)
+    expect(orcamento.SubtotalMateriais).toBe(100)
   })
 
   it('deve calcular corretamente o valor total', () => {
@@ -155,11 +196,17 @@ describe('Orcamento', () => {
       20, // desconto
       10, // impostos
     )
-    const itemServico = new ItemServico(servico, 1, 100)
-    const itemMaterial = new ItemMaterial(material, 2, 50)
+    const itemServico = new ItemOrcamento('Limpeza Extra', TipoItemOrcamento.SERVICO, 100, 1, 'UN')
+    const itemMaterial = new ItemOrcamento(
+      'Detergente Extra',
+      TipoItemOrcamento.MATERIAL,
+      50,
+      2,
+      'UN',
+    )
 
-    orcamento.adicionarItemServico(itemServico)
-    orcamento.adicionarItemMaterial(itemMaterial)
+    orcamento.adicionarItem(itemServico)
+    orcamento.adicionarItem(itemMaterial)
 
     // subtotal (200) - desconto (20) + impostos (10) = 190
     expect(orcamento.ValorTotal).toBe(190)
@@ -228,19 +275,11 @@ describe('Orcamento', () => {
     ).toThrow('O pacote de serviço fornecido não é uma instância válida da classe PacoteServico')
   })
 
-  it('não deve aceitar item de serviço inválido', () => {
+  it('não deve aceitar item inválido', () => {
     const orcamento = new Orcamento(1, cliente, imovel, pacoteServico, 'Semanal', 2, 4)
 
-    expect(() => orcamento.adicionarItemServico({ descricao: 'Serviço Inválido' })).toThrow(
-      'O item fornecido não é uma instância válida da classe ItemServico',
-    )
-  })
-
-  it('não deve aceitar item de material inválido', () => {
-    const orcamento = new Orcamento(1, cliente, imovel, pacoteServico, 'Semanal', 2, 4)
-
-    expect(() => orcamento.adicionarItemMaterial({ descricao: 'Material Inválido' })).toThrow(
-      'O item fornecido não é uma instância válida da classe ItemMaterial',
+    expect(() => orcamento.adicionarItem({ descricao: 'Item Inválido' })).toThrow(
+      'O item fornecido não é uma instância válida da classe ItemOrcamento',
     )
   })
 
@@ -248,10 +287,22 @@ describe('Orcamento', () => {
     const orcamento = new Orcamento(1, cliente, imovel, pacoteServico, 'Semanal', 2, 4)
 
     // Adiciona itens avulsos ao orçamento
-    const itemServicoAvulso = new ItemServico(servico, 2, 200)
-    const itemMaterialAvulso = new ItemMaterial(material, 3, 75)
-    orcamento.adicionarItemServico(itemServicoAvulso)
-    orcamento.adicionarItemMaterial(itemMaterialAvulso)
+    const itemServicoAvulso = new ItemOrcamento(
+      'Serviço Avulso',
+      TipoItemOrcamento.SERVICO,
+      200,
+      2,
+      'UN',
+    )
+    const itemMaterialAvulso = new ItemOrcamento(
+      'Material Avulso',
+      TipoItemOrcamento.MATERIAL,
+      75,
+      3,
+      'UN',
+    )
+    orcamento.adicionarItem(itemServicoAvulso)
+    orcamento.adicionarItem(itemMaterialAvulso)
 
     // Cria novo pacote com itens diferentes
     const novoPacote = new PacoteServico('Pacote Premium', 'Limpeza premium')
@@ -265,9 +316,17 @@ describe('Orcamento', () => {
 
     // Verifica se os itens antigos foram substituídos pelos novos
     expect(orcamento.PacoteServico).toBe(novoPacote)
-    expect(orcamento.ItensServico).toHaveLength(1)
-    expect(orcamento.ItensServico[0]).toBe(novoItemServico)
-    expect(orcamento.ItensMaterial).toHaveLength(1)
-    expect(orcamento.ItensMaterial[0]).toBe(novoItemMaterial)
+    expect(orcamento.Itens).toHaveLength(2) // Apenas os itens do novo pacote
+    expect(orcamento.obterItensServico()).toHaveLength(1)
+    expect(orcamento.obterItensMaterial()).toHaveLength(1)
+
+    // Verifica se os itens foram convertidos corretamente
+    const itemServicoConvertido = orcamento.obterItensServico()[0]
+    expect(itemServicoConvertido.Descricao).toBe(servico.Descricao)
+    expect(itemServicoConvertido.Custo).toBe(servico.Valor) // 100
+
+    const itemMaterialConvertido = orcamento.obterItensMaterial()[0]
+    expect(itemMaterialConvertido.Descricao).toBe(material.Descricao)
+    expect(itemMaterialConvertido.Custo).toBe(60) // ItemMaterial.CustoUnitario
   })
 })

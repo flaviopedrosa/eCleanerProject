@@ -36,6 +36,8 @@ export default defineRouter(function (/* { store, ssrContext } */) {
 
   // Guard de autenticação
   Router.beforeEach((to, from, next) => {
+    console.log('🔒 Router Guard:', { to: to.path, from: from.path })
+    
     const authStore = useAuthStore()
 
     // Inicializar autenticação se ainda não foi feita
@@ -47,17 +49,22 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     const requiresGuest = to.matched.some((record) => record.meta.requiresGuest)
     const isAuthenticated = authStore.isAuthenticated
 
+    console.log('🔒 Auth Status:', { requiresAuth, requiresGuest, isAuthenticated })
+
     if (requiresAuth && !isAuthenticated) {
       // Rota protegida, mas usuário não está autenticado
+      console.log('🔒 Redirecting to /login')
       next({
         path: '/login',
         query: { redirect: to.fullPath },
       })
     } else if (requiresGuest && isAuthenticated) {
       // Rota para convidados (login), mas usuário já está autenticado
+      console.log('🔒 Redirecting to /')
       next('/')
     } else {
       // Permitir acesso
+      console.log('🔒 Access granted')
       next()
     }
   })

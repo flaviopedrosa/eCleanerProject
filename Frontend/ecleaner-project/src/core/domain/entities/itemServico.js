@@ -27,11 +27,11 @@ export class ItemServico {
   }
 
   /**
-   * Calcula o valor total do item baseado na quantidade e custo unit\u00e1rio do servi\u00e7o
+   * Calcula o valor total do item baseado na quantidade e valor do serviço
    * @returns {number} O valor total do item
    */
   calcularValorTotal() {
-    return this.Quantidade * this.Servico.CustoUnitario
+    return this.Quantidade * this.Servico.Valor
   }
 
   /**

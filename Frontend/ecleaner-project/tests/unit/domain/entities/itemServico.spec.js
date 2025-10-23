@@ -3,8 +3,8 @@ import { ItemServico } from '@/core/domain/entities/itemServico'
 import { Servico } from '@/core/domain/entities/servico'
 
 describe('ItemServico', () => {
-  // Servi\u00e7o exemplo para usar nos testes
-  const servicoExemplo = new Servico('Limpeza Geral', 50.0, 'Hora', 'Limpeza completa do ambiente')
+  // Serviço exemplo para usar nos testes
+  const servicoExemplo = new Servico('Limpeza Geral', 'Limpeza completa do ambiente', 50.0, 'Hora')
 
   it('deve criar uma inst\u00e2ncia de ItemServico com os dados corretos', () => {
     const item = new ItemServico(servicoExemplo, 4, 240, 2)
@@ -18,7 +18,7 @@ describe('ItemServico', () => {
   })
 
   it('deve calcular corretamente o valor total', () => {
-    const servicoCaro = new Servico('Servi\u00e7o Premium', 100.0, 'Hora', 'Servi\u00e7o especial')
+    const servicoCaro = new Servico('Serviço Premium', 'Serviço especial', 100.0, 'Hora')
     const item = new ItemServico(servicoCaro, 3, 180, 1)
 
     expect(item.ValorTotal).toBe(300) // 3 unidades * R$ 100,00
@@ -33,7 +33,7 @@ describe('ItemServico', () => {
   it('n\u00e3o deve aceitar um servi\u00e7o inv\u00e1lido', () => {
     const servicoInvalido = {
       descricao: 'Servi\u00e7o Inv\u00e1lido',
-      custoUnitario: 50.0,
+      valor: 50.0,
     }
 
     expect(() => {

@@ -15,8 +15,6 @@
             {{ $t('pages.clientList.subtitle') }}
           </p>
           <div class="row q-gutter-sm">
-            <q-btn color="secondary" :label="$t('pages.clientList.buttons.loadTestData')" icon="dataset"
-              @click="loadTestData" />
             <q-btn color="primary" :label="$t('pages.clientList.buttons.newClient')" icon="add" to="/clientes/novo" />
           </div>
         </div>
@@ -52,29 +50,12 @@
       </q-card-section>
     </q-card>
 
-    <!-- Feedback de carregamento de dados de teste -->
-    <q-dialog v-model="testDataDialog">
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">{{ $t('pages.clientList.messages.loadingTestData') }}</div>
-        </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          {{ $t('pages.clientList.messages.loadingTestDataDesc') }}
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat :label="$t('pages.clientList.buttons.cancel')" color="primary" v-close-popup />
-          <q-btn :label="$t('pages.clientList.buttons.confirm')" color="primary" @click="confirmLoadTestData"
-            v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
 
     <!-- Tabela -->
     <!-- Tabela para Desktop -->
     <div class="gt-sm">
-      <q-table :rows="filteredClients" :columns="columns" row-key="id" :loading="loading" :pagination="pagination"
+      <q-table :rows="filteredClients" :columns="columns" row-key="Id" :loading="loading" :pagination="pagination"
         @request="onRequest" :rows-per-page-options="[10, 20, 50]" binary-state-sort>
         <!-- Slots para personalização das células -->
         <template v-slot:body-cell-nome="props">
@@ -98,9 +79,40 @@
           </q-td>
         </template>
 
+        <template v-slot:body-cell-imoveis="props">
+          <q-td :props="props">
+            <div class="properties-cell">
+              <div v-if="!props.row.Imoveis || props.row.Imoveis.length === 0" class="text-grey-6">
+                {{ $t('pages.clientList.noProperties') }}
+              </div>
+              <div v-else>
+                <q-chip v-for="(imovel, index) in props.row.Imoveis" :key="index" dense size="sm" color="green-1"
+                  text-color="green-8" class="q-ma-none q-mr-xs q-mb-xs">
+                  <q-icon name="home" size="xs" class="q-mr-xs" />
+                  {{ imovel.TotalComodos }} {{ $t('pages.clientList.rooms') }}
+                  <q-tooltip>
+                    <div>
+                      <strong>{{ $t('pages.clientList.propertyDetails') }}:</strong><br>
+                      {{ $t('pages.clientList.totalRooms') }}: {{ imovel.TotalComodos }}<br>
+                      {{ $t('pages.clientList.bedrooms') }}: {{ imovel.NumeroQuartos || 0 }}<br>
+                      {{ $t('pages.clientList.bathrooms') }}: {{ imovel.NumeroBanheiros || 0 }}<br>
+                      <strong>{{ $t('pages.clientList.address') }}:</strong><br>
+                      {{ imovel.Endereco ? formatEndereco(imovel.Endereco) : $t('pages.clientList.noAddress') }}
+                      <div v-if="imovel.Observacao" class="q-mt-sm">
+                        <strong>{{ $t('pages.clientList.observations') }}:</strong><br>
+                        {{ imovel.Observacao }}
+                      </div>
+                    </div>
+                  </q-tooltip>
+                </q-chip>
+              </div>
+            </div>
+          </q-td>
+        </template>
+
         <template v-slot:body-cell-actions="props">
           <q-td :props="props" class="q-gutter-x-sm">
-            <q-btn flat round color="primary" icon="edit" :to="'/clientes/' + props.row.id + '/editar'">
+            <q-btn flat round color="primary" icon="edit" :to="'/clientes/' + props.row.Id + '/editar'">
               <q-tooltip>{{ $t('pages.clientList.buttons.edit') }}</q-tooltip>
             </q-btn>
             <q-btn flat round color="negative" icon="delete" @click="confirmarExclusao(props.row)">
@@ -114,7 +126,7 @@
     <!-- Cards para mobile -->
     <div class="lt-md">
       <div class="row q-col-gutter-md">
-        <div v-for="cliente in filteredClients" :key="cliente.id" class="col-12">
+        <div v-for="cliente in filteredClients" :key="cliente.Id" class="col-12">
           <q-card flat bordered>
             <q-card-section>
               <div class="row items-center q-mb-md">
@@ -149,6 +161,32 @@
                     </q-chip>
                   </div>
                 </div>
+
+                <!-- Imóveis -->
+                <div class="row items-start" v-if="cliente.Imoveis && cliente.Imoveis.length > 0">
+                  <q-icon name="home" size="sm" color="grey-7" class="q-mr-sm q-mt-xs" />
+                  <div class="col">
+                    <q-chip v-for="(imovel, index) in cliente.Imoveis" :key="index" dense size="sm" color="green-1"
+                      text-color="green-8" class="q-ma-none q-mr-xs q-mb-xs">
+                      <q-icon name="home" size="xs" class="q-mr-xs" />
+                      {{ imovel.TotalComodos }} {{ $t('pages.clientList.rooms') }}
+                      <q-tooltip>
+                        <div>
+                          <strong>{{ $t('pages.clientList.propertyDetails') }}:</strong><br>
+                          {{ $t('pages.clientList.totalRooms') }}: {{ imovel.TotalComodos }}<br>
+                          {{ $t('pages.clientList.bedrooms') }}: {{ imovel.NumeroQuartos || 0 }}<br>
+                          {{ $t('pages.clientList.bathrooms') }}: {{ imovel.NumeroBanheiros || 0 }}<br>
+                          <strong>{{ $t('pages.clientList.address') }}:</strong><br>
+                          {{ imovel.Endereco ? formatEndereco(imovel.Endereco) : $t('pages.clientList.noAddress') }}
+                          <div v-if="imovel.Observacao" class="q-mt-sm">
+                            <strong>{{ $t('pages.clientList.observations') }}:</strong><br>
+                            {{ imovel.Observacao }}
+                          </div>
+                        </div>
+                      </q-tooltip>
+                    </q-chip>
+                  </div>
+                </div>
               </div>
             </q-card-section>
 
@@ -156,7 +194,7 @@
 
             <q-card-actions align="right">
               <q-btn flat color="primary" icon="edit" :label="$t('pages.clientList.buttons.edit')"
-                :to="'/clientes/' + cliente.id + '/editar'" />
+                :to="'/clientes/' + cliente.Id + '/editar'" />
               <q-btn flat color="negative" icon="delete" :label="$t('pages.clientList.buttons.delete')"
                 @click="confirmarExclusao(cliente)" />
             </q-card-actions>
@@ -198,7 +236,6 @@
 import { ref, computed, defineComponent, onMounted, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
-import { seedClientes } from '../core/infrastructure/repositories/seeds/clienteSeed'
 import { ClienteRepository } from 'src/core/infrastructure/repositories/clienteRepository'
 
 export default defineComponent({
@@ -230,33 +267,7 @@ export default defineComponent({
       cliente: null
     })
 
-    const testDataDialog = ref(false)
     const clientes = ref([])
-
-    // Funções para carregar dados de teste
-    const loadTestData = () => {
-      testDataDialog.value = true
-    }
-
-    const confirmLoadTestData = async () => {
-      try {
-        loading.value = true
-        await seedClientes()
-        await loadClientes()
-        $q.notify({
-          color: 'positive',
-          message: t('pages.clientList.messages.testDataLoaded')
-        })
-      } catch (error) {
-        console.error('Erro ao carregar dados de teste:', error)
-        $q.notify({
-          color: 'negative',
-          message: t('pages.clientList.messages.loadError')
-        })
-      } finally {
-        loading.value = false
-      }
-    }
 
     // Carrega os clientes do repositório
     const loadClientes = async () => {
@@ -325,6 +336,14 @@ export default defineComponent({
         field: row => (row.Enderecos || []).map(e => formatEndereco(e)).join('\n')
       },
       {
+        name: 'imoveis',
+        required: false,
+        label: t('pages.clientList.columns.properties'),
+        align: 'left',
+        style: 'max-width: 250px; white-space: normal; word-break: break-word',
+        field: row => formatImoveisInfo(row.Imoveis || [])
+      },
+      {
         name: 'status',
         required: true,
         label: t('pages.clientList.columns.status'),
@@ -349,6 +368,19 @@ export default defineComponent({
       if (!endereco) return ''
       const { Logradouro, Numero, Bairro, Cidade, Estado } = endereco
       return `${Logradouro}, ${Numero} - ${Bairro}, ${Cidade}/${Estado}`
+    }
+
+    const formatImoveisInfo = (imoveis) => {
+      if (!imoveis || imoveis.length === 0) return t('pages.clientList.noProperties')
+
+      return imoveis.map(imovel => {
+        const endereco = imovel.Endereco
+        const enderecoFormatado = endereco ?
+          `${endereco.Logradouro}, ${endereco.Numero} - ${endereco.Bairro}` :
+          t('pages.clientList.noAddress')
+
+        return `${imovel.TotalComodos} ${t('pages.clientList.rooms')} - ${enderecoFormatado}`
+      }).join('\n')
     }
 
     // Computed properties
@@ -419,7 +451,7 @@ export default defineComponent({
       if (!cliente) return
 
       try {
-        await clienteRepository.delete(cliente.id)
+        await clienteRepository.delete(cliente.Id)
         await loadClientes() // Recarrega a lista
 
         $q.notify({
@@ -448,12 +480,10 @@ export default defineComponent({
       columns,
       pagination,
       dialogExclusao,
-      testDataDialog,
-      loadTestData,
-      confirmLoadTestData,
       filteredClients,
       getInitials,
       formatEndereco,
+      formatImoveisInfo,
       confirmarExclusao,
       excluirCliente,
       clientes,

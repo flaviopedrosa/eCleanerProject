@@ -71,7 +71,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
+    <q-drawer v-model="leftDrawerOpen" side="left" bordered>
       <q-list padding>
         <q-item-label header>Menu</q-item-label>
 
@@ -159,6 +159,78 @@
             </q-expansion-item>
           </q-list>
         </q-expansion-item>
+
+        <!-- Menu Serviços -->
+        <q-expansion-item icon="build" :label="$t('menu.servicos.title')"
+          :header-class="isInServicosRoute ? 'text-primary' : ''">
+          <q-item clickable v-ripple to="/servicos/novo">
+            <q-item-section avatar>
+              <q-icon name="add" />
+            </q-item-section>
+            <q-item-section>{{ $t('menu.servicos.new') }}</q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple to="/servicos">
+            <q-item-section avatar>
+              <q-icon name="list" />
+            </q-item-section>
+            <q-item-section>{{ $t('menu.servicos.list') }}</q-item-section>
+          </q-item>
+        </q-expansion-item>
+
+        <!-- Menu Pacotes de Serviços -->
+        <q-expansion-item icon="inventory" :label="$t('menu.pacotesServicos.title')"
+          :header-class="isInPacotesServicosRoute ? 'text-primary' : ''">
+          <q-item clickable v-ripple to="/pacotes-servicos/novo">
+            <q-item-section avatar>
+              <q-icon name="add" />
+            </q-item-section>
+            <q-item-section>{{ $t('menu.pacotesServicos.new') }}</q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple to="/pacotes-servicos">
+            <q-item-section avatar>
+              <q-icon name="list" />
+            </q-item-section>
+            <q-item-section>{{ $t('menu.pacotesServicos.list') }}</q-item-section>
+          </q-item>
+        </q-expansion-item>
+
+        <!-- Menu Materiais -->
+        <q-expansion-item icon="category" :label="$t('menu.materiais.title')"
+          :header-class="isInMateriaisRoute ? 'text-primary' : ''">
+          <q-item clickable v-ripple to="/materiais/novo">
+            <q-item-section avatar>
+              <q-icon name="add" />
+            </q-item-section>
+            <q-item-section>{{ $t('menu.materiais.new') }}</q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple to="/materiais">
+            <q-item-section avatar>
+              <q-icon name="list" />
+            </q-item-section>
+            <q-item-section>{{ $t('menu.materiais.list') }}</q-item-section>
+          </q-item>
+        </q-expansion-item>
+
+        <!-- Menu Orçamentos -->
+        <q-expansion-item icon="receipt_long" :label="$t('menu.orcamentos.title')"
+          :header-class="isInOrcamentosRoute ? 'text-primary' : ''">
+          <q-item clickable v-ripple to="/orcamentos/novo">
+            <q-item-section avatar>
+              <q-icon name="add" />
+            </q-item-section>
+            <q-item-section>{{ $t('menu.orcamentos.new') }}</q-item-section>
+          </q-item>
+
+          <q-item clickable v-ripple to="/orcamentos">
+            <q-item-section avatar>
+              <q-icon name="list" />
+            </q-item-section>
+            <q-item-section>{{ $t('menu.orcamentos.list') }}</q-item-section>
+          </q-item>
+        </q-expansion-item>
       </q-list>
     </q-drawer>
 
@@ -221,6 +293,10 @@ export default defineComponent({
     const isInClientsRoute = computed(() => route.path.startsWith('/clientes'))
     const isInEmployeesRoute = computed(() => route.path.startsWith('/colaboradores'))
     const isInScheduleRoute = computed(() => route.path.startsWith('/schedules'))
+    const isInServicosRoute = computed(() => route.path.startsWith('/servicos'))
+    const isInPacotesServicosRoute = computed(() => route.path.startsWith('/pacotes-servicos'))
+    const isInMateriaisRoute = computed(() => route.path.startsWith('/materiais'))
+    const isInOrcamentosRoute = computed(() => route.path.startsWith('/orcamentos'))
 
     const isInPessoasRoute = computed(() =>
       route.path.startsWith('/pessoas') ||
@@ -278,7 +354,11 @@ export default defineComponent({
       isInClientsRoute,
       isInEmployeesRoute,
       isInScheduleRoute,
-      isInTeamsRoute
+      isInTeamsRoute,
+      isInServicosRoute,
+      isInPacotesServicosRoute,
+      isInMateriaisRoute,
+      isInOrcamentosRoute
     }
   }
 })

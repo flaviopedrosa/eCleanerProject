@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teste de Transição - Seção Cliente</title>
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .demo-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .expansion-header {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        cursor: pointer;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease-in-out;
+      }
+
+      .expansion-header:hover {
+        background-color: #f0f0f0;
+      }
+
+      .header-icon {
+        margin-right: 16px;
+        font-size: 24px;
+        color: #666;
+      }
+
+      .header-content {
+        flex: 1;
+      }
+
+      .header-title {
+        font-size: 18px;
+        font-weight: 500;
+        margin: 0;
+      }
+
+      .header-summary {
+        font-size: 14px;
+        color: #666;
+        margin: 4px 0 0 0;
+        transition: all 0.3s ease-in-out;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .header-summary.fade-enter {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      .header-summary.fade-leave {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      .expansion-content {
+        padding: 16px;
+        border: 1px solid #e0e0e0;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        background-color: #fafafa;
+        transition: all 0.3s ease-in-out;
+      }
+
+      .expansion-content.hidden {
+        display: none;
+      }
+
+      .toggle-arrow {
+        transition: transform 0.3s ease-in-out;
+        font-size: 20px;
+      }
+
+      .toggle-arrow.expanded {
+        transform: rotate(90deg);
+      }
+
+      .demo-controls {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .demo-button {
+        background: #1976d2;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 0 5px;
+        transition: background-color 0.3s;
+      }
+
+      .demo-button:hover {
+        background: #1565c0;
+      }
+
+      .status {
+        text-align: center;
+        margin: 10px 0;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <h1>Teste de Transição - Seção Cliente</h1>
+      <p>
+        Este é um teste da funcionalidade de transição implementada na seção cliente do
+        OrcamentoCadastroPage.
+      </p>
+
+      <div class="demo-controls">
+        <button class="demo-button" onclick="toggleExpansion()">Alternar Seção</button>
+        <button class="demo-button" onclick="toggleClientData()">Alternar Dados do Cliente</button>
+      </div>
+
+      <div class="status" id="status">Seção expandida: Sim | Cliente selecionado: Não</div>
+
+      <div class="expansion-header" onclick="toggleExpansion()">
+        <div class="header-icon">👤</div>
+        <div class="header-content">
+          <h3 class="header-title">Cliente</h3>
+          <p class="header-summary" id="clientSummary" style="display: none"></p>
+        </div>
+        <div class="toggle-arrow" id="toggleArrow">▶</div>
+      </div>
+
+      <div class="expansion-content" id="expansionContent">
+        <h4>Seleção do Cliente</h4>
+        <p>🔍 <strong>Cliente:</strong> <span id="clientName">Nenhum cliente selecionado</span></p>
+        <p>🏠 <strong>Imóvel:</strong> <span id="propertyInfo">Nenhum imóvel selecionado</span></p>
+        <p>📍 <strong>Endereço:</strong> <span id="addressInfo">Endereço não informado</span></p>
+
+        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px">
+          <strong>Campos do formulário apareceriam aqui...</strong><br />
+          • Select de cliente<br />
+          • Select de imóvel<br />
+          • Informações detalhadas do imóvel
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let isExpanded = true
+      let hasClientData = false
+
+      const clientData = {
+        name: 'João Silva',
+        property: '3Q 2B • 80m²',
+        address: 'Rua das Flores, 123 - Centro, São Paulo - SP',
+      }
+
+      function updateStatus() {
+        document.getElementById('status').textContent =
+          `Seção expandida: ${isExpanded ? 'Sim' : 'Não'} | Cliente selecionado: ${hasClientData ? 'Sim' : 'Não'}`
+      }
+
+      function updateSummary() {
+        const summaryElement = document.getElementById('clientSummary')
+
+        if (!isExpanded && hasClientData) {
+          summaryElement.textContent = `${clientData.name} • ${clientData.property} • ${clientData.address}`
+          summaryElement.style.display = 'block'
+          summaryElement.classList.remove('fade-leave')
+          summaryElement.classList.add('fade-enter')
+
+          setTimeout(() => {
+            summaryElement.classList.remove('fade-enter')
+          }, 300)
+        } else {
+          summaryElement.classList.add('fade-leave')
+          setTimeout(() => {
+            summaryElement.style.display = 'none'
+            summaryElement.classList.remove('fade-leave')
+          }, 300)
+        }
+      }
+
+      function updateClientDisplay() {
+        if (hasClientData) {
+          document.getElementById('clientName').textContent = clientData.name
+          document.getElementById('propertyInfo').textContent = clientData.property
+          document.getElementById('addressInfo').textContent = clientData.address
+        } else {
+          document.getElementById('clientName').textContent = 'Nenhum cliente selecionado'
+          document.getElementById('propertyInfo').textContent = 'Nenhum imóvel selecionado'
+          document.getElementById('addressInfo').textContent = 'Endereço não informado'
+        }
+      }
+
+      function toggleExpansion() {
+        isExpanded = !isExpanded
+
+        const content = document.getElementById('expansionContent')
+        const arrow = document.getElementById('toggleArrow')
+
+        if (isExpanded) {
+          content.classList.remove('hidden')
+          arrow.classList.add('expanded')
+          arrow.textContent = '▼'
+        } else {
+          content.classList.add('hidden')
+          arrow.classList.remove('expanded')
+          arrow.textContent = '▶'
+        }
+
+        updateStatus()
+        updateSummary()
+      }
+
+      function toggleClientData() {
+        hasClientData = !hasClientData
+        updateClientDisplay()
+        updateStatus()
+        updateSummary()
+      }
+
+      // Inicializar
+      updateStatus()
+      updateSummary()
+      updateClientDisplay()
+    </script>
+  </body>
+</html>

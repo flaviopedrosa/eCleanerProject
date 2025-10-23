@@ -4,76 +4,91 @@
     <div class="row items-center q-mb-xl">
       <div class="col">
         <div class="row items-center q-mb-sm">
+          <q-btn flat round icon="arrow_back" @click="$router.go(-1)" class="q-mr-md" />
           <q-icon name="person_add" size="2rem" class="text-secondary q-mr-md" />
           <h4 class="text-h5 q-ma-none text-secondary">
             {{ isEdit ? editTitle : $t('forms.colaborador.title') }}
           </h4>
         </div>
-        <div class="accent-divider"></div>
+        <div class="accent-divider q-mb-md"></div>
+        <div class="row justify-end">
+          <p class="text-subtitle1 text-grey-7 q-ma-none">
+            {{ isEdit ? $t('forms.colaborador.editSubtitle') : $t('forms.colaborador.subtitle') }}
+          </p>
+        </div>
       </div>
     </div>
 
     <q-form @submit="onSubmit" class="q-gutter-md">
-      <q-card>
-        <!-- Dados Pessoais -->
+      <!-- Dados Pessoais -->
+      <q-card flat bordered>
         <q-card-section>
-          <div class="text-subtitle1 q-mb-md">{{ $t('forms.colaborador.sections.personalData') }}</div>
+          <div class="text-h6 text-primary q-mb-md">
+            <q-icon name="person" class="q-mr-sm" />
+            {{ $t('forms.colaborador.sections.personalData') }}
+          </div>
+
           <div class="row q-col-gutter-md">
             <div class="col-12 col-md-6">
-              <q-input v-model="form.nome" :label="$t('forms.colaborador.fields.nome') + ' *'"
-                :rules="[val => !!val || $t('forms.validation.required')]" outlined />
+              <q-input v-model="form.nome" :label="$t('forms.colaborador.fields.nome') + ' *'" filled lazy-rules
+                :rules="[val => !!val || $t('forms.validation.required')]" />
             </div>
 
             <div class="col-12 col-md-6">
-              <q-input v-model="form.sobrenome" :label="$t('forms.colaborador.fields.sobrenome') + ' *'"
-                :rules="[val => !!val || $t('forms.validation.required')]" outlined />
+              <q-input v-model="form.sobrenome" :label="$t('forms.colaborador.fields.sobrenome') + ' *'" filled
+                lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
             </div>
 
             <div class="col-12 col-md-6">
-              <q-input v-model="form.email" type="email" :label="$t('forms.colaborador.fields.email') + ' *'" :rules="[
-                val => !!val || $t('forms.validation.required'),
-                val => isValidEmail(val) || $t('forms.validation.email')
-              ]" outlined />
+              <q-input v-model="form.email" type="email" :label="$t('forms.colaborador.fields.email') + ' *'" filled
+                lazy-rules :rules="[
+                  val => !!val || $t('forms.validation.required'),
+                  val => isValidEmail(val) || $t('forms.validation.email')
+                ]" />
             </div>
 
             <div class="col-12 col-md-3">
               <q-input v-model="form.telefone" :label="$t('forms.colaborador.fields.telefone')" mask="(##) ####-####"
-                outlined />
+                filled />
             </div>
 
             <div class="col-12 col-md-3">
               <q-input v-model="form.celular" :label="$t('forms.colaborador.fields.celular') + ' *'"
-                mask="(##) #####-####" :rules="[val => !!val || $t('forms.validation.required')]" outlined />
+                mask="(##) #####-####" filled lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
             </div>
 
             <div class="col-12 col-md-4">
               <q-input v-model="form.documentoIdentidade"
-                :label="$t('forms.colaborador.fields.documentoIdentidade') + ' *'"
-                :rules="[val => !!val || $t('forms.validation.required')]" outlined />
+                :label="$t('forms.colaborador.fields.documentoIdentidade') + ' *'" filled lazy-rules
+                :rules="[val => !!val || $t('forms.validation.required')]" />
             </div>
 
             <div class="col-12 col-md-4">
               <q-input v-model="form.dataNascimento" type="date"
-                :label="$t('forms.colaborador.fields.dataNascimento') + ' *'"
-                :rules="[val => !!val || $t('forms.validation.required')]" outlined />
+                :label="$t('forms.colaborador.fields.dataNascimento') + ' *'" filled lazy-rules
+                :rules="[val => !!val || $t('forms.validation.required')]" />
             </div>
 
             <div class="col-12 col-md-4">
-              <q-input v-model="form.nacionalidade" :label="$t('forms.colaborador.fields.nacionalidade') + ' *'"
-                :rules="[val => !!val || $t('forms.validation.required')]" outlined />
+              <q-input v-model="form.nacionalidade" :label="$t('forms.colaborador.fields.nacionalidade') + ' *'" filled
+                lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
             </div>
           </div>
         </q-card-section>
+      </q-card>
 
-        <q-separator />
-
-        <!-- Documentos -->
+      <!-- Documentos -->
+      <q-card flat bordered>
         <q-card-section>
-          <div class="text-subtitle1 q-mb-md">{{ $t('forms.colaborador.sections.documents') }}</div>
+          <div class="text-h6 text-primary q-mb-md">
+            <q-icon name="description" class="q-mr-sm" />
+            {{ $t('forms.colaborador.sections.documents') }}
+          </div>
+
           <div class="row q-col-gutter-md">
             <div class="col-12 col-md-6">
               <q-file v-model="form.fotoPerfil" :label="$t('forms.colaborador.fields.fotoPerfil')" accept="image/*"
-                outlined>
+                filled>
                 <template v-slot:prepend>
                   <q-icon name="photo" />
                 </template>
@@ -82,7 +97,7 @@
 
             <div class="col-12 col-md-6">
               <q-file v-model="form.curriculo" :label="$t('forms.colaborador.fields.curriculo')"
-                accept=".pdf,.doc,.docx" outlined>
+                accept=".pdf,.doc,.docx" filled>
                 <template v-slot:prepend>
                   <q-icon name="description" />
                 </template>
@@ -90,95 +105,126 @@
             </div>
           </div>
         </q-card-section>
-
-        <q-separator />
-
-        <!-- Informações Profissionais -->
+      </q-card>
+      <!-- Informações Profissionais -->
+      <q-card flat bordered>
         <q-card-section>
-          <div class="text-subtitle1 q-mb-md">{{ $t('forms.colaborador.sections.professionalInfo') }}</div>
+          <div class="text-h6 text-primary q-mb-md">
+            <q-icon name="work" class="q-mr-sm" />
+            {{ $t('forms.colaborador.sections.professionalInfo') }}
+          </div>
+
           <div class="row q-col-gutter-md">
             <div class="col-12 col-md-6">
               <q-input v-model="form.salarioEsperado" type="number"
-                :label="$t('forms.colaborador.fields.salarioEsperado') + ' *'" prefix="R$" :rules="[
+                :label="$t('forms.colaborador.fields.salarioEsperado') + ' *'" prefix="R$" filled lazy-rules :rules="[
                   val => !!val || $t('forms.validation.required'),
                   val => val > 0 || 'Valor deve ser maior que zero'
-                ]" outlined />
+                ]" />
             </div>
 
             <div class="col-12 col-md-6">
               <q-input v-model="form.disponibilidade" :label="$t('forms.colaborador.fields.disponibilidade') + ' *'"
-                :rules="[val => !!val || $t('forms.validation.required')]" outlined />
+                filled lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
             </div>
 
             <div class="col-12">
               <q-select v-model="form.regioesAtuacao" :label="$t('forms.colaborador.fields.regioesAtuacao') + ' *'"
-                multiple use-chips :rules="[val => val.length > 0 || $t('forms.validation.required')]" outlined>
+                multiple use-chips filled lazy-rules
+                :rules="[val => val.length > 0 || $t('forms.validation.required')]">
                 <!-- TODO: Adicionar opções de regiões -->
               </q-select>
             </div>
           </div>
         </q-card-section>
+      </q-card>
 
-        <q-separator />
-
-        <!-- Experiências -->
+      <!-- Experiências -->
+      <q-card flat bordered>
         <q-card-section>
           <div class="row items-center q-mb-md">
-            <div class="text-subtitle1">{{ $t('forms.colaborador.sections.experience') }}</div>
+            <div class="text-h6 text-primary">
+              <q-icon name="work_history" class="q-mr-sm" />
+              {{ $t('forms.colaborador.sections.experience') }}
+            </div>
             <q-space />
-            <q-btn color="primary" :label="$t('forms.colaborador.experience.addButton')" icon="add" flat
+            <q-btn color="primary" :label="$t('forms.colaborador.experience.addButton')" icon="add" size="sm"
               @click="addExperience" />
           </div>
 
-          <div v-for="(exp, index) in form.experiencias" :key="index" class="q-mb-lg">
-            <div class="row items-center q-mb-sm">
-              <div class="text-subtitle2">
-                {{ $t('forms.colaborador.experience.title', [index + 1]) }}
-              </div>
-              <q-space />
-              <q-btn icon="delete" color="negative" flat round dense @click="removeExperience(index)" />
-            </div>
+          <!-- Estado vazio -->
+          <div v-if="form.experiencias.length === 0" class="text-center text-grey-6 q-py-lg">
+            <q-icon name="work_history" size="48px" class="q-mb-md" />
+            <div class="text-body1">{{ $t('forms.colaborador.experience.noExperience') }}</div>
+            <div class="text-caption">{{ $t('forms.colaborador.experience.addFirstExperience') }}</div>
+          </div>
 
-            <div class="row q-col-gutter-md">
-              <div class="col-12 col-md-6">
-                <q-input v-model="exp.empresa" :label="$t('forms.colaborador.experience.fields.empresa') + ' *'"
-                  :rules="[val => !!val || $t('forms.validation.required')]" outlined />
-              </div>
+          <!-- Lista de experiências -->
+          <div v-for="(exp, index) in form.experiencias" :key="index" class="q-mb-md">
+            <q-card flat bordered class="bg-grey-1">
+              <q-card-section class="q-pb-none">
+                <div class="row items-center q-mb-sm">
+                  <div class="text-subtitle2">
+                    {{ $t('forms.colaborador.experience.title', [index + 1]) }}
+                  </div>
+                  <q-space />
+                  <q-btn flat round color="negative" icon="delete" size="sm" @click="removeExperience(index)" />
+                </div>
+              </q-card-section>
 
-              <div class="col-12 col-md-6">
-                <q-input v-model="exp.cargo" :label="$t('forms.colaborador.experience.fields.cargo') + ' *'"
-                  :rules="[val => !!val || $t('forms.validation.required')]" outlined />
-              </div>
+              <q-card-section class="q-pt-none">
+                <div class="row q-col-gutter-md">
+                  <div class="col-12 col-md-6">
+                    <q-input v-model="exp.empresa" :label="$t('forms.colaborador.experience.fields.empresa') + ' *'"
+                      filled lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
+                  </div>
 
-              <div class="col-12 col-md-6">
-                <q-input v-model="exp.dataInicio" type="date"
-                  :label="$t('forms.colaborador.experience.fields.dataInicio') + ' *'"
-                  :rules="[val => !!val || $t('forms.validation.required')]" outlined />
-              </div>
+                  <div class="col-12 col-md-6">
+                    <q-input v-model="exp.cargo" :label="$t('forms.colaborador.experience.fields.cargo') + ' *'" filled
+                      lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
+                  </div>
 
-              <div class="col-12 col-md-6">
-                <q-input v-model="exp.dataFim" type="date" :label="$t('forms.colaborador.experience.fields.dataFim')"
-                  outlined />
-              </div>
+                  <div class="col-12 col-md-6">
+                    <q-input v-model="exp.dataInicio" type="date"
+                      :label="$t('forms.colaborador.experience.fields.dataInicio') + ' *'" filled lazy-rules
+                      :rules="[val => !!val || $t('forms.validation.required')]" />
+                  </div>
 
-              <div class="col-12">
-                <q-input v-model="exp.atividades" type="textarea"
-                  :label="$t('forms.colaborador.experience.fields.atividades') + ' *'"
-                  :rules="[val => !!val || $t('forms.validation.required')]" outlined />
-              </div>
-            </div>
+                  <div class="col-12 col-md-6">
+                    <q-input v-model="exp.dataFim" type="date"
+                      :label="$t('forms.colaborador.experience.fields.dataFim')" filled />
+                  </div>
+
+                  <div class="col-12">
+                    <q-input v-model="exp.atividades" type="textarea"
+                      :label="$t('forms.colaborador.experience.fields.atividades') + ' *'" filled lazy-rules
+                      :rules="[val => !!val || $t('forms.validation.required')]" />
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
           </div>
         </q-card-section>
+      </q-card>
 
-        <q-separator />
-
-        <!-- Referências -->
+      <!-- Referências -->
+      <q-card flat bordered>
         <q-card-section>
           <div class="row items-center q-mb-md">
-            <div class="text-subtitle1">{{ $t('forms.colaborador.sections.references') }}</div>
+            <div class="text-h6 text-primary">
+              <q-icon name="contacts" class="q-mr-sm" />
+              {{ $t('forms.colaborador.sections.references') }}
+            </div>
             <q-space />
-            <q-btn color="primary" :label="$t('forms.colaborador.reference.addButton')" icon="add" flat
+            <q-btn color="primary" :label="$t('forms.colaborador.reference.addButton')" icon="add" size="sm"
               @click="addReference" />
+          </div>
+
+          <!-- Estado vazio -->
+          <div v-if="form.referencias.length === 0" class="text-center text-grey-6 q-py-lg">
+            <q-icon name="contacts" size="48px" class="q-mb-md" />
+            <div class="text-body1">{{ $t('forms.colaborador.reference.noReferences') }}</div>
+            <div class="text-caption">{{ $t('forms.colaborador.reference.addFirstReference') }}</div>
           </div>
 
           <div v-for="(ref, index) in form.referencias" :key="index" class="q-mb-lg">
