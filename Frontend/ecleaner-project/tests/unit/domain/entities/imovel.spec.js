@@ -131,4 +131,127 @@ describe('Imovel', () => {
       'O dono fornecido não é uma instância válida da classe Pessoa',
     )
   })
+
+  // Testes para funcionalidades de imagem
+  describe('Gerenciamento de Imagens', () => {
+    let imovel
+
+    beforeEach(() => {
+      imovel = new Imovel(8, 3, 2, 150, enderecoExemplo, donoExemplo)
+    })
+
+    it('deve inicializar com lista de imagens vazia', () => {
+      expect(imovel.Imagens).toEqual([])
+      expect(imovel.TotalImagens).toBe(0)
+      expect(imovel.possuiImagens()).toBe(false)
+      expect(imovel.ImagemPrincipal).toBeNull()
+    })
+
+    it('deve aceitar lista de imagens no construtor', () => {
+      const imagensIniciais = ['imagem1.jpg', 'imagem2.jpg']
+      const imovelComImagens = new Imovel(
+        8,
+        3,
+        2,
+        150,
+        enderecoExemplo,
+        donoExemplo,
+        'Observação',
+        imagensIniciais,
+      )
+      expect(imovelComImagens.Imagens).toEqual(imagensIniciais)
+    })
+
+    it('deve adicionar imagem como string (URL)', () => {
+      const urlImagem = 'https://exemplo.com/imagem.jpg'
+      imovel.adicionarImagem(urlImagem, 'Foto da sala')
+
+      expect(imovel.TotalImagens).toBe(1)
+      expect(imovel.possuiImagens()).toBe(true)
+
+      const imagem = imovel.Imagens[0]
+      expect(imagem.url).toBe(urlImagem)
+      expect(imagem.descricao).toBe('Foto da sala')
+      expect(imagem.id).toBeDefined()
+      expect(imagem.dataUpload).toBeDefined()
+    })
+
+    it('deve adicionar imagem como objeto', () => {
+      const objetoImagem = {
+        url: 'https://exemplo.com/imagem.jpg',
+        name: 'imagem.jpg',
+        type: 'image/jpeg',
+        size: 1024000,
+      }
+
+      imovel.adicionarImagem(objetoImagem, 'Foto do quarto')
+
+      expect(imovel.TotalImagens).toBe(1)
+
+      const imagem = imovel.Imagens[0]
+      expect(imagem.url).toBe(objetoImagem.url)
+      expect(imagem.nome).toBe(objetoImagem.name)
+      expect(imagem.tipo).toBe(objetoImagem.type)
+      expect(imagem.tamanho).toBe(objetoImagem.size)
+      expect(imagem.descricao).toBe('Foto do quarto')
+    })
+
+    it('deve rejeitar adição de imagem vazia', () => {
+      expect(() => imovel.adicionarImagem('')).toThrow('A imagem é obrigatória')
+      expect(() => imovel.adicionarImagem(null)).toThrow('A imagem é obrigatória')
+      expect(() => imovel.adicionarImagem(undefined)).toThrow('A imagem é obrigatória')
+    })
+
+    it('deve remover imagem pelo ID', () => {
+      imovel.adicionarImagem('imagem1.jpg')
+      imovel.adicionarImagem('imagem2.jpg')
+
+      expect(imovel.TotalImagens).toBe(2)
+
+      const primeiraImagem = imovel.Imagens[0]
+      imovel.removerImagem(primeiraImagem.id)
+
+      expect(imovel.TotalImagens).toBe(1)
+      expect(imovel.obterImagemPorId(primeiraImagem.id)).toBeNull()
+    })
+
+    it('deve atualizar descrição da imagem', () => {
+      imovel.adicionarImagem('imagem.jpg', 'Descrição antiga')
+
+      const imagem = imovel.Imagens[0]
+      imovel.atualizarDescricaoImagem(imagem.id, 'Nova descrição')
+
+      expect(imagem.descricao).toBe('Nova descrição')
+    })
+
+    it('deve obter imagem por ID', () => {
+      imovel.adicionarImagem('imagem.jpg')
+
+      const imagemAdicionada = imovel.Imagens[0]
+      const imagemEncontrada = imovel.obterImagemPorId(imagemAdicionada.id)
+
+      expect(imagemEncontrada).toBe(imagemAdicionada)
+      expect(imovel.obterImagemPorId('id-inexistente')).toBeNull()
+    })
+
+    it('deve obter todas as imagens', () => {
+      imovel.adicionarImagem('imagem1.jpg')
+      imovel.adicionarImagem('imagem2.jpg')
+
+      const todasImagens = imovel.obterTodasImagens()
+
+      expect(todasImagens).toHaveLength(2)
+      expect(todasImagens).not.toBe(imovel.Imagens) // Deve retornar uma cópia
+    })
+
+    it('deve retornar imagem principal como primeira imagem', () => {
+      expect(imovel.ImagemPrincipal).toBeNull()
+
+      imovel.adicionarImagem('principal.jpg')
+      imovel.adicionarImagem('segunda.jpg')
+
+      expect(imovel.ImagemPrincipal).toBe(imovel.Imagens[0])
+      expect(imovel.ImagemPrincipal.url).toBe('principal.jpg')
+    })
+  })
 })

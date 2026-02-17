@@ -22,28 +22,22 @@ export class ServicoRepository {
   buscarTodos() {
     const servicosJson = JSON.parse(localStorage.getItem(this.storageKey) || '[]')
     return servicosJson.map((servicoData) => {
-      // Se já é uma instância de Servico, retorna como está
-      if (servicoData instanceof Servico) return servicoData
-
-      // Se tem a estrutura nova (com propriedades capitalizadas)
-      if (servicoData.Nome) {
-        return new Servico(
-          servicoData.Nome,
-          servicoData.Descricao,
-          servicoData.Valor,
-          servicoData.Unidade,
-          servicoData.Observacao,
-        )
-      }
-
-      // Se tem a estrutura antiga (com propriedades minúsculas) - para compatibilidade
-      return new Servico(
-        servicoData.nome || servicoData.Nome,
-        servicoData.descricao || servicoData.Descricao,
-        servicoData.valor || servicoData.Valor,
-        servicoData.unidade || servicoData.Unidade || 'Unidade',
-        servicoData.observacao || servicoData.Observacao || '',
+      // Sempre recria a instância de Servico para garantir que tenha todos os métodos
+      const servico = new Servico(
+        servicoData.Nome || servicoData.nome,
+        servicoData.Descricao || servicoData.descricao,
+        servicoData.Valor || servicoData.valor,
+        servicoData.Unidade || servicoData.unidade || 'Unidade',
+        servicoData.Observacao || servicoData.observacao || '',
       )
+
+      // Preservar ID e outras propriedades
+      servico.Id = servicoData.Id
+      servico.Ativo = servicoData.Ativo !== undefined ? servicoData.Ativo : true
+      servico.CriadoEm = servicoData.CriadoEm || new Date().toISOString()
+      servico.AtualizadoEm = servicoData.AtualizadoEm || new Date().toISOString()
+
+      return servico
     })
   }
 

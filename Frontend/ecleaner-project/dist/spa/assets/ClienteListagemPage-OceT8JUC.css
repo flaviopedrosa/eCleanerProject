@@ -1,0 +1,48 @@
+.no-horizontal-scroll .q-table__container {
+  overflow-x: hidden !important;
+}
+.no-horizontal-scroll .q-table thead tr th {
+  white-space: normal;
+  word-break: break-word;
+  font-weight: bold;
+}
+.no-horizontal-scroll .q-table tbody tr td {
+  white-space: normal;
+  word-break: break-word;
+}
+.q-table td, .q-table th {
+  max-width: 200px;
+  padding: 8px;
+}
+.q-table td:has(.address-cell) {
+  white-space: pre-line;
+  line-height: 1.4;
+  padding: 12px 8px;
+}
+.lt-md .q-card {
+  margin-bottom: 1rem;
+}
+.lt-md .q-card__section {
+  padding: 16px;
+}
+.q-avatar {
+  overflow: hidden;
+}
+.q-avatar img {
+  border-radius: inherit;
+  transition: transform 0.2s ease;
+}
+.q-avatar:hover img {
+  transform: scale(1.05);
+}
+.avatar-fallback {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.avatar-fallback .q-avatar {
+  font-size: 1.2rem;
+}
+.avatar-fallback .q-chip {
+  margin: 4px 4px 4px 0;
+}

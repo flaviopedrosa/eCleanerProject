@@ -15,7 +15,9 @@
             {{ $t('pages.clientList.subtitle') }}
           </p>
           <div class="row q-gutter-sm">
-            <q-btn color="primary" :label="$t('pages.clientList.buttons.newClient')" icon="add" to="/clientes/novo" />
+            <!-- Botão Desktop -->
+            <q-btn class="gt-sm" color="positive" :label="$t('pages.clientList.buttons.newClient')" icon="add"
+              to="/clientes/novo" />
           </div>
         </div>
       </div>
@@ -61,8 +63,14 @@
         <template v-slot:body-cell-nome="props">
           <q-td :props="props">
             <div class="row items-center">
-              <q-avatar size="32px" color="primary" text-color="white">
-                {{ getInitials(props.row.Nome, props.row.Sobrenome) }}
+              <!-- Avatar com foto ou iniciais -->
+              <q-avatar size="32px" class="q-mr-sm">
+                <img v-if="props.row.Foto" :src="props.row.Foto" :alt="props.row.Nome"
+                  style="object-fit: cover; width: 100%; height: 100%;" />
+                <div v-else
+                  class="bg-primary text-white full-width full-height flex items-center justify-center avatar-fallback">
+                  {{ getInitials(props.row.Nome, props.row.Sobrenome) }}
+                </div>
               </q-avatar>
               <div class="q-ml-sm">
                 {{ props.row.Nome }} {{ props.row.Sobrenome }}
@@ -130,8 +138,14 @@
           <q-card flat bordered>
             <q-card-section>
               <div class="row items-center q-mb-md">
-                <q-avatar size="48px" color="primary" text-color="white" class="q-mr-md">
-                  {{ getInitials(cliente.Nome, cliente.Sobrenome) }}
+                <!-- Avatar com foto ou iniciais -->
+                <q-avatar size="48px" class="q-mr-md">
+                  <img v-if="cliente.Foto" :src="cliente.Foto" :alt="cliente.Nome"
+                    style="object-fit: cover; width: 100%; height: 100%;" />
+                  <div v-else
+                    class="bg-primary text-white full-width full-height flex items-center justify-center avatar-fallback">
+                    {{ getInitials(cliente.Nome, cliente.Sobrenome) }}
+                  </div>
                 </q-avatar>
                 <div class="text-weight-medium">
                   {{ cliente.Nome }} {{ cliente.Sobrenome }}
@@ -229,6 +243,11 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- FAB para Mobile/Tablet -->
+    <q-page-sticky position="bottom-right" :offset="[18, 18]" class="lt-md">
+      <q-btn fab icon="add" color="positive" to="/clientes/novo" />
+    </q-page-sticky>
   </q-page>
 </template>
 
@@ -527,6 +546,23 @@ export default defineComponent({
 
   .q-card__section
     padding: 16px
+
+// Estilos para avatares com fotos
+.q-avatar
+  overflow: hidden
+
+  img
+    border-radius: inherit
+    transition: transform 0.2s ease
+
+  &:hover img
+    transform: scale(1.05)
+
+// Fallback para avatares sem foto
+.avatar-fallback
+  font-size: 14px
+  font-weight: 500
+  letter-spacing: 0.5px
 
   .q-avatar
     font-size: 1.2rem

@@ -34,13 +34,42 @@ export class ClienteRepository {
       data.observacoes,
     )
 
-    // Adiciona endereços se existirem
-    if (data.enderecos) {
-      data.enderecos.forEach((e) => {
-        cliente.adicionarEndereco(
-          new Endereco(e.cep, e.logradouro, e.numero, e.complemento, e.bairro, e.cidade, e.estado),
-        )
-      })
+    // Define a foto se existir
+    if (data.foto) {
+      cliente.definirFoto(data.foto)
+    }
+
+    // Adiciona endereço se existir (apenas um)
+    if (data.endereco) {
+      cliente.definirEndereco(
+        new Endereco(
+          data.endereco.descricao || 'Principal', // descricao
+          data.endereco.logradouro, // logradouro
+          data.endereco.numero, // numero
+          data.endereco.cep, // cep
+          data.endereco.bairro, // bairro
+          data.endereco.cidade, // cidade
+          data.endereco.estado, // estado
+          data.endereco.pais || 'Brasil', // pais
+        ),
+      )
+    }
+
+    // Compatibilidade com dados antigos (múltiplos endereços)
+    if (data.enderecos && data.enderecos.length > 0) {
+      const primeiroEndereco = data.enderecos[0]
+      cliente.definirEndereco(
+        new Endereco(
+          primeiroEndereco.descricao || 'Principal',
+          primeiroEndereco.logradouro,
+          primeiroEndereco.numero,
+          primeiroEndereco.cep,
+          primeiroEndereco.bairro,
+          primeiroEndereco.cidade,
+          primeiroEndereco.estado,
+          primeiroEndereco.pais || 'Brasil',
+        ),
+      )
     }
 
     // Adiciona informações básicas dos imóveis se existirem
@@ -100,16 +129,21 @@ export class ClienteRepository {
       email: cliente.Email,
       telefone: cliente.Telefone,
       celular: cliente.Celular,
+      foto: cliente.Foto, // Adicionando o mapeamento da foto
       preferenciaContato: cliente.PreferenciaContato,
-      enderecos: cliente.Enderecos.map((e) => ({
-        cep: e.CEP,
-        logradouro: e.Logradouro,
-        numero: e.Numero,
-        complemento: e.Complemento,
-        bairro: e.Bairro,
-        cidade: e.Cidade,
-        estado: e.Estado,
-      })),
+      endereco: cliente.Endereco
+        ? {
+            descricao: cliente.Endereco.Descricao,
+            logradouro: cliente.Endereco.Logradouro,
+            numero: cliente.Endereco.Numero,
+            cep: cliente.Endereco.Cep,
+            bairro: cliente.Endereco.Bairro,
+            cidade: cliente.Endereco.Cidade,
+            estado: cliente.Endereco.Estado,
+            pais: cliente.Endereco.Pais,
+            complemento: cliente.Endereco.Complemento,
+          }
+        : null,
       observacoes: cliente.Observacoes,
       imoveis:
         cliente.Imoveis?.map((imovel) => ({
@@ -174,6 +208,19 @@ export class ClienteRepository {
     }
   }
 
+  // Limpa fotos grandes de clientes antigos para liberar espaço
+  _limparFotosAntigas(clientes) {
+    let dadosLimpos = false
+    clientes.forEach((cliente) => {
+      if (cliente.foto && cliente.foto.length > 50000) {
+        // Se foto > 50KB
+        cliente.foto = null
+        dadosLimpos = true
+      }
+    })
+    return dadosLimpos
+  }
+
   // Salva um novo cliente
   async save(cliente) {
     try {
@@ -194,11 +241,38 @@ export class ClienteRepository {
         }
       }
 
-      localStorage.setItem('clientes', JSON.stringify(clientes))
+      try {
+        localStorage.setItem('clientes', JSON.stringify(clientes))
+      } catch (quotaError) {
+        if (quotaError.name === 'QuotaExceededError') {
+          console.warn('LocalStorage cheio, tentando limpar dados antigos...')
+
+          // Tenta limpar fotos antigas
+          const dadosLimpos = this._limparFotosAntigas(clientes)
+
+          if (dadosLimpos) {
+            try {
+              localStorage.setItem('clientes', JSON.stringify(clientes))
+              console.log('Dados limpos com sucesso, cliente salvo')
+            } catch {
+              throw new Error(
+                'Armazenamento local cheio. Considere remover alguns clientes com fotos.',
+              )
+            }
+          } else {
+            throw new Error(
+              'Armazenamento local cheio. Considere remover alguns clientes para liberar espaço.',
+            )
+          }
+        } else {
+          throw quotaError
+        }
+      }
+
       return this._mapToEntity(clienteJSON)
     } catch (error) {
       console.error('Erro ao salvar cliente:', error)
-      throw new Error('Erro ao salvar cliente')
+      throw new Error(error.message || 'Erro ao salvar cliente')
     }
   }
 

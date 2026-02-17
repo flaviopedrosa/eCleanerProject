@@ -7,6 +7,14 @@ const routes = [
     meta: { requiresGuest: true }, // Apenas para usuários não autenticados
   },
 
+  // Rota pública de assinatura de contrato
+  {
+    path: '/contrato/assinar/:id/:token',
+    name: 'contrato-assinatura-publica',
+    component: () => import('../pages/ContratoAssinaturaPublicaPage.vue'),
+    meta: { requiresAuth: false }, // Acesso público
+  },
+
   // Rotas protegidas (requerem autenticação)
   {
     path: '/',
@@ -49,12 +57,42 @@ const routes = [
       { path: 'materiais', component: () => import('@/pages/MaterialListagemPage.vue') },
       { path: 'materiais/novo', component: () => import('@/pages/MaterialCadastroPage.vue') },
       { path: 'materiais/:id/editar', component: () => import('@/pages/MaterialCadastroPage.vue') },
+      { path: 'estoque', component: () => import('@/pages/EstoqueListagemPage.vue') },
+      { path: 'materiais-equipes', component: () => import('@/pages/MateriaisEquipePage.vue') },
+      { path: 'equipamentos', component: () => import('@/pages/EquipamentoListagemPage.vue') },
+      { path: 'equipamentos/novo', component: () => import('@/pages/EquipamentoCadastroPage.vue') },
+      {
+        path: 'equipamentos/:id/editar',
+        component: () => import('@/pages/EquipamentoCadastroPage.vue'),
+      },
       { path: 'orcamentos', component: () => import('@/pages/OrcamentoListagemPage.vue') },
       { path: 'orcamentos/novo', component: () => import('@/pages/OrcamentoCadastroPage.vue') },
       { path: 'orcamentos/:id', component: () => import('@/pages/OrcamentoCadastroPage.vue') },
       {
         path: 'orcamentos/:id/visualizar',
         component: () => import('@/pages/OrcamentoVisualizacaoPage.vue'),
+      },
+      { path: 'contratos', component: () => import('../pages/ContratoListagemPage.vue') },
+      {
+        path: 'contratos/visualizar/:id',
+        component: () => import('../pages/ContratoVisualizacaoPage.vue'),
+      },
+      { path: 'ordens-servico', component: () => import('@/pages/OrdemServicoListagemPage.vue') },
+      {
+        path: 'ordens-servico/:id',
+        component: () => import('@/pages/OrdemServicoCadastroPage.vue'),
+      },
+      {
+        path: 'ordens-servico-programacao',
+        component: () => import('@/pages/OrdemServicoProgramacaoPage.vue'),
+      },
+      {
+        path: 'ordens-servico-gantt',
+        component: () => import('@/pages/OrdemServicoGanttPage.vue'),
+      },
+      {
+        path: 'relatorio-financeiro',
+        component: () => import('@/pages/RelatorioFinanceiroPage.vue'),
       },
       { path: 'configuracoes', component: () => import('@/pages/ConfiguracoesPage.vue') },
       { path: 'dev/seeds', component: () => import('@/pages/DevSeedsPage.vue') },

@@ -134,6 +134,25 @@ class ItemMaterial {
   + Subtotal: number
 }
 
+class Equipamento {
+  + Id: string
+  + Descricao: string
+  + Unidade: string
+  + PrecoUnitario: number
+  + Imagem: string
+}
+
+class ItemEquipamento {
+  + Id: string
+  + Equipamento: Equipamento
+  + Quantidade: number
+  + CustoUnitario: number
+  + ValorTotal: number
+  + calcularValorTotal(): number
+  + atualizarQuantidade(novaQuantidade: number): void
+  + atualizarCustoUnitario(novoCusto: number): void
+}
+
 class Servico {
   + Id: string
   + Nome: string
@@ -141,6 +160,7 @@ class Servico {
   + PrecoBase: number
   + DuracaoEstimada: number
   + Materiais: ItemMaterial[]
+  + Equipamentos: ItemEquipamento[]
 }
 
 class ItemServico {
@@ -248,10 +268,13 @@ Orcamento "1" -- "1" Cliente
 Orcamento "1" -- "1" Imovel
 Orcamento "1" *-- "*" ItemServico
 Orcamento "1" *-- "*" ItemMaterial
+Orcamento "1" *-- "*" ItemEquipamento
 PacoteServico "1" *-- "*" ItemServico
 ItemServico "1" -- "1" Servico
 ItemMaterial "1" -- "1" Material
+ItemEquipamento "1" -- "1" Equipamento
 Servico "1" *-- "*" ItemMaterial
+Servico "1" *-- "*" ItemEquipamento
 Pagamento "1" -- "1" Orcamento
 
 @enduml

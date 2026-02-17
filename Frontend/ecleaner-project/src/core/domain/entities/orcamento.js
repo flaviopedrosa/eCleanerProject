@@ -21,6 +21,8 @@ export class Orcamento {
    * @param {number} descontos - Valor dos descontos aplicados
    * @param {number} impostosTaxas - Valor dos impostos e taxas
    * @param {Date} validade - Data limite de validade do orçamento
+   * @param {string} periodicidade - Periodicidade do serviço (Única, Semana, Mês, etc.)
+   * @param {number} quantidadeNoPeriodo - Quantidade de vezes no período selecionado
    */
   constructor(
     numeroOrcamento,
@@ -33,6 +35,8 @@ export class Orcamento {
     descontos = 0,
     impostosTaxas = 0,
     validade = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 dias por padrão
+    periodicidade = 'Única',
+    quantidadeNoPeriodo = 1,
   ) {
     this.Id = gerarGuid()
     this.NumeroOrcamento = numeroOrcamento
@@ -59,6 +63,8 @@ export class Orcamento {
     this.Descontos = descontos
     this.ImpostosTaxas = impostosTaxas
     this.Validade = validade
+    this.Periodicidade = periodicidade
+    this.QuantidadeNoPeriodo = quantidadeNoPeriodo
     this.Status = StatusOrcamento.RASCUNHO
   }
 

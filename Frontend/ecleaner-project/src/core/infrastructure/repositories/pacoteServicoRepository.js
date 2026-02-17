@@ -132,8 +132,10 @@ export class PacoteServicoRepository {
       MargemLucro: pacote.MargemLucro,
       Favorito: pacote.Favorito,
       ItensMaterial: pacote.ItensMaterial || [],
+      ItensEquipamento: pacote.ItensEquipamento || [],
       ItensServico: pacote.ItensServico || [],
       ValorMaterial: pacote.ValorMaterial,
+      ValorEquipamento: pacote.ValorEquipamento,
       ValorServico: pacote.ValorServico,
       ValorTotal: pacote.ValorTotal,
       ValorVenda: pacote.ValorVenda,
@@ -155,8 +157,10 @@ export class PacoteServicoRepository {
 
     pacote.Favorito = data.Favorito || false
     pacote.ItensMaterial = data.ItensMaterial || []
+    pacote.ItensEquipamento = data.ItensEquipamento || []
     pacote.ItensServico = data.ItensServico || []
     pacote.ValorMaterial = data.ValorMaterial || 0
+    pacote.ValorEquipamento = data.ValorEquipamento || 0
     pacote.ValorServico = data.ValorServico || 0
     pacote.ValorTotal = data.ValorTotal || 0
     pacote.ValorVenda = data.ValorVenda || 0

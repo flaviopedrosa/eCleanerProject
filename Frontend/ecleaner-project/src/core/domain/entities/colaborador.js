@@ -20,6 +20,7 @@ export class Colaborador extends Pessoa {
    * @param {string} disponibilidade - Disponibilidade de horário
    * @param {string[]} regioesAtuacao - Lista de regiões onde pode atuar
    * @param {string} observacoes - Observações gerais
+   * @param {number} custoPorHora - Custo por hora do colaborador
    */
   constructor(
     nome,
@@ -34,6 +35,7 @@ export class Colaborador extends Pessoa {
     disponibilidade,
     regioesAtuacao = [],
     observacoes = '',
+    custoPorHora = 0,
   ) {
     super(nome, sobrenome, email, telefone, celular)
 
@@ -63,6 +65,7 @@ export class Colaborador extends Pessoa {
     this.FotoPerfil = null // URL ou caminho para a foto
     this.Curriculo = null // URL ou caminho para o currículo
     this.SalarioEsperado = salarioEsperado
+    this.CustoPorHora = custoPorHora
     this.Disponibilidade = disponibilidade
     this.RegioesAtuacao = regioesAtuacao
     this.Observacoes = observacoes

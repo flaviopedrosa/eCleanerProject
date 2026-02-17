@@ -41,7 +41,7 @@ export class EquipeRepository {
     })
 
     // Cria uma nova instância de Equipe
-    const equipe = new Equipe(data.Descricao, colaboradores, data.Observacoes || '')
+    const equipe = new Equipe(data.Descricao, colaboradores, data.Observacoes || '', data.Cor || '')
 
     // Restaura o ID original da equipe
     equipe.Id = data.Id
@@ -57,6 +57,7 @@ export class EquipeRepository {
       Id: equipe.Id,
       Descricao: equipe.Descricao,
       Observacoes: equipe.Observacoes,
+      Cor: equipe.Cor,
       Colaboradores: equipe.Colaboradores.map((col) => ({
         Funcao: col.Funcao,
         Colaborador: {
@@ -133,6 +134,16 @@ export class EquipeRepository {
     } catch (error) {
       console.error('Erro ao excluir equipe:', error)
       throw new Error('Erro ao excluir equipe')
+    }
+  }
+
+  // Limpa todas as equipes
+  async clear() {
+    try {
+      localStorage.setItem('equipes', JSON.stringify([]))
+    } catch (error) {
+      console.error('Erro ao limpar equipes:', error)
+      throw new Error('Erro ao limpar equipes')
     }
   }
 

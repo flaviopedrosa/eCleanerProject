@@ -37,17 +37,23 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   // Guard de autenticação
   Router.beforeEach((to, from, next) => {
     console.log('🔒 Router Guard:', { to: to.path, from: from.path })
-    
+
     const authStore = useAuthStore()
 
     // Inicializar autenticação se ainda não foi feita
-    if (!authStore.token) {
-      authStore.initializeAuth()
-    }
+    authStore.initializeAuth()
 
     const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
     const requiresGuest = to.matched.some((record) => record.meta.requiresGuest)
     const isAuthenticated = authStore.isAuthenticated
+
+    console.log('🔒 Auth Status:', {
+      requiresAuth,
+      requiresGuest,
+      isAuthenticated,
+      token: !!authStore.token,
+      user: !!authStore.user,
+    })
 
     console.log('🔒 Auth Status:', { requiresAuth, requiresGuest, isAuthenticated })
 

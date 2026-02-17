@@ -116,6 +116,30 @@
                 </q-card-section>
               </q-card>
             </div>
+
+            <div class="col-12 col-sm-6 col-md-4">
+              <q-card flat bordered class="full-height">
+                <q-card-section class="text-center">
+                  <q-icon name="construction" size="3em" color="purple" class="q-mb-sm" />
+                  <div class="text-subtitle2 q-mb-xs">Equipamentos</div>
+                  <div class="text-caption text-grey-7 q-mb-md">Carrega dados de equipamentos para o sistema</div>
+                  <q-btn flat color="purple" label="Carregar Equipamentos" @click="carregarEquipamentos"
+                    :loading="loading.equipamentos" :disable="hasAnyLoading" size="sm" />
+                </q-card-section>
+              </q-card>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4">
+              <q-card flat bordered class="full-height">
+                <q-card-section class="text-center">
+                  <q-icon name="inventory" size="3em" color="teal" class="q-mb-sm" />
+                  <div class="text-subtitle2 q-mb-xs">Pacotes de Serviços</div>
+                  <div class="text-caption text-grey-7 q-mb-md">Carrega pacotes prontos de limpeza</div>
+                  <q-btn flat color="teal" label="Carregar Pacotes" @click="carregarPacotes" :loading="loading.pacotes"
+                    :disable="hasAnyLoading" size="sm" />
+                </q-card-section>
+              </q-card>
+            </div>
           </div>
 
           <q-separator class="q-mb-md" />
@@ -178,6 +202,11 @@
                 min="1" max="365" filled :readonly="!editMode" hint="Número de dias que um orçamento permanece válido"
                 suffix="dias" />
             </div>
+            <div class="col-12 col-md-6">
+              <q-input v-model.number="config.tempoTrabalhoDia" label="Tempo de Trabalho por Dia (horas)" type="number"
+                min="1" max="24" filled :readonly="!editMode" hint="Número de horas trabalhadas por dia"
+                suffix="horas" />
+            </div>
             <!-- Campos para configuração do EmailJS -->
             <div class="col-12">
               <div class="text-subtitle2 q-mb-sm q-mt-md">
@@ -194,8 +223,8 @@
                 hint="ID do serviço de e-mail configurado no EmailJS" />
             </div>
             <div class="col-12 col-md-6">
-              <q-input v-model="config.emailJsTemplateIdOrcamento" label="Template ID - Orçamento" filled :readonly="!editMode"
-                hint="ID do template para envio de orçamentos" />
+              <q-input v-model="config.emailJsTemplateIdOrcamento" label="Template ID - Orçamento" filled
+                :readonly="!editMode" hint="ID do template para envio de orçamentos" />
             </div>
             <!-- Campo de logomarca -->
             <div class="col-12 col-md-6">
@@ -265,7 +294,7 @@
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
-import { runAllSeeds, runMaterialSeed, runServiceSeed } from '@/core/infrastructure/repositories/seeds'
+import { runAllSeeds, runMaterialSeed, runServiceSeed, runEquipamentoSeed, runPacoteServicoSeed } from '@/core/infrastructure/repositories/seeds'
 import { seedClientes } from '@/core/infrastructure/repositories/seeds/clienteSeed'
 import { seedColaboradores } from '@/core/infrastructure/repositories/seeds/colaboradorSeed'
 import EnderecoForm from '@/components/EnderecoForm.vue'
@@ -288,6 +317,8 @@ export default defineComponent({
       clientes: false,
       colaboradores: false,
       servicos: false,
+      equipamentos: false,
+      pacotes: false,
       limpeza: false,
       salvar: false,
       configuracao: false
@@ -302,6 +333,7 @@ export default defineComponent({
       telefoneEmpresa: '(11) 99999-9999',
       moeda: 'BRL',
       validadeOrcamentoDias: 30,
+      tempoTrabalhoDia: 8,
       emailJsKey: '',
       emailJsServiceId: '',
       emailJsTemplateIdOrcamento: '',
@@ -377,7 +409,8 @@ export default defineComponent({
 
     const hasAnyLoading = computed(() => {
       return loading.value.cargaCompleta || loading.value.materiais ||
-        loading.value.clientes || loading.value.colaboradores || loading.value.servicos
+        loading.value.clientes || loading.value.colaboradores || loading.value.servicos ||
+        loading.value.equipamentos
     })
 
     function addLog(message, type = 'info') {
@@ -558,6 +591,58 @@ export default defineComponent({
       }
     }
 
+    async function carregarEquipamentos() {
+      loading.value.equipamentos = true
+      try {
+        addLog('🛠️ Carregando equipamentos...', 'info')
+        await runEquipamentoSeed()
+        addLog('✅ Equipamentos carregados com sucesso!', 'success')
+
+        $q.notify({
+          color: 'positive',
+          message: 'Equipamentos carregados com sucesso!',
+          timeout: 3000,
+          position: 'top-right'
+        })
+      } catch (error) {
+        addLog(`❌ Erro ao carregar equipamentos: ${error.message}`, 'error')
+        $q.notify({
+          color: 'negative',
+          message: 'Erro ao carregar equipamentos',
+          timeout: 5000,
+          position: 'top-right'
+        })
+      } finally {
+        loading.value.equipamentos = false
+      }
+    }
+
+    async function carregarPacotes() {
+      loading.value.pacotes = true
+      try {
+        addLog('📦 Carregando pacotes de serviços...', 'info')
+        await runPacoteServicoSeed()
+        addLog('✅ Pacotes de serviços carregados com sucesso!', 'success')
+
+        $q.notify({
+          color: 'positive',
+          message: 'Pacotes de serviços carregados com sucesso!',
+          timeout: 3000,
+          position: 'top-right'
+        })
+      } catch (error) {
+        addLog(`❌ Erro ao carregar pacotes: ${error.message}`, 'error')
+        $q.notify({
+          color: 'negative',
+          message: 'Erro ao carregar pacotes de serviços',
+          timeout: 5000,
+          position: 'top-right'
+        })
+      } finally {
+        loading.value.pacotes = false
+      }
+    }
+
     async function carregarConfiguracao() {
       loading.value.configuracao = true
       try {
@@ -583,6 +668,7 @@ export default defineComponent({
           telefoneEmpresa: '(305) 555-0123',
           moeda: 'USD',
           validadeOrcamentoDias: 30,
+          tempoTrabalhoDia: 8,
           emailJsKey: '',
           emailJsServiceId: '',
           emailJsTemplateIdOrcamento: '',
@@ -807,6 +893,8 @@ export default defineComponent({
       carregarClientes,
       carregarColaboradores,
       carregarServicos,
+      carregarEquipamentos,
+      carregarPacotes,
       confirmarLimpezaCompleta,
       salvarConfiguracoes,
       cancelarEdicao,

@@ -86,4 +86,194 @@ describe('ImovelRepository', () => {
     imoveis = await repository.getAll()
     expect(imoveis).toHaveLength(0)
   })
+
+  // Testes para funcionalidades de imagem
+  describe('Gerenciamento de Imagens no Repositório', () => {
+    let imovelComImagens
+
+    beforeEach(async () => {
+      // Cria um imóvel com algumas imagens para testes
+      const imagensIniciais = [
+        {
+          id: 'img1',
+          url: 'imagem1.jpg',
+          nome: 'foto1.jpg',
+          descricao: 'Sala',
+          dataUpload: new Date().toISOString(),
+          tipo: 'image/jpeg',
+          tamanho: 1024000,
+        },
+      ]
+
+      imovelComImagens = new Imovel(
+        8,
+        3,
+        2,
+        150,
+        enderecoExemplo,
+        clienteExemplo,
+        'Casa com imagens',
+        imagensIniciais,
+      )
+
+      await repository.save(imovelComImagens)
+    })
+
+    it('deve salvar e carregar imóvel com imagens', async () => {
+      const imovelCarregado = await repository.getById(imovelComImagens.Id)
+
+      expect(imovelCarregado.TotalImagens).toBe(1)
+      expect(imovelCarregado.possuiImagens()).toBe(true)
+      expect(imovelCarregado.Imagens[0].url).toBe('imagem1.jpg')
+      expect(imovelCarregado.Imagens[0].descricao).toBe('Sala')
+    })
+
+    it('deve adicionar imagem a um imóvel existente', async () => {
+      const novaImagem = 'https://exemplo.com/quarto.jpg'
+
+      const imovelAtualizado = await repository.adicionarImagem(
+        imovelComImagens.Id,
+        novaImagem,
+        'Foto do quarto',
+      )
+
+      expect(imovelAtualizado.TotalImagens).toBe(2)
+
+      // Verifica se foi salvo corretamente
+      const imovelCarregado = await repository.getById(imovelComImagens.Id)
+      expect(imovelCarregado.TotalImagens).toBe(2)
+
+      const imagemAdicionada = imovelCarregado.Imagens.find((img) => img.url === novaImagem)
+      expect(imagemAdicionada).toBeDefined()
+      expect(imagemAdicionada.descricao).toBe('Foto do quarto')
+    })
+
+    it('deve remover imagem de um imóvel', async () => {
+      const imagemId = imovelComImagens.Imagens[0].id
+
+      const imovelAtualizado = await repository.removerImagem(imovelComImagens.Id, imagemId)
+
+      expect(imovelAtualizado.TotalImagens).toBe(0)
+      expect(imovelAtualizado.possuiImagens()).toBe(false)
+
+      // Verifica se foi salvo corretamente
+      const imovelCarregado = await repository.getById(imovelComImagens.Id)
+      expect(imovelCarregado.TotalImagens).toBe(0)
+    })
+
+    it('deve atualizar descrição de uma imagem', async () => {
+      const imagemId = imovelComImagens.Imagens[0].id
+      const novaDescricao = 'Sala renovada'
+
+      const imovelAtualizado = await repository.atualizarDescricaoImagem(
+        imovelComImagens.Id,
+        imagemId,
+        novaDescricao,
+      )
+
+      const imagemAtualizada = imovelAtualizado.obterImagemPorId(imagemId)
+      expect(imagemAtualizada.descricao).toBe(novaDescricao)
+
+      // Verifica se foi salvo corretamente
+      const imovelCarregado = await repository.getById(imovelComImagens.Id)
+      const imagemCarregada = imovelCarregado.obterImagemPorId(imagemId)
+      expect(imagemCarregada.descricao).toBe(novaDescricao)
+    })
+
+    it('deve buscar imóveis que possuem imagens', async () => {
+      // Cria um imóvel sem imagens
+      const imovelSemImagens = new Imovel(
+        4,
+        2,
+        1,
+        80,
+        enderecoExemplo,
+        clienteExemplo,
+        'Sem imagens',
+      )
+      await repository.save(imovelSemImagens)
+
+      const imoveisComImagens = await repository.getImoveisComImagens()
+
+      expect(imoveisComImagens).toHaveLength(1)
+      expect(imoveisComImagens[0].Id).toBe(imovelComImagens.Id)
+    })
+
+    it('deve buscar imóveis por número mínimo de imagens', async () => {
+      // Adiciona mais uma imagem ao imóvel existente
+      await repository.adicionarImagem(imovelComImagens.Id, 'imagem2.jpg', 'Cozinha')
+
+      // Cria outro imóvel com 3 imagens
+      const imovelMuitasImagens = new Imovel(
+        6,
+        2,
+        2,
+        120,
+        enderecoExemplo,
+        clienteExemplo,
+        'Muitas imagens',
+      )
+      await repository.save(imovelMuitasImagens)
+      await repository.adicionarImagem(imovelMuitasImagens.Id, 'img1.jpg')
+      await repository.adicionarImagem(imovelMuitasImagens.Id, 'img2.jpg')
+      await repository.adicionarImagem(imovelMuitasImagens.Id, 'img3.jpg')
+
+      // Busca imóveis com pelo menos 2 imagens
+      const imoveisCom2OuMais = await repository.getImovelsPorNumeroImagens(2)
+      expect(imoveisCom2OuMais).toHaveLength(2)
+
+      // Busca imóveis com pelo menos 3 imagens
+      const imoveisCom3OuMais = await repository.getImovelsPorNumeroImagens(3)
+      expect(imoveisCom3OuMais).toHaveLength(1)
+      expect(imoveisCom3OuMais[0].Id).toBe(imovelMuitasImagens.Id)
+    })
+
+    it('deve buscar todas as imagens de um imóvel', async () => {
+      const imagens = await repository.getImagensImovel(imovelComImagens.Id)
+
+      expect(imagens).toHaveLength(1)
+      expect(imagens[0].url).toBe('imagem1.jpg')
+      expect(imagens[0].descricao).toBe('Sala')
+    })
+
+    it('deve buscar uma imagem específica por ID', async () => {
+      const imagemId = imovelComImagens.Imagens[0].id
+      const imagem = await repository.getImagemPorId(imovelComImagens.Id, imagemId)
+
+      expect(imagem).toBeDefined()
+      expect(imagem.id).toBe(imagemId)
+      expect(imagem.url).toBe('imagem1.jpg')
+
+      // Testa busca por ID inexistente
+      const imagemInexistente = await repository.getImagemPorId(
+        imovelComImagens.Id,
+        'id-inexistente',
+      )
+      expect(imagemInexistente).toBeNull()
+    })
+
+    it('deve lançar erro ao tentar gerenciar imagens de imóvel inexistente', async () => {
+      const idInexistente = 'imovel-inexistente'
+
+      await expect(repository.adicionarImagem(idInexistente, 'imagem.jpg')).rejects.toThrow(
+        'Imóvel não encontrado',
+      )
+
+      await expect(repository.removerImagem(idInexistente, 'img1')).rejects.toThrow(
+        'Imóvel não encontrado',
+      )
+
+      await expect(
+        repository.atualizarDescricaoImagem(idInexistente, 'img1', 'Nova descrição'),
+      ).rejects.toThrow('Imóvel não encontrado')
+
+      await expect(repository.getImagensImovel(idInexistente)).rejects.toThrow(
+        'Imóvel não encontrado',
+      )
+
+      await expect(repository.getImagemPorId(idInexistente, 'img1')).rejects.toThrow(
+        'Imóvel não encontrado',
+      )
+    })
+  })
 })

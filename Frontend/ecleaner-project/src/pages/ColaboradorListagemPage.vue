@@ -88,7 +88,7 @@
             <!-- Coluna de Ações -->
             <template #body-cell-actions="props">
               <q-td :props="props" class="q-gutter-x-sm">
-                <q-btn flat round color="primary" icon="edit" :to="`/colaboradores/${props.row.Id}/editar`">
+                <q-btn flat round color="primary" icon="edit" :to="`/colaboradores/${props.row.Id}`">
                   <q-tooltip>
                     {{ $t('forms.colaborador.list.buttons.edit') }}
                   </q-tooltip>
@@ -159,7 +159,7 @@
 
                 <q-card-actions align="right">
                   <q-btn flat color="primary" icon="edit" :label="$t('forms.colaborador.list.buttons.edit')"
-                    :to="`/colaboradores/${colaborador.Id}/editar`" />
+                    :to="`/colaboradores/${colaborador.Id}`" />
                   <q-btn flat color="negative" icon="delete" :label="$t('forms.colaborador.list.buttons.delete')"
                     @click="confirmDelete(colaborador)" />
                 </q-card-actions>
@@ -278,6 +278,14 @@ export default defineComponent({
         label: t('forms.colaborador.list.columns.experience'),
         field: 'TempoTotalExperiencia',
         sortable: true
+      },
+      {
+        name: 'custoPorHora',
+        label: 'Custo/Hora',
+        field: 'CustoPorHora',
+        sortable: true,
+        format: val => val ? `R$ ${Number(val).toFixed(2)}` : 'N/A',
+        align: 'right'
       },
       {
         name: 'actions',

@@ -28,6 +28,8 @@ export class MaterialRepository {
       parseFloat(data.PrecoUnitario) || 0, // Garante que seja um número válido
       data.Imagem,
       data.Url,
+      data.QuantidadeEstoque || 0,
+      data.EstoqueMinimo || 0,
     )
     material.Id = data.Id
     return material
@@ -42,6 +44,8 @@ export class MaterialRepository {
       PrecoUnitario: parseFloat(material.PrecoUnitario) || 0, // Garante que seja um número válido
       Imagem: material.Imagem,
       Url: material.Url,
+      QuantidadeEstoque: material.QuantidadeEstoque || 0,
+      EstoqueMinimo: material.EstoqueMinimo || 0,
     }
   }
 

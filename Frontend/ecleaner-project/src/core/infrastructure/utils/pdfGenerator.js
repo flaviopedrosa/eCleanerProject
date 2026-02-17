@@ -523,3 +523,264 @@ export function blobToBase64(blob) {
     reader.readAsDataURL(blob)
   })
 }
+
+/**
+ * Gera PDF do Contrato de Prestação de Serviço
+ *
+ * @param {Object} contrato - Contrato com dados do orçamento
+ * @param {Object} config - Configurações da empresa (localStorage)
+ * @returns {Promise<jsPDF>} Documento PDF gerado
+ */
+export async function gerarContratoPDF(contrato, config) {
+  // Importa helpers de contrato dinamicamente para evitar dependências circulares
+  const { gerarTextoContrato, formatarAssinatura } = await import('./contratoHelper')
+  const { StatusContrato } = await import('../../domain/enums/statusContrato')
+
+  return new Promise((resolve, reject) => {
+    try {
+      // Cria documento PDF
+      const doc = new jsPDF('p', 'mm', 'a4')
+      addMontserratFont(doc)
+      doc.setFont(FONT_FAMILY, 'normal')
+
+      const pageWidth = doc.internal.pageSize.width
+      const pageHeight = doc.internal.pageSize.height
+      let yPos = PDF_CONFIG.margin.top
+
+      // ======================
+      // CABEÇALHO
+      // ======================
+      const locale = contrato.Locale || 'pt-BR'
+      const titulo = locale === 'en-US' ? 'SERVICE AGREEMENT' : 'CONTRATO DE PRESTAÇÃO DE SERVIÇOS'
+
+      adicionarCabecalhoPDF(doc, config, {
+        title: titulo,
+        subtitle: contrato.NumeroContrato,
+      })
+
+      yPos += 5
+
+      // ======================
+      // TEXTO DO CONTRATO
+      // ======================
+      const textoContrato = contrato.TextoContrato || gerarTextoContrato(contrato, config, locale)
+
+      // Divide o texto em linhas respeitando a largura da página
+      const maxWidth = pageWidth - PDF_CONFIG.margin.left - PDF_CONFIG.margin.right
+      doc.setFontSize(10)
+      doc.setFont(FONT_FAMILY, 'normal')
+
+      // Processa o texto linha por linha
+      const linhas = textoContrato.split('\n')
+
+      linhas.forEach((linha) => {
+        // Verifica se é título (começa com ** ou CLÁUSULA ou ARTICLE)
+        const isTitulo =
+          linha.startsWith('**') ||
+          linha.includes('CLÁUSULA') ||
+          linha.includes('ARTICLE') ||
+          linha.includes('CONTRATO DE') ||
+          linha.includes('SERVICE AGREEMENT')
+
+        if (isTitulo) {
+          // Adiciona espaço antes do título
+          yPos += 3
+
+          // Verifica se precisa de nova página
+          if (yPos > pageHeight - PDF_CONFIG.margin.bottom - 20) {
+            doc.addPage()
+            adicionarCabecalhoPDF(doc, config, { title: titulo })
+            yPos = PDF_CONFIG.margin.top
+          }
+
+          // Remove asteriscos do título
+          const textoTitulo = linha.replace(/\*\*/g, '').trim()
+
+          doc.setFont(FONT_FAMILY, 'bold')
+          doc.setFontSize(10)
+
+          const tituloLinhas = doc.splitTextToSize(textoTitulo, maxWidth)
+          tituloLinhas.forEach((tituloLinha) => {
+            doc.text(tituloLinha, PDF_CONFIG.margin.left, yPos)
+            yPos += 5
+          })
+
+          doc.setFont(FONT_FAMILY, 'normal')
+        } else if (linha.trim().length > 0) {
+          // Texto normal
+          doc.setFontSize(9)
+
+          // Verifica se precisa de nova página
+          if (yPos > pageHeight - PDF_CONFIG.margin.bottom - 20) {
+            doc.addPage()
+            adicionarCabecalhoPDF(doc, config, { title: titulo })
+            yPos = PDF_CONFIG.margin.top
+          }
+
+          const textoLinhas = doc.splitTextToSize(linha, maxWidth)
+          textoLinhas.forEach((textoLinha) => {
+            doc.text(textoLinha, PDF_CONFIG.margin.left, yPos)
+            yPos += 4
+          })
+        } else {
+          // Linha vazia - adiciona pequeno espaço
+          yPos += 2
+        }
+      })
+
+      // ======================
+      // SEÇÃO DE ASSINATURAS DIGITAIS
+      // ======================
+      yPos += 10
+
+      // Nova página para assinaturas se não houver espaço
+      if (yPos > pageHeight - 120) {
+        doc.addPage()
+        adicionarCabecalhoPDF(doc, config, { title: titulo })
+        yPos = PDF_CONFIG.margin.top
+      }
+
+      // Título da seção
+      doc.setFontSize(12)
+      doc.setFont(FONT_FAMILY, 'bold')
+      const tituloAssinaturas = locale === 'en-US' ? 'DIGITAL SIGNATURES' : 'ASSINATURAS DIGITAIS'
+      doc.text(tituloAssinaturas, pageWidth / 2, yPos, { align: 'center' })
+      yPos += 8
+
+      // Linha separadora
+      doc.setDrawColor(0, 0, 0)
+      doc.setLineWidth(0.3)
+      doc.line(PDF_CONFIG.margin.left, yPos, pageWidth - PDF_CONFIG.margin.right, yPos)
+      yPos += 8
+
+      // Assinatura do Cliente
+      doc.setFontSize(10)
+      doc.setFont(FONT_FAMILY, 'bold')
+      const labelCliente = locale === 'en-US' ? 'CLIENT' : 'CONTRATADO (Cliente)'
+      doc.text(labelCliente, PDF_CONFIG.margin.left, yPos)
+      yPos += 6
+
+      if (contrato.AssinaturaCliente) {
+        const assinatura = formatarAssinatura(contrato.AssinaturaCliente, locale)
+
+        doc.setFontSize(9)
+        doc.setFont(FONT_FAMILY, 'normal')
+        doc.text(
+          `${locale === 'en-US' ? 'Name' : 'Nome'}: ${assinatura.nome}`,
+          PDF_CONFIG.margin.left + 5,
+          yPos,
+        )
+        yPos += 4
+        doc.text(
+          `${assinatura.tipoDocumento}: ${assinatura.numeroDocumento}`,
+          PDF_CONFIG.margin.left + 5,
+          yPos,
+        )
+        yPos += 4
+        doc.text(
+          `${locale === 'en-US' ? 'Date/Time' : 'Data/Hora'}: ${assinatura.data} ${assinatura.hora}`,
+          PDF_CONFIG.margin.left + 5,
+          yPos,
+        )
+        yPos += 4
+        doc.text(`IP: ${assinatura.ip}`, PDF_CONFIG.margin.left + 5, yPos)
+        yPos += 4
+        doc.setFontSize(7)
+        doc.text(`Hash: ${assinatura.hashCompleto}`, PDF_CONFIG.margin.left + 5, yPos)
+        yPos += 6
+      } else {
+        doc.setFontSize(9)
+        doc.setFont(FONT_FAMILY, 'italic')
+        const pendente = locale === 'en-US' ? 'Pending signature' : 'Assinatura pendente'
+        doc.text(pendente, PDF_CONFIG.margin.left + 5, yPos)
+        yPos += 8
+      }
+
+      // Assinatura do Prestador
+      yPos += 4
+      doc.setFontSize(10)
+      doc.setFont(FONT_FAMILY, 'bold')
+      const labelPrestador = locale === 'en-US' ? 'SERVICE PROVIDER' : 'CONTRATANTE (Prestador)'
+      doc.text(labelPrestador, PDF_CONFIG.margin.left, yPos)
+      yPos += 6
+
+      if (contrato.AssinaturaPrestador) {
+        const assinatura = formatarAssinatura(contrato.AssinaturaPrestador, locale)
+
+        doc.setFontSize(9)
+        doc.setFont(FONT_FAMILY, 'normal')
+        doc.text(
+          `${locale === 'en-US' ? 'Name' : 'Nome'}: ${assinatura.nome}`,
+          PDF_CONFIG.margin.left + 5,
+          yPos,
+        )
+        yPos += 4
+        doc.text(
+          `${assinatura.tipoDocumento}: ${assinatura.numeroDocumento}`,
+          PDF_CONFIG.margin.left + 5,
+          yPos,
+        )
+        yPos += 4
+        doc.text(
+          `${locale === 'en-US' ? 'Date/Time' : 'Data/Hora'}: ${assinatura.data} ${assinatura.hora}`,
+          PDF_CONFIG.margin.left + 5,
+          yPos,
+        )
+        yPos += 4
+        doc.text(`IP: ${assinatura.ip}`, PDF_CONFIG.margin.left + 5, yPos)
+        yPos += 4
+        doc.setFontSize(7)
+        doc.text(`Hash: ${assinatura.hashCompleto}`, PDF_CONFIG.margin.left + 5, yPos)
+        yPos += 6
+      } else {
+        doc.setFontSize(9)
+        doc.setFont(FONT_FAMILY, 'italic')
+        const pendente = locale === 'en-US' ? 'Pending signature' : 'Assinatura pendente'
+        doc.text(pendente, PDF_CONFIG.margin.left + 5, yPos)
+        yPos += 8
+      }
+
+      // Status do contrato
+      if (contrato.Status === StatusContrato.VIGENTE) {
+        yPos += 6
+        doc.setFontSize(10)
+        doc.setFont(FONT_FAMILY, 'bold')
+        doc.setTextColor(0, 150, 0) // Verde
+        const statusText = locale === 'en-US' ? '✓ VALID CONTRACT' : '✓ CONTRATO VIGENTE'
+        doc.text(statusText, pageWidth / 2, yPos, { align: 'center' })
+        doc.setTextColor(0, 0, 0) // Volta para preto
+      }
+
+      // ======================
+      // RODAPÉ EM TODAS AS PÁGINAS
+      // ======================
+      const totalPages = doc.internal.pages.length - 1 // Desconta primeira página em branco
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i)
+        adicionarRodapePDF(doc, config, i, totalPages)
+      }
+
+      resolve(doc)
+    } catch (error) {
+      console.error('Erro ao gerar PDF do contrato:', error)
+      reject(error)
+    }
+  })
+}
+
+/**
+ * Gera Blob do PDF do Contrato
+ *
+ * @param {Object} contrato - Contrato com dados
+ * @param {Object} config - Configurações da empresa
+ * @returns {Promise<Blob>} Blob do PDF
+ */
+export async function gerarBlobContratoPDF(contrato, config) {
+  try {
+    const doc = await gerarContratoPDF(contrato, config)
+    return doc.output('blob')
+  } catch (error) {
+    console.error('Erro ao gerar blob PDF do contrato:', error)
+    throw error
+  }
+}

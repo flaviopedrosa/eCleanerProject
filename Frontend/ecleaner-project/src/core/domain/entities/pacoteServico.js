@@ -1,6 +1,7 @@
 import { gerarGuid } from '../utils/guid'
 import { ItemMaterial } from './itemMaterial'
 import { ItemServico } from './itemServico'
+import { ItemEquipamento } from './itemEquipamento'
 
 /**
  * Classe que representa um Pacote de Servi\u00e7os (conjunto de materiais e servi\u00e7os).
@@ -17,9 +18,12 @@ export class PacoteServico {
     this.Favorito = false
     /** @type {ItemMaterial[]} */
     this.ItensMaterial = []
+    /** @type {ItemEquipamento[]} */
+    this.ItensEquipamento = []
     /** @type {ItemServico[]} */
     this.ItensServico = []
     this.ValorMaterial = 0
+    this.ValorEquipamento = 0
     this.ValorServico = 0
     this.ValorTotal = 0
     this.ValorVenda = 0
@@ -40,16 +44,26 @@ export class PacoteServico {
   }
 
   /**
-   * Adiciona um item de servi\u00e7o ao pacote
-   * @param {ItemServico} item - O item de servi\u00e7o a ser adicionado
+   * Adiciona um item de serviço ao pacote
+   * @param {ItemServico} item - O item de serviço a ser adicionado
    */
   adicionarItemServico(item) {
     if (!(item instanceof ItemServico)) {
-      throw new Error(
-        'O item fornecido n\u00e3o \u00e9 uma inst\u00e2ncia v\u00e1lida de ItemServico',
-      )
+      throw new Error('O item fornecido não é uma instância válida de ItemServico')
     }
     this.ItensServico.push(item)
+    this.recalcularValores()
+  }
+
+  /**
+   * Adiciona um item de equipamento ao pacote
+   * @param {ItemEquipamento} item - O item de equipamento a ser adicionado
+   */
+  adicionarItemEquipamento(item) {
+    if (!(item instanceof ItemEquipamento)) {
+      throw new Error('O item fornecido não é uma instância válida de ItemEquipamento')
+    }
+    this.ItensEquipamento.push(item)
     this.recalcularValores()
   }
 
@@ -69,14 +83,29 @@ export class PacoteServico {
   }
 
   /**
-   * Remove um item de servi\u00e7o do pacote pelo ID
+   * Remove um item de serviço do pacote pelo ID
    * @param {string} itemId - ID do item a ser removido
-   * @returns {boolean} true se o item foi removido, false caso contr\u00e1rio
+   * @returns {boolean} true se o item foi removido, false caso contrário
    */
   removerItemServico(itemId) {
     const index = this.ItensServico.findIndex((item) => item.Id === itemId)
     if (index !== -1) {
       this.ItensServico.splice(index, 1)
+      this.recalcularValores()
+      return true
+    }
+    return false
+  }
+
+  /**
+   * Remove um item de equipamento do pacote pelo ID
+   * @param {string} itemId - ID do item a ser removido
+   * @returns {boolean} true se o item foi removido, false caso contrário
+   */
+  removerItemEquipamento(itemId) {
+    const index = this.ItensEquipamento.findIndex((item) => item.Id === itemId)
+    if (index !== -1) {
+      this.ItensEquipamento.splice(index, 1)
       this.recalcularValores()
       return true
     }
@@ -102,11 +131,17 @@ export class PacoteServico {
     // Calcula o valor total dos materiais
     this.ValorMaterial = this.ItensMaterial.reduce((total, item) => total + item.ValorTotal, 0)
 
-    // Calcula o valor total dos servi\u00e7os
+    // Calcula o valor total dos equipamentos
+    this.ValorEquipamento = this.ItensEquipamento.reduce(
+      (total, item) => total + item.ValorTotal,
+      0,
+    )
+
+    // Calcula o valor total dos serviços
     this.ValorServico = this.ItensServico.reduce((total, item) => total + item.ValorTotal, 0)
 
     // Calcula o valor total (custo)
-    this.ValorTotal = this.ValorMaterial + this.ValorServico
+    this.ValorTotal = this.ValorMaterial + this.ValorEquipamento + this.ValorServico
 
     // Calcula o valor de venda aplicando a margem de lucro
     this.ValorVenda = this.ValorTotal * (1 + this.MargemLucro / 100)

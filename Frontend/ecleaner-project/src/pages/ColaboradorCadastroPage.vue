@@ -115,7 +115,7 @@
           </div>
 
           <div class="row q-col-gutter-md">
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-4">
               <q-input v-model="form.salarioEsperado" type="number"
                 :label="$t('forms.colaborador.fields.salarioEsperado') + ' *'" prefix="R$" filled lazy-rules :rules="[
                   val => !!val || $t('forms.validation.required'),
@@ -123,7 +123,12 @@
                 ]" />
             </div>
 
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-4">
+              <q-input v-model="form.custoPorHora" type="number" label="Custo por Hora" prefix="R$" filled
+                step="0.01" />
+            </div>
+
+            <div class="col-12 col-md-4">
               <q-input v-model="form.disponibilidade" :label="$t('forms.colaborador.fields.disponibilidade') + ' *'"
                 filled lazy-rules :rules="[val => !!val || $t('forms.validation.required')]" />
             </div>
@@ -338,6 +343,7 @@ import { useQuasar } from 'quasar'
 import { Colaborador } from '../core/domain/entities/colaborador.js'
 import { Endereco } from '../core/domain/entities/endereco.js'
 import { ExperienciaProfissional, Referencia } from '../core/domain/entities/documentosColaborador.js'
+import { ColaboradorRepository } from '../core/infrastructure/repositories/colaboradorRepository.js'
 
 export default defineComponent({
   name: 'ColaboradorCadastroPage',
@@ -361,6 +367,7 @@ export default defineComponent({
       fotoPerfil: null,
       curriculo: null,
       salarioEsperado: null,
+      custoPorHora: null,
       disponibilidade: '',
       regioesAtuacao: [],
       experiencias: [],
@@ -449,14 +456,77 @@ export default defineComponent({
     const loadColaborador = async (id) => {
       try {
         loading.value = true
-        // TODO: Implementar carregamento do colaborador
-        console.log('Carregando colaborador:', id)
+        const repository = new ColaboradorRepository()
+        const colaborador = await repository.getById(id)
+
+        if (!colaborador) {
+          throw new Error('Colaborador não encontrado')
+        }
+
+        // Mapear dados principais
+        form.value.nome = colaborador.Nome
+        form.value.sobrenome = colaborador.Sobrenome
+        form.value.email = colaborador.Email
+        form.value.telefone = colaborador.Telefone || ''
+        form.value.celular = colaborador.Celular
+        form.value.documentoIdentidade = colaborador.DocumentoIdentidade
+        form.value.dataNascimento = colaborador.DataNascimento.toISOString().split('T')[0]
+        form.value.nacionalidade = colaborador.Nacionalidade
+        form.value.salarioEsperado = colaborador.SalarioEsperado
+        form.value.custoPorHora = colaborador.CustoPorHora || 0
+        form.value.disponibilidade = colaborador.Disponibilidade
+        form.value.regioesAtuacao = colaborador.RegioesAtuacao || []
+        form.value.observacoes = colaborador.Observacoes || ''
+
+        // Mapear endereço
+        if (colaborador.Enderecos && colaborador.Enderecos.length > 0) {
+          const endereco = colaborador.Enderecos[0]
+          form.value.endereco.cep = endereco.CEP
+          form.value.endereco.rua = endereco.Logradouro
+          form.value.endereco.numero = endereco.Numero
+          form.value.endereco.complemento = endereco.Complemento || ''
+          form.value.endereco.bairro = endereco.Bairro
+          form.value.endereco.cidade = endereco.Cidade
+          form.value.endereco.estado = endereco.Estado
+        }
+
+        // Mapear experiências profissionais
+        if (colaborador.ExperienciasProfissionais && colaborador.ExperienciasProfissionais.length > 0) {
+          form.value.experiencias = colaborador.ExperienciasProfissionais.map(exp => ({
+            empresa: exp.Empresa,
+            cargo: exp.Cargo,
+            dataInicio: exp.DataInicio ? exp.DataInicio.toISOString().split('T')[0] : '',
+            dataFim: exp.DataFim ? exp.DataFim.toISOString().split('T')[0] : '',
+            atividades: exp.Atividades
+          }))
+        }
+
+        // Mapear referências
+        if (colaborador.Referencias && colaborador.Referencias.length > 0) {
+          form.value.referencias = colaborador.Referencias.map(ref => {
+            // Extrair empresa e cargo da string Relacao
+            const relacaoParts = ref.Relacao.split(' na ')
+            const cargo = relacaoParts[0] || ''
+            const empresa = relacaoParts[1] || ''
+            const email = ref.Observacoes ? ref.Observacoes.replace('Contato: ', '') : ''
+
+            return {
+              nome: ref.Nome,
+              telefone: ref.Telefone,
+              empresa: empresa,
+              cargo: cargo,
+              email: email
+            }
+          })
+        }
+
       } catch (error) {
         console.error('Erro ao carregar colaborador:', error)
         $q.notify({
           type: 'negative',
           message: `Erro ao carregar dados do colaborador: ${error.message}`
         })
+        router.push('/colaboradores')
       } finally {
         loading.value = false
       }
@@ -492,7 +562,8 @@ export default defineComponent({
           Number(form.value.salarioEsperado),
           form.value.disponibilidade,
           form.value.regioesAtuacao,
-          form.value.observacoes
+          form.value.observacoes,
+          Number(form.value.custoPorHora) || 0
         )
 
         // Definir endereço

@@ -133,11 +133,11 @@
                                         <div class="row q-col-gutter-sm text-caption text-grey-6">
                                             <div class="col">
                                                 <strong>{{ $t('forms.orcamento.fields.quantidade') }}:</strong> {{
-                                                item.Quantidade }}
+                                                    item.Quantidade }}
                                             </div>
                                             <div class="col">
                                                 <strong>{{ $t('forms.orcamento.fields.valorUnitario') }}:</strong> {{
-                                                formatarMoeda(item.ValorUnitario) }}
+                                                    formatarMoeda(item.ValorUnitario) }}
                                             </div>
                                         </div>
 
@@ -176,11 +176,11 @@
                                         <div class="row q-col-gutter-sm text-caption text-grey-6">
                                             <div class="col">
                                                 <strong>{{ $t('forms.orcamento.fields.quantidade') }}:</strong> {{
-                                                item.Quantidade }}
+                                                    item.Quantidade }}
                                             </div>
                                             <div class="col">
                                                 <strong>{{ $t('forms.orcamento.fields.valorUnitario') }}:</strong> {{
-                                                formatarMoeda(item.ValorUnitario) }}
+                                                    formatarMoeda(item.ValorUnitario) }}
                                             </div>
                                         </div>
                                     </q-card-section>
@@ -344,17 +344,55 @@ export default defineComponent({
 
         async function aprovarOrcamento() {
             try {
-                await store.approveOrcamento(orcamento.value.Id)
+                const resultado = await store.approveOrcamento(orcamento.value.Id)
                 orcamento.value.Status = StatusOrcamento.APROVADO
+
+                // Notificação de aprovação do orçamento
                 $q.notify({
                     type: 'positive',
-                    message: t('forms.orcamento.messages.approveSuccess')
+                    position: 'top-right',
+                    message: t('forms.orcamento.messages.approveSuccess'),
+                    timeout: 3000
                 })
+
+                // Notificação sobre a ordem de serviço criada
+                if (resultado.ordemServico) {
+                    $q.notify({
+                        type: 'info',
+                        position: 'top-right',
+                        message: t('forms.orcamento.messages.ordemServicoCreated', {
+                            numero: resultado.ordemServico.Numero
+                        }),
+                        timeout: 4000
+                    })
+                }
+
+                // Notificação sobre o contrato criado com ação
+                if (resultado.contrato) {
+                    $q.notify({
+                        type: 'positive',
+                        position: 'top-right',
+                        message: t('forms.orcamento.messages.approveSuccessWithContract'),
+                        caption: `${t('contrato.numeroContrato')}: ${resultado.contrato.NumeroContrato}`,
+                        actions: [
+                            {
+                                label: t('contrato.visualizar'),
+                                color: 'white',
+                                handler: () => {
+                                    router.push(`/contratos/visualizar/${resultado.contrato.Id}`)
+                                }
+                            }
+                        ],
+                        timeout: 8000
+                    })
+                }
             } catch (error) {
                 console.error('Erro ao aprovar orçamento:', error)
                 $q.notify({
                     type: 'negative',
-                    message: t('forms.orcamento.messages.approveError')
+                    position: 'top-right',
+                    message: t('forms.orcamento.messages.approveError'),
+                    timeout: 5000
                 })
             }
         }

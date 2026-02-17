@@ -1,6 +1,7 @@
 import { Pessoa } from './pessoa'
 import { PreferenciaContato } from '../enums/preferenciaContato'
 import { Avaliacao } from './avaliacao'
+import { Endereco } from './endereco'
 
 /**
  * Classe que representa um Cliente, estendendo a classe Pessoa.
@@ -76,5 +77,83 @@ export class Cliente extends Pessoa {
    */
   get NomeCompleto() {
     return `${this.Nome} ${this.Sobrenome}`
+  }
+
+  /**
+   * Serializa o cliente para JSON
+   * @returns {Object} Representação em JSON
+   */
+  toJSON() {
+    return {
+      Id: this.Id,
+      Nome: this.Nome,
+      Sobrenome: this.Sobrenome,
+      Email: this.Email,
+      Telefone: this.Telefone,
+      Celular: this.Celular,
+      Foto: this.Foto,
+      Endereco: this.Endereco
+        ? {
+            Logradouro: this.Endereco.Logradouro,
+            Numero: this.Endereco.Numero,
+            Bairro: this.Endereco.Bairro,
+            Cidade: this.Endereco.Cidade,
+            Estado: this.Endereco.Estado,
+            Cep: this.Endereco.Cep,
+            Complemento: this.Endereco.Complemento,
+          }
+        : null,
+      PreferenciaContato: this.PreferenciaContato,
+      Observacoes: this.Observacoes,
+      Avaliacoes: this.Avaliacoes,
+      Imoveis: this.Imoveis,
+    }
+  }
+
+  /**
+   * Cria uma instância de Cliente a partir de dados JSON
+   * @param {Object} data - Dados em formato JSON
+   * @returns {Cliente} Nova instância de Cliente
+   */
+  static fromJSON(data) {
+    const cliente = new Cliente(
+      data.Nome,
+      data.Sobrenome,
+      data.Email || 'cliente@exemplo.com',
+      data.Celular || '',
+      data.Telefone || '',
+      data.PreferenciaContato || PreferenciaContato.WHATSAPP,
+      data.Observacoes || '',
+    )
+
+    // Preservar ID original
+    if (data.Id) {
+      cliente.Id = data.Id
+    }
+
+    // Copiar propriedades adicionais
+    if (data.Documento) {
+      cliente.Documento = data.Documento
+    }
+
+    if (data.Foto) {
+      cliente.Foto = data.Foto
+    }
+
+    // Recriar endereço se existir
+    if (data.Endereco) {
+      const endereco = new Endereco(
+        data.Endereco.Logradouro || '',
+        data.Endereco.Numero || '',
+        data.Endereco.Bairro || '',
+        data.Endereco.Cidade || '',
+        data.Endereco.Estado || '',
+        data.Endereco.Cep || '',
+        data.Endereco.Complemento || '',
+      )
+      cliente.definirEndereco(endereco)
+    }
+
+    return cliente
   }
 }

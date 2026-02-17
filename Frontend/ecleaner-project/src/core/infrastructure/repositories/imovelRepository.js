@@ -67,6 +67,7 @@ export class ImovelRepository {
         endereco,
         dono,
         data.Observacao,
+        data.Imagens || [], // Inclui as imagens ou array vazio
       )
       imovel.Id = data.Id
 
@@ -86,6 +87,7 @@ export class ImovelRepository {
       NumeroBanheiros: imovel.NumeroBanheiros,
       AreaTotal: imovel.AreaTotal,
       Observacao: imovel.Observacao,
+      Imagens: imovel.Imagens || [], // Inclui as imagens
       Endereco: {
         Id: imovel.Endereco.Id,
         Descricao: imovel.Endereco.Descricao,
@@ -178,6 +180,123 @@ export class ImovelRepository {
     } catch (error) {
       console.error('Erro ao salvar imóvel:', error)
       throw new Error('Erro ao salvar imóvel')
+    }
+  }
+
+  // Adiciona uma imagem a um imóvel específico
+  async adicionarImagem(imovelId, imagem, descricao = '') {
+    try {
+      const imovel = await this.getById(imovelId)
+      if (!imovel) {
+        throw new Error('Imóvel não encontrado')
+      }
+
+      imovel.adicionarImagem(imagem, descricao)
+      return await this.save(imovel)
+    } catch (error) {
+      console.error('Erro ao adicionar imagem ao imóvel:', error)
+      throw error // Propaga o erro original em vez de criar um novo
+    }
+  }
+
+  // Remove uma imagem de um imóvel específico
+  async removerImagem(imovelId, imagemId) {
+    try {
+      const imovel = await this.getById(imovelId)
+      if (!imovel) {
+        throw new Error('Imóvel não encontrado')
+      }
+
+      imovel.removerImagem(imagemId)
+      return await this.save(imovel)
+    } catch (error) {
+      console.error('Erro ao remover imagem do imóvel:', error)
+      throw error // Propaga o erro original
+    }
+  }
+
+  // Atualiza a descrição de uma imagem
+  async atualizarDescricaoImagem(imovelId, imagemId, novaDescricao) {
+    try {
+      const imovel = await this.getById(imovelId)
+      if (!imovel) {
+        throw new Error('Imóvel não encontrado')
+      }
+
+      imovel.atualizarDescricaoImagem(imagemId, novaDescricao)
+      return await this.save(imovel)
+    } catch (error) {
+      console.error('Erro ao atualizar descrição da imagem:', error)
+      throw error // Propaga o erro original
+    }
+  }
+
+  // Busca imóveis que possuem imagens
+  async getImoveisComImagens() {
+    try {
+      const imoveis = await this.getAll()
+      return imoveis.filter((imovel) => imovel.possuiImagens())
+    } catch (error) {
+      console.error('Erro ao buscar imóveis com imagens:', error)
+      return []
+    }
+  }
+
+  // Busca imóveis por número mínimo de imagens
+  async getImovelsPorNumeroImagens(minImagens = 1) {
+    try {
+      const imoveis = await this.getAll()
+      return imoveis.filter((imovel) => imovel.TotalImagens >= minImagens)
+    } catch (error) {
+      console.error('Erro ao buscar imóveis por número de imagens:', error)
+      return []
+    }
+  }
+
+  // Busca todas as imagens de um imóvel específico
+  async getImagensImovel(imovelId) {
+    try {
+      const imovel = await this.getById(imovelId)
+      if (!imovel) {
+        throw new Error('Imóvel não encontrado')
+      }
+
+      return imovel.obterTodasImagens()
+    } catch (error) {
+      console.error('Erro ao buscar imagens do imóvel:', error)
+      throw error // Propaga o erro original
+    }
+  }
+
+  // Busca uma imagem específica de um imóvel
+  async getImagemPorId(imovelId, imagemId) {
+    try {
+      const imovel = await this.getById(imovelId)
+      if (!imovel) {
+        throw new Error('Imóvel não encontrado')
+      }
+
+      return imovel.obterImagemPorId(imagemId)
+    } catch (error) {
+      console.error('Erro ao buscar imagem por ID:', error)
+      throw error // Propaga o erro original
+    }
+  }
+
+  // Exclui todos os imóveis de um cliente específico
+  async deleteByDono(clienteId) {
+    try {
+      const data = JSON.parse(localStorage.getItem(this.storageKey) || '[]')
+      const imoveisRestantes = data.filter((item) => item.Dono.Id !== clienteId)
+      const imoveisRemovidos = data.length - imoveisRestantes.length
+
+      localStorage.setItem(this.storageKey, JSON.stringify(imoveisRestantes))
+
+      console.log(`${imoveisRemovidos} imóveis removidos do cliente ${clienteId}`)
+      return imoveisRemovidos
+    } catch (error) {
+      console.error('Erro ao deletar imóveis por cliente:', error)
+      throw new Error('Erro ao deletar imóveis do cliente')
     }
   }
 

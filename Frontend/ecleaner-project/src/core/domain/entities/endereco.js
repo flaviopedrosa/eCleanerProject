@@ -14,7 +14,7 @@ export class Endereco {
    * @param {string} estado - O estado.
    * @param {string} pais - O pa\u00eds.
    */
-  constructor(descricao, logradouro, numero, cep, bairro, cidade, estado, pais) {
+  constructor(descricao, logradouro, numero, cep, bairro, cidade, estado, pais, complemento = '') {
     this.Id = gerarGuid()
     this.Descricao = descricao
     this.Logradouro = logradouro
@@ -24,5 +24,6 @@ export class Endereco {
     this.Cidade = cidade
     this.Estado = estado
     this.Pais = pais
+    this.Complemento = complemento
   }
 }

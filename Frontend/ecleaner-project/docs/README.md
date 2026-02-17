@@ -27,6 +27,10 @@ npm run test            # Executar testes
 - **[📊 Diagrama Completo](./diagrama-classes-completo.puml)** - Visão geral de todas as entidades
 - **[📋 Diagrama Simplificado](./diagrama-classes.puml)** - Entidades principais
 
+### Entidades de Domínio
+
+- **[🛠️ Equipamento e ItemEquipamento](./entidade-equipamento-itemequipamento.md)** - Gestão de equipamentos
+
 ### Protocolos
 
 - **[🔌 Model Context Protocol](./model-context-protocol.md)** - Documentação do MCP

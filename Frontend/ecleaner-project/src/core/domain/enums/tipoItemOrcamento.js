@@ -4,6 +4,7 @@
 export const TipoItemOrcamento = Object.freeze({
   MATERIAL: 'MATERIAL',
   SERVICO: 'SERVICO',
+  EQUIPAMENTO: 'EQUIPAMENTO',
 })
 
 /**
@@ -15,6 +16,7 @@ export function obterDescricaoTipoItem(tipo) {
   const descricoes = {
     [TipoItemOrcamento.MATERIAL]: 'Material',
     [TipoItemOrcamento.SERVICO]: 'Serviço',
+    [TipoItemOrcamento.EQUIPAMENTO]: 'Equipamento',
   }
 
   return descricoes[tipo] || 'Tipo desconhecido'

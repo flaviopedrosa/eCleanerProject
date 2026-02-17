@@ -29,6 +29,7 @@ export const usePacoteServicoStore = defineStore('pacoteServico', {
         // Criar instância do pacote
         const novoPacote = new PacoteServico(pacote.Descricao, pacote.MargemLucro)
         novoPacote.ItensMaterial = pacote.ItensMaterial || []
+        novoPacote.ItensEquipamento = pacote.ItensEquipamento || []
         novoPacote.ItensServico = pacote.ItensServico || []
         novoPacote.Favorito = pacote.Favorito || false
 
@@ -53,6 +54,7 @@ export const usePacoteServicoStore = defineStore('pacoteServico', {
         const pacoteInstance = new PacoteServico(pacote.Descricao, pacote.MargemLucro)
         pacoteInstance.Id = pacote.Id
         pacoteInstance.ItensMaterial = pacote.ItensMaterial || []
+        pacoteInstance.ItensEquipamento = pacote.ItensEquipamento || []
         pacoteInstance.ItensServico = pacote.ItensServico || []
         pacoteInstance.Favorito = pacote.Favorito || false
 

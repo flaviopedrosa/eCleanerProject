@@ -61,6 +61,17 @@
           </q-td>
         </template>
 
+        <!-- Coluna Cor -->
+        <template v-slot:body-cell-cor="props">
+          <q-td :props="props">
+            <div v-if="props.row.Cor"
+              style="width: 40px; height: 40px; border-radius: 4px; border: 1px solid #ccc; margin: 0 auto;"
+              :style="{ backgroundColor: props.row.Cor }">
+            </div>
+            <span v-else class="text-grey-6">-</span>
+          </q-td>
+        </template>
+
         <!-- Coluna Ações -->
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
@@ -188,6 +199,12 @@ export default defineComponent({
         field: row => getLider(row)?.Colaborador.Nome,
         align: 'left',
         sortable: true
+      },
+      {
+        name: 'cor',
+        label: t('pages.equipeList.columns.cor'),
+        field: 'Cor',
+        align: 'center'
       },
       {
         name: 'actions',

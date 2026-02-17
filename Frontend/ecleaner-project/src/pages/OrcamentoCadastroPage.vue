@@ -78,6 +78,19 @@
               <q-input v-model="form.Validade" style="display: none;"
                 :rules="[dateValidators.required, dateValidators.validDate, dateValidators.validityAfterEmission(form.DataEmissao)]" />
             </div>
+
+            <div class="col-12 col-md-6">
+              <q-select v-model="form.Periodicidade" :options="periodicidadeOptions"
+                :label="$t('forms.orcamento.fields.periodicidade')" filled emit-value map-options lazy-rules
+                :rules="[val => val !== null || $t('forms.validation.required')]" />
+            </div>
+
+            <div class="col-12 col-md-6" v-if="form.Periodicidade && form.Periodicidade !== 'Única'">
+              <q-input v-model.number="form.QuantidadeNoPeriodo"
+                :label="$t('forms.orcamento.fields.quantidadeNoPeriodo')" filled type="number" min="1" step="1"
+                :hint="$t('forms.orcamento.hints.quantidadeNoPeriodo')" lazy-rules
+                :rules="[val => val >= 1 || $t('forms.validation.minValue', { min: 1 })]" />
+            </div>
           </div>
         </q-card-section>
       </q-card>
@@ -285,6 +298,8 @@
               size="sm" class="q-mr-sm" />
             <q-btn color="accent" icon="inventory" label="Importar Material" @click="abrirDialogImportarMaterial"
               size="sm" class="q-mr-sm" />
+            <q-btn color="purple" icon="construction" label="Importar Equipamento"
+              @click="abrirDialogImportarEquipamento" size="sm" class="q-mr-sm" />
             <q-btn color="primary" icon="add" :label="$t('forms.orcamento.actions.addItem')"
               @click="adicionarItemOrcamento" size="sm" />
           </div>
@@ -390,6 +405,9 @@
           :loading="loadingPDF" :disable="!form.Id" />
         <q-btn v-if="isEditing" color="primary" :label="$t('buttons.sendEmail')" icon="email" @click="enviarPorEmail"
           :loading="loadingEmail" :disable="!form.Id || !form.Cliente" />
+        <q-btn v-if="isEditing && form.Status !== 'APROVADO'" color="positive"
+          :label="$t('forms.orcamento.buttons.approve')" icon="check" @click="aprovarOrcamento"
+          :loading="loadingApprove" :disable="!podeAprovar" />
         <q-btn color="primary" :label="isEditing ? $t('buttons.update') : $t('buttons.save')" type="submit"
           :loading="store.loading" />
       </div>
@@ -504,6 +522,59 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Dialog para Importar Equipamento -->
+    <q-dialog v-model="dialogImportarEquipamento" persistent>
+      <q-card style="min-width: 500px">
+        <q-card-section>
+          <div class="text-h6">Importar Item de Equipamento</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-select v-model="equipamentoSelecionado" :options="equipamentoOptions" label="Selecione o Equipamento"
+            filled use-input @filter="filtrarEquipamentos" clearable option-label="label" option-value="value"
+            emit-value map-options>
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  Nenhum equipamento encontrado
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+
+          <div v-if="equipamentoSelecionadoDetalhes" class="q-mt-md">
+            <q-separator class="q-mb-md" />
+            <div class="text-subtitle2 q-mb-sm">Detalhes do Equipamento:</div>
+            <div class="row q-col-gutter-md">
+              <div class="col-6">
+                <div class="text-caption text-grey-7">Descrição:</div>
+                <div class="text-body2">{{ equipamentoSelecionadoDetalhes.Descricao }}</div>
+              </div>
+              <div class="col-6">
+                <div class="text-caption text-grey-7">Preço Unitário:</div>
+                <div class="text-body2">{{ formatarMoeda(equipamentoSelecionadoDetalhes.PrecoUnitario) }}</div>
+              </div>
+              <div class="col-6">
+                <div class="text-caption text-grey-7">Unidade:</div>
+                <div class="text-body2">{{ equipamentoSelecionadoDetalhes.Unidade || 'UN' }}</div>
+              </div>
+            </div>
+            <div v-if="equipamentoSelecionadoDetalhes.Imagem" class="q-mt-md">
+              <div class="text-caption text-grey-7 q-mb-sm">Imagem:</div>
+              <q-img :src="equipamentoSelecionadoDetalhes.Imagem" style="max-width: 200px; max-height: 150px;"
+                fit="contain" class="rounded-borders" />
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" color="grey" @click="fecharDialogImportarEquipamento" />
+          <q-btn label="Importar" color="primary" @click="importarEquipamentoSelecionado"
+            :disable="!equipamentoSelecionado" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -520,6 +591,7 @@ import { TipoItemOrcamento } from '@/core/domain/enums/tipoItemOrcamento'
 import { createDateValidators, formatDateForLocale } from '@/core/utils/dateValidation'
 import { ClienteRepository } from '@/core/infrastructure/repositories/clienteRepository'
 import { ImovelRepository } from '@/core/infrastructure/repositories/imovelRepository'
+import { EquipamentoRepository } from '@/core/infrastructure/repositories/equipamentoRepository'
 import { Cliente } from '@/core/domain/entities/cliente'
 import { Imovel } from '@/core/domain/entities/imovel'
 import { Endereco } from '@/core/domain/entities/endereco'
@@ -538,6 +610,7 @@ export default defineComponent({
     const pacoteServicoStore = usePacoteServicoStore()
     const clienteRepository = new ClienteRepository()
     const imovelRepository = new ImovelRepository()
+    const equipamentoRepository = new EquipamentoRepository()
 
     // Criar validadores de data localizados
     const dateValidators = createDateValidators(t)
@@ -561,6 +634,17 @@ export default defineComponent({
         value: status
       }))
     )
+
+    // Opções de periodicidade
+    const periodicidadeOptions = [
+      { label: t('forms.orcamento.periodicidade.unica'), value: 'Única' },
+      { label: t('forms.orcamento.periodicidade.semana'), value: 'Semana' },
+      { label: t('forms.orcamento.periodicidade.mes'), value: 'Mês' },
+      { label: t('forms.orcamento.periodicidade.bimestre'), value: 'Bimestre' },
+      { label: t('forms.orcamento.periodicidade.trimestre'), value: 'Trimestre' },
+      { label: t('forms.orcamento.periodicidade.semestre'), value: 'Semestre' },
+      { label: t('forms.orcamento.periodicidade.ano'), value: 'Ano' },
+    ]
 
     const clienteOptions = ref([])
     const imovelOptions = ref([])
@@ -588,17 +672,37 @@ export default defineComponent({
       return materialOptionsAll.value.find(m => m.value === materialSelecionado.value)?.material || null
     })
 
+    // Dialog para importar equipamento
+    const dialogImportarEquipamento = ref(false)
+    const equipamentoSelecionado = ref(null)
+    const equipamentoOptions = ref([])
+    const equipamentoOptionsAll = ref([])
+    const equipamentoSelecionadoDetalhes = computed(() => {
+      if (!equipamentoSelecionado.value) return null
+      return equipamentoOptionsAll.value.find(e => e.value === equipamentoSelecionado.value)?.equipamento || null
+    })
+
     // Controle de destaque visual para itens recém criados
     const itemDestacado = ref(null)
 
     // Estado para loading do PDF e email
     const loadingPDF = ref(false)
     const loadingEmail = ref(false)
+    const loadingApprove = ref(false)
+
+    // Computed para verificar se pode aprovar
+    const podeAprovar = computed(() => {
+      return form.value.Cliente &&
+        form.value.ItensOrcamento &&
+        form.value.ItensOrcamento.length > 0 &&
+        form.value.Status !== 'APROVADO'
+    })
 
     // Opções para tipo de item
     const tipoItemOptions = computed(() => [
       { label: t('enums.tipoItemOrcamento.MATERIAL'), value: TipoItemOrcamento.MATERIAL },
-      { label: t('enums.tipoItemOrcamento.SERVICO'), value: TipoItemOrcamento.SERVICO }
+      { label: t('enums.tipoItemOrcamento.SERVICO'), value: TipoItemOrcamento.SERVICO },
+      { label: t('enums.tipoItemOrcamento.EQUIPAMENTO'), value: TipoItemOrcamento.EQUIPAMENTO }
     ])
 
     // Computed property para o locale atual do QDate
@@ -782,6 +886,8 @@ export default defineComponent({
             DataEmissao: orcamento.DataEmissao,
             Validade: orcamento.Validade,
             Status: orcamento.Status,
+            Periodicidade: orcamento.Periodicidade || 'Única',
+            QuantidadeNoPeriodo: orcamento.QuantidadeNoPeriodo || 1,
             Cliente: orcamento.Cliente?.Id || orcamento.Cliente, // Pode ser ID ou objeto
             Imovel: orcamento.Imovel?.Id || orcamento.Imovel, // Pode ser ID ou objeto
             PacoteServico: orcamento.PacoteServico?.Id || orcamento.PacoteServico, // Pode ser ID ou objeto
@@ -1112,6 +1218,15 @@ export default defineComponent({
         }))
         materialOptions.value = [...materialOptionsAll.value]
 
+        // Carregar equipamentos
+        const equipamentos = await equipamentoRepository.getAll()
+        equipamentoOptionsAll.value = equipamentos.map(equipamento => ({
+          label: `${equipamento.Descricao} - ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(equipamento.PrecoUnitario)}`,
+          value: equipamento.Id,
+          equipamento: equipamento
+        }))
+        equipamentoOptions.value = [...equipamentoOptionsAll.value]
+
         // Carregar pacotes de serviço
         await pacoteServicoStore.fetchPacotes()
         pacoteServicoOptionsAll.value = pacoteServicoStore.pacotes.map(pacote => ({
@@ -1160,6 +1275,8 @@ export default defineComponent({
         DataEmissao: hoje.toISOString().split('T')[0],
         Validade: dataValidade.toISOString().split('T')[0],
         Status: StatusOrcamento.RASCUNHO,
+        Periodicidade: 'Única',
+        QuantidadeNoPeriodo: 1,
         Cliente: null,
         Imovel: null,
         PacoteServico: null,
@@ -1618,6 +1735,81 @@ export default defineComponent({
       fecharDialogImportarMaterial()
     }
 
+    // ==== Funções para Importar Equipamento ====
+    function abrirDialogImportarEquipamento() {
+      equipamentoSelecionado.value = null
+      dialogImportarEquipamento.value = true
+    }
+
+    function fecharDialogImportarEquipamento() {
+      equipamentoSelecionado.value = null
+      dialogImportarEquipamento.value = false
+    }
+
+    function filtrarEquipamentos(val, update) {
+      update(() => {
+        if (val === '') {
+          equipamentoOptions.value = equipamentoOptionsAll.value
+        } else {
+          const needle = val.toLowerCase()
+          equipamentoOptions.value = equipamentoOptionsAll.value.filter(
+            option => option.label.toLowerCase().includes(needle)
+          )
+        }
+      })
+    }
+
+    function importarEquipamentoSelecionado() {
+      if (!equipamentoSelecionado.value) return
+
+      const equipamentoDetalhes = equipamentoSelecionadoDetalhes.value
+      if (!equipamentoDetalhes) {
+        $q.notify({
+          type: 'negative',
+          message: 'Equipamento não encontrado',
+          timeout: 3000,
+          position: 'top-right'
+        })
+        return
+      }
+
+      // Criar novo item de orçamento baseado no equipamento
+      const novoItem = new ItemOrcamento(
+        equipamentoDetalhes.Descricao || 'Equipamento Importado',
+        TipoItemOrcamento.EQUIPAMENTO,
+        equipamentoDetalhes.PrecoUnitario || 0,
+        1, // Quantidade padrão
+        equipamentoDetalhes.Unidade || 'UN',
+        `Equipamento: ${equipamentoDetalhes.Descricao || ''}`,
+        1 // Número 1 - será inserido no topo
+      )
+
+      // Adicionar no início da lista
+      form.value.ItensOrcamento.unshift(novoItem)
+
+      // Reordenar números de todos os itens
+      form.value.ItensOrcamento.forEach((item, i) => {
+        item.atualizarNumero(i + 1)
+      })
+
+      // Recalcular total
+      calcularTotal()
+
+      // Destacar o novo item
+      destacarNovoItem(novoItem.Id)
+
+      // Notificar sucesso
+      $q.notify({
+        type: 'positive',
+        message: `Equipamento "${equipamentoDetalhes.Descricao}" importado com sucesso!`,
+        timeout: 3000,
+        position: 'top-right'
+      })
+
+      // Fechar dialog
+      fecharDialogImportarEquipamento()
+    }
+
     // Método para baixar PDF do orçamento
     async function baixarPDF() {
       try {
@@ -1810,6 +2002,72 @@ export default defineComponent({
       }
     }
 
+    // Método para aprovar orçamento
+    async function aprovarOrcamento() {
+      try {
+        // Mostrar dialog de confirmação
+        $q.dialog({
+          title: t('forms.orcamento.confirmApprove.title'),
+          message: t('forms.orcamento.confirmApprove.message'),
+          cancel: {
+            label: t('buttons.cancel'),
+            flat: true
+          },
+          ok: {
+            label: t('forms.orcamento.buttons.approve'),
+            color: 'positive'
+          },
+          persistent: true
+        }).onOk(async () => {
+          try {
+            loadingApprove.value = true
+
+            // Aprovar orçamento (que cria a ordem de serviço automaticamente)
+            const ordemServico = await store.approveOrcamento(form.value.Id)
+
+            $q.notify({
+              type: 'positive',
+              message: t('forms.orcamento.messages.approveSuccess'),
+              timeout: 3000,
+              position: 'top-right'
+            })
+
+            // Atualizar o form com o novo status
+            form.value.Status = 'APROVADO'
+
+            // Notificar sobre a ordem de serviço criada
+            $q.notify({
+              type: 'info',
+              message: t('forms.orcamento.messages.ordemServicoCreated', { numero: ordemServico.NumeroOS }),
+              timeout: 5000,
+              position: 'top-right',
+              actions: [
+                {
+                  label: t('buttons.view'),
+                  color: 'white',
+                  handler: () => {
+                    router.push(`/ordens-servico/${ordemServico.Id}`)
+                  }
+                }
+              ]
+            })
+          } catch (error) {
+            console.error('Erro ao aprovar orçamento:', error)
+            $q.notify({
+              type: 'negative',
+              message: t('forms.orcamento.messages.approveError', { error: error.message }),
+              timeout: 5000,
+              position: 'top-right'
+            })
+          } finally {
+            loadingApprove.value = false
+          }
+        })
+      } catch (error) {
+        console.error('Erro ao mostrar dialog de confirmação:', error)
+      }
+    }
+
 
     // Watchers
     watch(() => form.value.Desconto, () => {
@@ -1837,9 +2095,12 @@ export default defineComponent({
       itemDestacado,
       loadingPDF,
       loadingEmail,
+      loadingApprove,
+      podeAprovar,
 
       // Options
       statusOptions,
+      periodicidadeOptions,
       clienteOptions,
       imovelOptions,
       servicoOptions,
@@ -1856,6 +2117,12 @@ export default defineComponent({
       dialogImportarMaterial,
       materialSelecionado,
       materialSelecionadoDetalhes,
+
+      // Dialog importar equipamento
+      dialogImportarEquipamento,
+      equipamentoSelecionado,
+      equipamentoSelecionadoDetalhes,
+      equipamentoOptions,
 
       // Computed
       pacoteSelecionado,
@@ -1893,9 +2160,16 @@ export default defineComponent({
       filtrarMateriais,
       importarMaterialSelecionado,
 
+      // Métodos importar equipamento
+      abrirDialogImportarEquipamento,
+      fecharDialogImportarEquipamento,
+      filtrarEquipamentos,
+      importarEquipamentoSelecionado,
+
       salvarOrcamento,
       baixarPDF,
-      enviarPorEmail
+      enviarPorEmail,
+      aprovarOrcamento
     }
   }
 })

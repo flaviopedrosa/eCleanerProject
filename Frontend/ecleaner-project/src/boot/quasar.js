@@ -1,6 +1,7 @@
-import { Notify } from 'quasar'
+import { Notify, Dialog } from 'quasar'
 
-// Adiciona o plugin de notificações ao Quasar
+// Adiciona os plugins do Quasar
 export default ({ app }) => {
   app.config.globalProperties.$notify = Notify.create
+  app.config.globalProperties.$dialog = Dialog.create
 }

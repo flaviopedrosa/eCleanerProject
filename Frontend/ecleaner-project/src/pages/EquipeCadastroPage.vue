@@ -30,9 +30,27 @@
           </div>
 
           <div class="row q-col-gutter-md">
-            <div class="col-12">
+            <div class="col-12 col-md-8">
               <q-input v-model="form.descricao" :label="$t('pages.equipeForm.fields.descricao')" lazy-rules
                 :rules="[val => !!val || $t('validations.required')]" filled />
+            </div>
+            <div class="col-12 col-md-4">
+              <q-input v-model="form.cor" :label="$t('pages.equipeForm.fields.cor')" filled readonly>
+                <template v-slot:prepend>
+                  <q-icon name="palette" />
+                </template>
+                <template v-slot:append>
+                  <q-icon name="colorize" class="cursor-pointer">
+                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                      <q-color v-model="form.cor" />
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+                <template v-slot:before>
+                  <div class="q-mr-sm" style="width: 40px; height: 40px; border-radius: 4px; border: 1px solid #ccc;"
+                    :style="{ backgroundColor: form.cor || '#cccccc' }"></div>
+                </template>
+              </q-input>
             </div>
           </div>
         </q-card-section>
@@ -138,14 +156,40 @@ export default defineComponent({
     const equipeRepository = new EquipeRepository()
     const colaboradorRepository = new ColaboradorRepository()
 
+    // Lista de 20 cores predefinidas
+    const coresSugeridas = [
+      '#1976D2', // Azul
+      '#388E3C', // Verde
+      '#D32F2F', // Vermelho
+      '#F57C00', // Laranja
+      '#7B1FA2', // Roxo
+      '#0097A7', // Ciano
+      '#C2185B', // Pink
+      '#5D4037', // Marrom
+      '#455A64', // Azul Cinza
+      '#E64A19', // Laranja Escuro
+      '#00796B', // Verde Azulado
+      '#303F9F', // Índigo
+      '#FBC02D', // Amarelo
+      '#689F38', // Verde Lima
+      '#512DA8', // Roxo Profundo
+      '#0288D1', // Azul Claro
+      '#F06292', // Rosa
+      '#9E9D24', // Lima
+      '#00ACC1', // Ciano Claro
+      '#8D6E63'  // Marrom Claro
+    ]
+
     // Estado
     const form = ref({
       descricao: '',
       observacoes: '',
+      cor: '',
       colaboradoresEquipe: []
     })
 
     const colaboradores = ref([])
+    const todasEquipes = ref([])
     const isEdit = computed(() => !!route.params.id)
 
     // Lista de colaboradores já selecionados (para evitar duplicatas)
@@ -154,6 +198,35 @@ export default defineComponent({
         .filter(ce => ce && ce.Colaborador)
         .map(ce => ce.Colaborador.Id)
     })
+
+    // Sugere a próxima cor disponível baseada no número de equipes
+    const sugerirProximaCor = () => {
+      // Filtra as equipes, excluindo a equipe atual se estiver editando
+      const equipesParaVerificar = isEdit.value
+        ? todasEquipes.value.filter(e => e.Id !== route.params.id)
+        : todasEquipes.value
+
+      const coresJaUsadas = equipesParaVerificar
+        .filter(e => e.Cor)
+        .map(e => e.Cor.toUpperCase())
+
+      // Encontra a primeira cor que ainda não foi usada
+      const corDisponivel = coresSugeridas.find(cor =>
+        !coresJaUsadas.includes(cor.toUpperCase())
+      )
+
+      // Se todas as cores foram usadas, usa baseado no índice (módulo 20)
+      return corDisponivel || coresSugeridas[equipesParaVerificar.length % coresSugeridas.length]
+    }
+
+    // Carrega todas as equipes
+    const loadEquipes = async () => {
+      try {
+        todasEquipes.value = await equipeRepository.getAll()
+      } catch (error) {
+        console.error('Erro ao carregar equipes:', error)
+      }
+    }
 
     // Carrega os colaboradores
     const loadColaboradores = async () => {
@@ -176,6 +249,7 @@ export default defineComponent({
           form.value = {
             descricao: equipe.Descricao,
             observacoes: equipe.Observacoes || '',
+            cor: equipe.Cor || sugerirProximaCor(),
             colaboradoresEquipe: [...equipe.Colaboradores]
           }
         }
@@ -215,17 +289,15 @@ export default defineComponent({
           return
         }
 
-        const equipe = new Equipe()
+        const equipe = new Equipe(
+          form.value.descricao,
+          membrosValidos,
+          form.value.observacoes,
+          form.value.cor
+        )
         if (isEdit.value) {
           equipe.Id = route.params.id
         }
-        equipe.Descricao = form.value.descricao
-        equipe.Observacoes = form.value.observacoes
-
-        // Adiciona os membros válidos
-        membrosValidos.forEach(colaboradorEquipe => {
-          equipe.adicionarColaborador(colaboradorEquipe)
-        })
 
         await equipeRepository.save(equipe)
 
@@ -255,9 +327,12 @@ export default defineComponent({
     // Inicialização
     onMounted(async () => {
       await loadColaboradores()
+      await loadEquipes()
       if (isEdit.value) {
         await loadEquipe(route.params.id)
       } else {
+        // Sugere uma cor para nova equipe
+        form.value.cor = sugerirProximaCor()
         // Adiciona o primeiro membro automaticamente
         adicionarMembro()
       }

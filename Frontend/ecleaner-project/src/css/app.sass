@@ -28,3 +28,49 @@
   height: 2px
   background-color: var(--q-accent)
   border-radius: 2px
+
+// Responsividade Mobile - Remover cards das páginas de cadastro
+@media (max-width: 600px)
+  // Remove o q-card das páginas de cadastro em mobile
+  .q-page .q-card
+    box-shadow: none !important
+    border-radius: 0 !important
+    background: transparent !important
+    padding: 0 !important
+    
+    .q-card-section
+      padding: 0 !important
+  
+  // Reduz margens e paddings globais em mobile
+  .q-page
+    padding: 8px !important
+    
+  .q-pa-lg
+    padding: 12px !important
+    
+  .q-pa-md
+    padding: 8px !important
+    
+  .q-pa-sm
+    padding: 4px !important
+    
+  .q-ma-lg
+    margin: 12px !important
+    
+  .q-ma-md
+    margin: 8px !important
+    
+  .q-ma-sm
+    margin: 4px !important
+  
+  // Ajusta espaçamento dos headers
+  .row.items-center.q-mb-xl
+    margin-bottom: 16px !important
+    
+  .q-mt-xl
+    margin-top: 16px !important
+    
+  // Reduz padding dos formulários
+  .q-form
+    .q-field
+      margin-bottom: 12px !important

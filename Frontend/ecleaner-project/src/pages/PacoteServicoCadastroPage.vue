@@ -131,6 +131,51 @@
         </q-expansion-item>
       </q-card>
 
+      <!-- Seção de Equipamentos -->
+      <q-card flat bordered class="q-mb-lg">
+        <q-expansion-item :label="$t('pages.pacoteServico.sections.equipamentos')" icon="construction"
+          header-class="text-h6">
+          <q-card-section>
+            <div class="row items-center justify-end q-mb-md">
+              <q-btn color="purple" icon="add" size="sm" :label="$t('pages.pacoteServico.buttons.addEquipamento')"
+                @click="adicionarEquipamento" />
+            </div>
+
+            <div v-if="pacote.ItensEquipamento.length === 0" class="text-center text-grey-6 q-py-lg">
+              {{ $t('pages.pacoteServico.messages.noEquipamentos') }}
+            </div>
+
+            <div v-for="(item, index) in pacote.ItensEquipamento" :key="index" class="q-mb-md">
+              <q-card flat bordered>
+                <q-card-section class="row q-col-gutter-md">
+                  <div class="col-12 col-md-5">
+                    <q-select v-model="item.Equipamento" :options="equipamentosFiltrados" option-label="Descricao"
+                      option-value="Id" :label="$t('pages.pacoteServico.fields.equipamento')"
+                      @update:model-value="onEquipamentoChange" use-input @filter="filterEquipamentos"
+                      input-debounce="0" />
+                  </div>
+                  <div class="col-12 col-md-2">
+                    <q-input v-model.number="item.Quantidade" type="number"
+                      :label="$t('pages.pacoteServico.fields.quantidade')" @input="onQuantidadeChange" />
+                  </div>
+                  <div class="col-12 col-md-2">
+                    <q-input v-if="item.Equipamento" :model-value="item.Equipamento.Unidade"
+                      :label="$t('pages.pacoteServico.fields.unidade')" readonly filled />
+                  </div>
+                  <div class="col-12 col-md-2">
+                    <q-input :model-value="formatCurrencyValue(item.ValorTotal)"
+                      :label="$t('pages.pacoteServico.fields.valorTotal')" readonly />
+                  </div>
+                  <div class="col-12 col-md-1 flex items-center">
+                    <q-btn flat round color="negative" icon="delete" @click="removerEquipamento(index)" />
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </q-card-section>
+        </q-expansion-item>
+      </q-card>
+
       <!-- Resumo Financeiro -->
       <q-card flat bordered class="q-mb-lg">
         <q-card-section>
@@ -139,6 +184,14 @@
             <div class="col-6 col-md-3">
               <q-input :model-value="formatCurrencyValue(pacote.ValorMaterial)"
                 :label="$t('pages.pacoteServico.fields.valorMaterial')" readonly outlined>
+                <template v-slot:prepend>
+                  <q-icon name="attach_money" />
+                </template>
+              </q-input>
+            </div>
+            <div class="col-6 col-md-3">
+              <q-input :model-value="formatCurrencyValue(pacote.ValorEquipamento)"
+                :label="$t('pages.pacoteServico.fields.valorEquipamento')" readonly outlined>
                 <template v-slot:prepend>
                   <q-icon name="attach_money" />
                 </template>
@@ -187,11 +240,13 @@ import { useQuasar } from 'quasar'
 import { usePacoteServicoStore } from 'stores/pacote-servico-store'
 import { useServicoStore } from 'stores/servico-store'
 import { useMaterialStore } from 'stores/material-store'
+import { useEquipamentoStore } from 'stores/equipamento-store'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { formatCurrency, getCurrencyConfig, currencyMask, parseCurrency } from 'src/core/domain/utils/currencyUtils'
 import { PacoteServico } from 'src/core/domain/entities/pacoteServico'
 import { seedMateriais } from 'src/core/infrastructure/repositories/seeds/materialSeed'
+import { seedEquipamentos } from 'src/core/infrastructure/repositories/seeds/equipamentoSeed'
 
 export default defineComponent({
   name: 'PacoteServicoCadastroPage',
@@ -200,13 +255,21 @@ export default defineComponent({
     const store = usePacoteServicoStore()
     const servicoStore = useServicoStore()
     const materialStore = useMaterialStore()
+    const equipamentoStore = useEquipamentoStore()
     const router = useRouter()
     const route = useRoute()
     const { locale, t } = useI18n()
 
     const pacote = ref(new PacoteServico('', 30))
+
+    // Garantir que os arrays de itens existem mesmo em pacotes novos
+    if (!pacote.value.ItensEquipamento) {
+      pacote.value.ItensEquipamento = []
+    }
     const materiaisDisponiveis = ref([])
     const materiaisFiltrados = ref([])
+    const equipamentosDisponiveis = ref([])
+    const equipamentosFiltrados = ref([])
     const servicosDisponiveis = ref([])
     const servicosFiltrados = ref([])
     const valorVendaFormatado = ref('')
@@ -247,11 +310,40 @@ export default defineComponent({
       materiaisDisponiveis.value = materialStore.Materiais
       materiaisFiltrados.value = materialStore.Materiais
 
+      // Carregar equipamentos
+      await equipamentoStore.loadEquipamentos()
+
+      // Se não há equipamentos, executar seed
+      if (equipamentoStore.Equipamentos.length === 0) {
+        console.log('🌱 Nenhum equipamento encontrado, executando seed...')
+        try {
+          await seedEquipamentos()
+          await equipamentoStore.loadEquipamentos() // Recarregar após seed
+          console.log('✅ Seed de equipamentos executado com sucesso!')
+        } catch (error) {
+          console.error('❌ Erro ao executar seed de equipamentos:', error)
+        }
+      }
+
+      equipamentosDisponiveis.value = equipamentoStore.Equipamentos
+      equipamentosFiltrados.value = equipamentoStore.Equipamentos
+
       // Carregar pacote para edição
       if (route.params.id) {
         const p = store.pacotes.find(p => p.Id === route.params.id)
         if (p) {
+          console.log('📋 Carregando pacote para edição:', {
+            id: p.Id,
+            materiais: p.ItensMaterial?.length || 0,
+            equipamentos: p.ItensEquipamento?.length || 0,
+            servicos: p.ItensServico?.length || 0,
+            pacoteCompleto: p
+          })
           pacote.value = { ...p }
+          // Garantir que os arrays existem
+          if (!pacote.value.ItensMaterial) pacote.value.ItensMaterial = []
+          if (!pacote.value.ItensEquipamento) pacote.value.ItensEquipamento = []
+          if (!pacote.value.ItensServico) pacote.value.ItensServico = []
           isEditingExistingPacote.value = true
         }
       }
@@ -324,6 +416,38 @@ export default defineComponent({
       recalcularValores()
     }
 
+    function adicionarEquipamento() {
+      // Criar um item simples para equipamento
+      const item = {
+        Id: Date.now().toString(),
+        Equipamento: null,
+        Quantidade: 1,
+        CustoUnitario: 0,
+        ValorTotal: 0,
+        Observacao: ''
+      }
+      console.log('🔧 Adicionando equipamento:', item)
+      console.log('📦 ItensEquipamento antes:', pacote.value.ItensEquipamento.length)
+      pacote.value.ItensEquipamento.push(item)
+      console.log('📦 ItensEquipamento depois:', pacote.value.ItensEquipamento.length)
+    }
+
+    function removerEquipamento(index) {
+      pacote.value.ItensEquipamento.splice(index, 1)
+      recalcularValores()
+    }
+
+    function onEquipamentoChange() {
+      // Recalcular valores dos equipamentos quando um equipamento é selecionado
+      pacote.value.ItensEquipamento.forEach(item => {
+        if (item.Equipamento && item.Equipamento.PrecoUnitario) {
+          item.CustoUnitario = item.Equipamento.PrecoUnitario
+          item.ValorTotal = item.Quantidade * item.CustoUnitario
+        }
+      })
+      recalcularValores()
+    }
+
     function adicionarServico() {
       // Criar um item simples sem usar a classe ItemServico inicialmente
       const item = {
@@ -360,6 +484,13 @@ export default defineComponent({
         }
       })
 
+      pacote.value.ItensEquipamento.forEach(item => {
+        if (item.Equipamento && item.Equipamento.PrecoUnitario) {
+          item.CustoUnitario = item.Equipamento.PrecoUnitario
+          item.ValorTotal = item.Quantidade * item.CustoUnitario
+        }
+      })
+
       pacote.value.ItensServico.forEach(item => {
         if (item.Servico && item.Servico.Valor) {
           item.ValorTotal = item.QuantidadeHoras * item.QuantidadePessoas * item.Servico.Valor
@@ -373,10 +504,12 @@ export default defineComponent({
       // Recalcular valores usando a lógica da entidade
       const pacoteInstance = new PacoteServico(pacote.value.Descricao, pacote.value.MargemLucro)
       pacoteInstance.ItensMaterial = pacote.value.ItensMaterial
+      pacoteInstance.ItensEquipamento = pacote.value.ItensEquipamento
       pacoteInstance.ItensServico = pacote.value.ItensServico
       pacoteInstance.recalcularValores()
 
       pacote.value.ValorMaterial = pacoteInstance.ValorMaterial
+      pacote.value.ValorEquipamento = pacoteInstance.ValorEquipamento
       pacote.value.ValorServico = pacoteInstance.ValorServico
       pacote.value.ValorTotal = pacoteInstance.ValorTotal
 
@@ -391,6 +524,13 @@ export default defineComponent({
 
     async function salvarPacote() {
       try {
+        console.log('💾 Salvando pacote com equipamentos:', {
+          materiais: pacote.value.ItensMaterial.length,
+          equipamentos: pacote.value.ItensEquipamento.length,
+          servicos: pacote.value.ItensServico.length,
+          pacoteCompleto: pacote.value
+        })
+
         // Para novos pacotes, limpar o ID gerado automaticamente para que o repositório saiba que é novo
         if (!isEditingExistingPacote.value) {
           pacote.value.Id = null
@@ -465,10 +605,29 @@ export default defineComponent({
       })
     }
 
+    function filterEquipamentos(val, update) {
+      if (val === '') {
+        update(() => {
+          equipamentosFiltrados.value = equipamentosDisponiveis.value
+        })
+        return
+      }
+
+      update(() => {
+        const needle = val.toLowerCase()
+        equipamentosFiltrados.value = equipamentosDisponiveis.value.filter(v =>
+          v.Descricao.toLowerCase().indexOf(needle) > -1 ||
+          (v.Unidade && v.Unidade.toLowerCase().indexOf(needle) > -1)
+        )
+      })
+    }
+
     return {
       pacote,
       materiaisDisponiveis,
       materiaisFiltrados,
+      equipamentosDisponiveis,
+      equipamentosFiltrados,
       servicosDisponiveis,
       servicosFiltrados,
       valorVendaFormatado,
@@ -486,6 +645,9 @@ export default defineComponent({
       adicionarMaterial,
       removerMaterial,
       onMaterialChange,
+      adicionarEquipamento,
+      removerEquipamento,
+      onEquipamentoChange,
       onQuantidadeChange,
       adicionarServico,
       removerServico,
@@ -494,7 +656,8 @@ export default defineComponent({
       salvarPacote,
       cancelar,
       filterServicos,
-      filterMateriais
+      filterMateriais,
+      filterEquipamentos
     }
   }
 })

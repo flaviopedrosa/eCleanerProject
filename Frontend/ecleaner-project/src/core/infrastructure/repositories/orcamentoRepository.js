@@ -120,6 +120,8 @@ export class OrcamentoRepository {
       PacoteServico: orcamento.PacoteServico,
       Itens: orcamento.Itens || [],
       FrequenciaDesejada: orcamento.FrequenciaDesejada,
+      Periodicidade: orcamento.Periodicidade,
+      QuantidadeNoPeriodo: orcamento.QuantidadeNoPeriodo,
       QuantidadeProfissionais: orcamento.QuantidadeProfissionais,
       EstimativaHoras: orcamento.EstimativaHoras,
       Descontos: orcamento.Descontos || 0,

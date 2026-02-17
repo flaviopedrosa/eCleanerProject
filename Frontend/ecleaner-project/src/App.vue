@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted } from 'vue'
+import { defineComponent, onBeforeMount } from 'vue'
 import { useAuthStore } from '@/stores/auth-store'
 
 export default defineComponent({
@@ -12,10 +12,13 @@ export default defineComponent({
   setup() {
     const authStore = useAuthStore()
 
-    // Inicializar autenticação ao carregar a aplicação
-    onMounted(() => {
+    // Inicializar autenticação ANTES do mount para garantir que está disponível
+    onBeforeMount(() => {
+      console.log('🔒 App: Inicializando autenticação...')
       authStore.initializeAuth()
     })
+
+    return {}
   }
 })
 </script>

@@ -24,20 +24,52 @@ export class Pessoa {
     this.Email = email
     this.Telefone = telefone
     this.Celular = celular
-    /** @type {Endereco[]} */
-    this.Enderecos = []
+    this.Foto = null // Base64 da foto ou URL
+    /** @type {Endereco|null} */
+    this.Endereco = null
   }
 
   /**
-   * Adiciona um novo endereço à lista de endereços da pessoa.
-   * @param {Endereco} endereco - A instância da classe Endereco a ser adicionada.
+   * Define o endereço da pessoa.
+   * @param {Endereco} endereco - A instância da classe Endereco a ser definida.
    */
-  adicionarEndereco(endereco) {
+  definirEndereco(endereco) {
     if (endereco instanceof Endereco) {
-      this.Enderecos.push(endereco)
+      this.Endereco = endereco
     } else {
       console.error('O objeto fornecido não é uma instância da classe Endereco.')
     }
+  }
+
+  /**
+   * Remove o endereço da pessoa.
+   */
+  removerEndereco() {
+    this.Endereco = null
+  }
+
+  /**
+   * Define a foto da pessoa.
+   * @param {string} foto - A foto em formato base64 ou URL.
+   */
+  definirFoto(foto) {
+    this.Foto = foto
+  }
+
+  /**
+   * Remove a foto da pessoa.
+   */
+  removerFoto() {
+    this.Foto = null
+  }
+
+  /**
+   * @deprecated Use definirEndereco() em vez disso
+   * Adiciona um novo endereço (mantido para compatibilidade).
+   * @param {Endereco} endereco - A instância da classe Endereco a ser adicionada.
+   */
+  adicionarEndereco(endereco) {
+    this.definirEndereco(endereco)
   }
 
   /**
